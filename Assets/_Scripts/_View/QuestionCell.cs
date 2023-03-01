@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class QuestionCell : MonoBehaviour
 {
-    public Text questionText;
+    public TMP_Text questionText;
     public GameObject selectedImage;
     public Button button;
 
@@ -23,12 +24,8 @@ public class QuestionCell : MonoBehaviour
         
         selectedImage.SetActive(false);             
         
-        RectTransform rect = GetComponent<RectTransform>();      
-        
-        TextGenerator textGen = new TextGenerator();
-        TextGenerationSettings generationSettings = questionText.GetGenerationSettings(questionText.rectTransform.rect.size);
-        float width = textGen.GetPreferredWidth(questionText.text, generationSettings);       
-        rect.sizeDelta = new Vector2(Mathf.Min(width / gamePanel.autoCanvasScaler.scaleFactor + 50, Screen.width / gamePanel.autoCanvasScaler.scaleFactor - 120), rect.sizeDelta.y);
+        RectTransform rect = GetComponent<RectTransform>();           
+        rect.sizeDelta = new Vector2(Mathf.Min(questionText.preferredWidth / gamePanel.autoCanvasScaler.scaleFactor + 80, Screen.width / gamePanel.autoCanvasScaler.scaleFactor - 120), rect.sizeDelta.y);
     }
 
     public void ActionSelect()

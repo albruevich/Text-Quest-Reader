@@ -3,14 +3,14 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using Z.Expressions;
+using TMPro;
 
 public class GamePanel : MonoBehaviour
 {
-    public Image mainPicture;
-    public InputField mainInputFuild;
+    public Image mainPicture;   
     public RectTransform questionsContent, paramsContent, descriptionScrollArea, questionsRect, paramsRect;
     public GameObject questionCellPref, parameterTextPref, victoryCell, defeatCell;     
-    public Text mainText; 
+    public TMP_Text mainText; 
     public RectTransform mainPictureRect;
     public AutoCanvasScaler autoCanvasScaler;
 
@@ -74,8 +74,8 @@ public class GamePanel : MonoBehaviour
 
         //описания
         if (location.descriptions.Count == 1 || location.locationType == LocationType.Empty)
-        {           
-            mainInputFuild.text = ExtractImage(ParseText(location.descriptions[0]));           
+        {
+            mainText.text = ExtractImage(ParseText(location.descriptions[0]));           
         }
         else
         {           
@@ -98,12 +98,12 @@ public class GamePanel : MonoBehaviour
                 }            
                 
                 lastDescriptionIndex = index;
-                mainInputFuild.text = ExtractImage(ParseText(location.descriptions[index]));                
+                mainText.text = ExtractImage(ParseText(location.descriptions[index]));                
             }
             else
             {              
-                lastDescriptionIndex = location.visitCounter % location.descriptions.Count;               
-                mainInputFuild.text = ExtractImage(ParseText(location.descriptions[lastDescriptionIndex]));                
+                lastDescriptionIndex = location.visitCounter % location.descriptions.Count;
+                mainText.text = ExtractImage(ParseText(location.descriptions[lastDescriptionIndex]));                
             }
         }
        
@@ -279,7 +279,7 @@ public class GamePanel : MonoBehaviour
         }
 
         RectTransform viewPort = (RectTransform)questionsContent.parent;
-        questionsContent.sizeDelta = new Vector2(questionsContent.sizeDelta.x, Mathf.Max(viewPort.rect.height /*/ autoCanvasScaler.scaleFactor*/, m * interval));
+        questionsContent.sizeDelta = new Vector2(questionsContent.sizeDelta.x, Mathf.Max(viewPort.rect.height, m * interval));
 
         //проверка на победу, покажение, наличие переходов
         if (location.locationType == LocationType.Victory)        
@@ -355,7 +355,7 @@ public class GamePanel : MonoBehaviour
         }
         else // показ описания перехода и кнопку "далее"
         {
-            mainInputFuild.text = ParseText(passage.description);
+            mainText.text = ParseText(passage.description);
 
             foreach (Transform tr in questionsContent)
                 Destroy(tr.gameObject);
@@ -432,41 +432,52 @@ public class GamePanel : MonoBehaviour
         foreach (Transform tr in paramsContent)
             Destroy(tr.gameObject);
 
-        int y = 0;
-        float heigh2 = 0;
+        List<Parameter> visibleParams = new List<Parameter>();
+       
         foreach (Parameter parameter in player.quest.parameters)
         {
             if (parameter.isActive && !parameter.isHidden)
             {              
                 ParamsRange range = parameter.FindCorrectRange();
-
                 if (range != null)
                 {
                     string output = range.output;
-                    if (!string.IsNullOrEmpty(output))
-                    {                       
-                        output = output.Replace("<>", parameter.value.ToString());
-
-                        output = ParseText(output, ignoreColor:true);                       
-                        
-                        for (int i = 0; i < player.quest.parameters.Count; i++)
-                        {
-                            Parameter p = player.quest.parameters[i];
-                            string key = $"p{i+1}";
-                            output = output.Replace(key, p.value.ToString());
-                        }
-
-                        heigh2 = y * 20 + 12;
-                        GameObject cell = Instantiate(parameterTextPref, paramsContent);
-                        cell.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -heigh2);
-                        cell.GetComponent<Text>().text = output;
-
-                        y++;
-                    }                    
+                    if (!string.IsNullOrEmpty(output))                    
+                        visibleParams.Add(parameter);                                                      
                 }               
             }
         }
-        paramsContent.sizeDelta = new Vector2(paramsContent.sizeDelta.x, heigh2 + 40);
+
+        const float interval = 70f;
+        int m = 0;
+        foreach (Parameter parameter in visibleParams)
+        {
+            ParamsRange range = parameter.FindCorrectRange();
+
+            if (range != null)
+            {
+                string output = range.output;
+                output = output.Replace("<>", parameter.value.ToString());
+                output = ParseText(output, ignoreColor: true);
+
+                for (int i = 0; i < player.quest.parameters.Count; i++)
+                {
+                    Parameter p = player.quest.parameters[i];
+                    string key = $"p{i + 1}";
+                    output = output.Replace(key, p.value.ToString());
+                }
+
+                float Y = -(visibleParams.Count - 1) * interval / 2 + interval * m; //центровка
+                
+                GameObject cell = Instantiate(parameterTextPref, paramsContent);
+                cell.GetComponent<RectTransform>().anchoredPosition = new Vector2(20, Y);
+                cell.GetComponent<TMP_Text>().text = output;
+            }
+
+            m++;
+        }
+        RectTransform viewPort = (RectTransform)paramsContent.parent;      
+        paramsContent.sizeDelta = new Vector2(paramsContent.sizeDelta.x, Mathf.Max(viewPort.rect.height, m * interval));        
     }
 
     private void InfluenceOnParameters(Unit unit)
@@ -500,7 +511,7 @@ public class GamePanel : MonoBehaviour
                     ((parameter.isCriticMax && parameter.value >= parameter.maxValue) || (!parameter.isCriticMax && parameter.value <= parameter.minValue)))
                 {                   
                      player.gameOver = true;
-                     mainInputFuild.text = ParseText(parameter.criticText);
+                    mainText.text = ParseText(parameter.criticText);
 
                      foreach (Transform tr in questionsContent)
                          Destroy(tr.gameObject);
