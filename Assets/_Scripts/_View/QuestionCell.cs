@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class QuestionCell : MonoBehaviour
 {
     public Text questionText;
-    public RawImage selectedImage;
+    public GameObject selectedImage;
     public Button button;
 
     GamePanel gamePanel;
@@ -16,24 +16,19 @@ public class QuestionCell : MonoBehaviour
     {
         this.gamePanel = gamePanel;
         this.passage = passage;
-
+        
         string str = gamePanel.ParseText(passage.question);        
 
         questionText.text = "- " + str;
-
-        selectedImage.enabled = false;
-
-        LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)questionText.transform);        
-
-        RectTransform rect = GetComponent<RectTransform>();
-        rect.sizeDelta = new Vector2(rect.sizeDelta.x, questionText.GetComponent<RectTransform>().sizeDelta.y + 8);       
-
+        
+        selectedImage.SetActive(false);             
+        
+        RectTransform rect = GetComponent<RectTransform>();      
+        
         TextGenerator textGen = new TextGenerator();
         TextGenerationSettings generationSettings = questionText.GetGenerationSettings(questionText.rectTransform.rect.size);
-        float width = textGen.GetPreferredWidth(questionText.text, generationSettings);
-
-        //print("myRect: " + myRect.sizeDelta.y);
-        rect.sizeDelta = new Vector2(width + 20, rect.sizeDelta.y);
+        float width = textGen.GetPreferredWidth(questionText.text, generationSettings);       
+        rect.sizeDelta = new Vector2(Mathf.Min(width / gamePanel.autoCanvasScaler.scaleFactor + 50, Screen.width / gamePanel.autoCanvasScaler.scaleFactor - 120), rect.sizeDelta.y);
     }
 
     public void ActionSelect()
@@ -52,12 +47,12 @@ public class QuestionCell : MonoBehaviour
     public void OnPointerEnter ()
     {       
         if(button && button.enabled)
-            selectedImage.enabled = true;
+            selectedImage.SetActive(true); 
     }
 
     public void OnPointerExit()
     {
         if (button && button.enabled)
-            selectedImage.enabled = false;
+            selectedImage.SetActive(false);
     }
 }

@@ -9,7 +9,8 @@ using System.Collections;
 
 public class AutoInputHeight : UIBehaviour
 {
-    public float VerticalOffset;  
+    public float VerticalOffset;
+    public AutoCanvasScaler autoCanvasScaler;
 
     InputField inputField;
     InputField InputField { get { if (!inputField) inputField = GetComponent<InputField>(); return inputField; } }
@@ -35,7 +36,7 @@ public class AutoInputHeight : UIBehaviour
     }
 
     private void Update()
-    {           
+    {          
         if (Input.GetKey("up") || Input.GetKey("down"))
         {
             CorrectScrollPos();            
@@ -53,7 +54,7 @@ public class AutoInputHeight : UIBehaviour
     private void SetTextHeight()
     {
         preferredHeight = new TextGenerator().GetPreferredHeight(InputField.text, settings) + VerticalOffset;
-        tectRect.sizeDelta = new Vector2(tectRect.sizeDelta.x, preferredHeight);
+        tectRect.sizeDelta = new Vector2(tectRect.sizeDelta.x, preferredHeight / autoCanvasScaler.scaleFactor);
     }
 
     private void CorrectScrollPos()

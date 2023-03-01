@@ -12,6 +12,7 @@ public class GamePanel : MonoBehaviour
     public GameObject questionCellPref, parameterTextPref, victoryCell, defeatCell;     
     public Text mainText; 
     public RectTransform mainPictureRect;
+    public AutoCanvasScaler autoCanvasScaler;
 
     [HideInInspector]
     public Player player;
@@ -20,8 +21,7 @@ public class GamePanel : MonoBehaviour
  
     int lastDescriptionIndex;
 
-    RectTransform mainTextRect;
-   
+    RectTransform mainTextRect;   
 
     private void Start()
     {
@@ -31,7 +31,8 @@ public class GamePanel : MonoBehaviour
 
         mainTextRect = mainText.GetComponent<RectTransform>();
 
-        mainPictureRect.sizeDelta = new Vector2(mainPictureRect.sizeDelta.x, mainPictureRect.rect.width);
+        mainPictureRect.sizeDelta = new Vector2(mainPictureRect.sizeDelta.x, mainPictureRect.rect.width / autoCanvasScaler.scaleFactor);
+        paramsRect.sizeDelta = new Vector2(paramsRect.sizeDelta.x, paramsRect.rect.width / 3f / autoCanvasScaler.scaleFactor);
 
         victoryCell.SetActive(false);
         defeatCell.SetActive(false);
@@ -52,22 +53,12 @@ public class GamePanel : MonoBehaviour
 
         foreach (Parameter parameter in player.quest.parameters)
             parameter.value = parameter.startValue;
-
-        RectTransform rect = mainPicture.GetComponent<RectTransform>();
-        float questionH = Screen.safeArea.height - paramsRect.rect.height - rect.rect.height;
+       
+        float questionH = (Screen.safeArea.height - paramsRect.sizeDelta.y * autoCanvasScaler.scaleFactor - mainPictureRect.sizeDelta.y * autoCanvasScaler.scaleFactor) / autoCanvasScaler.scaleFactor;       
         questionsRect.sizeDelta = new Vector2(questionsRect.sizeDelta.x, questionH);     
 
         ShowCurrentLocation();
-    }
-    /*
-    private void Update()
-    {
-        mainPictureRect.sizeDelta = new Vector2(mainPictureRect.sizeDelta.x, mainPictureRect.rect.width);
-
-        //mainPictureRect.he;
-
-        print(" mainPictureRect.sizeDelta: " + mainPictureRect.sizeDelta);
-    }*/
+    }    
 
     private void ShowCurrentLocation()
     {       
@@ -200,7 +191,8 @@ public class GamePanel : MonoBehaviour
 
         workPassages.Sort();
 
-        float height = 6;
+        List<PassageInfo> visiblePassages = new List<PassageInfo>();
+       
         foreach (Passage passage in workPassages)
         {            
             Location toLoc = player.quest.FindLocationWith(passage.to);
@@ -260,23 +252,34 @@ public class GamePanel : MonoBehaviour
 
             bool allConditions = passCondition && logicalCondition && inRange && takesOrNotValues && multipleOrNotValues;
 
-            if (allConditions || passage.alwaysShow)
-            {
-                GameObject obj = Instantiate(questionCellPref, questionsContent);
-
-                QuestionCell cell = obj.GetComponent<QuestionCell>();
-                cell.StartWith(this, passage);
-
-                obj.GetComponent<RectTransform>().anchoredPosition = new Vector2(20, -height);
-                height += cell.questionText.GetComponent<RectTransform>().sizeDelta.y + 20;
-
-                if (!allConditions && passage.alwaysShow)
-                    cell.DisableButton();
-
-                questionCells.Add(cell);
-            }                     
+            if (allConditions || passage.alwaysShow)            
+                visiblePassages.Add(new PassageInfo { pass = passage, isAllConditions = allConditions });                                                
         }
-        questionsContent.sizeDelta = new Vector2(questionsContent.sizeDelta.x, height + 40);
+
+        const float interval = 120;
+        int m = 0;
+        foreach (PassageInfo info in visiblePassages)
+        {
+            GameObject obj = Instantiate(questionCellPref, questionsContent);
+
+            QuestionCell cell = obj.GetComponent<QuestionCell>();
+            cell.StartWith(this, info.pass);
+
+            RectTransform cellRect = obj.GetComponent<RectTransform>();
+
+            float Y = -(visiblePassages.Count - 1) * interval / 2 + interval * m; //центровка
+
+            cellRect.anchoredPosition = new Vector2(60, Y);
+
+            if (!info.isAllConditions && info.pass.alwaysShow)
+                cell.DisableButton();
+
+            questionCells.Add(cell);
+            m++;
+        }
+
+        RectTransform viewPort = (RectTransform)questionsContent.parent;
+        questionsContent.sizeDelta = new Vector2(questionsContent.sizeDelta.x, Mathf.Max(viewPort.rect.height /*/ autoCanvasScaler.scaleFactor*/, m * interval));
 
         //проверка на победу, покажение, наличие переходов
         if (location.locationType == LocationType.Victory)        
@@ -369,7 +372,7 @@ public class GamePanel : MonoBehaviour
             QuestionCell cell = obj.GetComponent<QuestionCell>();
             cell.StartWith(this, next);
 
-            obj.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -6);            
+            obj.GetComponent<RectTransform>().anchoredPosition = new Vector2(60, -6);            
         }       
     }
 
@@ -570,4 +573,10 @@ public class GamePanel : MonoBehaviour
         victoryCell.SetActive(false);
         defeatCell.SetActive(false);
     }          
+}
+
+public struct PassageInfo
+{
+    public Passage pass;
+    public bool isAllConditions;
 }
