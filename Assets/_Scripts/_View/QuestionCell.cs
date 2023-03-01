@@ -29,10 +29,17 @@ public class QuestionCell : MonoBehaviour
     }
 
     public void ActionSelect()
-    {                 
-        gamePanel.player.locationID = passage.to;        
-        gamePanel.player.passageID = passage.id;
-        gamePanel.ShowPassage(passage);
+    {
+        if(passage != null)
+        {
+            gamePanel.player.locationID = passage.to;
+            gamePanel.player.passageID = passage.id;
+            gamePanel.ShowPassage(passage);
+        }
+        else
+        {
+            //todo - Сыграть заново
+        }
     }
 
     public void DisableButton()

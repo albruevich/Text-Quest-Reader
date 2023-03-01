@@ -493,11 +493,11 @@ RectTransform:
   m_Father: {fileID: 607135742}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 60, y: -6.199951}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 0, y: 0.5}
+  m_AnchoredPosition: {x: 60, y: 0}
   m_SizeDelta: {x: 576, y: 75}
-  m_Pivot: {x: 0, y: 1}
+  m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &314486586
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -525,7 +525,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6590bc9f909af48df9b98efb626ebcb8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  questionText: {fileID: 765003164}
+  questionText: {fileID: 0}
   selectedImage: {fileID: 405212704}
   button: {fileID: 314486589}
 --- !u!114 &314486588
@@ -1089,7 +1089,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "- \u0414\u0430\u043B\u0435\u0435"
+  m_Text: "- \u0421\u044B\u0433\u0440\u0430\u0442\u044C \u0437\u0430\u043D\u043E\u0432\u043E"
 --- !u!222 &765003165
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3221,7 +3221,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "- \u0414\u0430\u043B\u0435\u0435"
+  m_Text: "- \u0421\u044B\u0433\u0440\u0430\u0442\u044C \u0437\u0430\u043D\u043E\u0432\u043E"
 --- !u!222 &6000911541202418823
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3566,11 +3566,11 @@ RectTransform:
   m_Father: {fileID: 607135742}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 60, y: -6.199951}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 0, y: 0.5}
+  m_AnchoredPosition: {x: 60, y: 0}
   m_SizeDelta: {x: 576, y: 75}
-  m_Pivot: {x: 0, y: 1}
+  m_Pivot: {x: 0, y: 0.5}
 --- !u!1 &7096345411492870296
 GameObject:
   m_ObjectHideFlags: 0
@@ -3602,7 +3602,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6590bc9f909af48df9b98efb626ebcb8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  questionText: {fileID: 5959193692648165060}
+  questionText: {fileID: 0}
   selectedImage: {fileID: 3725281908664144151}
   button: {fileID: 6273025944451068898}
 --- !u!1 &7151111131354227671
