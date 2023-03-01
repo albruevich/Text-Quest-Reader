@@ -11,8 +11,6 @@ public class Director : MonoBehaviour
     public static Director Instance;
 
     GameObject warningPanel;   
-
-    static bool AUTO_LOAD = true;
   
     void Start()
     {     
