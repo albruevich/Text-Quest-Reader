@@ -9,7 +9,9 @@ public class GamePanel : MonoBehaviour
 {
     public Image mainPicture;   
     public RectTransform questionsContent, paramsContent, questionsRect, paramsRect;
-    public GameObject questionCellPref, parameterTextPref, victoryCell, defeatCell;     
+    public GameObject questionCellPref, parameterTextPref, victoryCell, defeatCell;
+    public GameObject questionsNode, arrowsNode;
+    public Button leftArrow, rightArrow;
     public TMP_Text mainText; 
     public RectTransform mainPictureRect;
     public AutoCanvasScaler autoCanvasScaler;
@@ -21,7 +23,10 @@ public class GamePanel : MonoBehaviour
  
     int lastDescriptionIndex;
 
-    RectTransform mainTextRect;   
+    RectTransform mainTextRect;
+
+    string[] mainArray;
+    int mainIndex;
 
     private void Start()
     {
@@ -75,7 +80,7 @@ public class GamePanel : MonoBehaviour
         //описания
         if (location.descriptions.Count == 1 || location.locationType == LocationType.Empty)
         {
-            mainText.text = ExtractImage(ParseText(location.descriptions[0]));           
+            GutMainText(ParseText(location.descriptions[0]));           
         }
         else
         {           
@@ -98,12 +103,12 @@ public class GamePanel : MonoBehaviour
                 }            
                 
                 lastDescriptionIndex = index;
-                mainText.text = ExtractImage(ParseText(location.descriptions[index]));                
+                GutMainText(ParseText(location.descriptions[index]));                
             }
             else
             {              
                 lastDescriptionIndex = location.visitCounter % location.descriptions.Count;
-                mainText.text = ExtractImage(ParseText(location.descriptions[lastDescriptionIndex]));                
+                GutMainText(ParseText(location.descriptions[lastDescriptionIndex]));                
             }
         }
        
@@ -287,14 +292,12 @@ public class GamePanel : MonoBehaviour
         else if (location.locationType == LocationType.Fail)        
             FinalWithText("Квест провален!");                 
         else if (questionCells.Count == 0)
-            Director.Instance.WarningWithText("Ошибка, нет доступных переходов!");
-
-        StartCoroutine(CorrectMainText());       
+            Director.Instance.WarningWithText("Ошибка, нет доступных переходов!");              
 
         location.visitCounter++;
     }   
     
-    private string ExtractImage(string text)
+    private void GutMainText(string text)
     {
         List<string> list = GetBetween(text, "<im", "im>");
         string imageString = "";
@@ -306,23 +309,68 @@ public class GamePanel : MonoBehaviour
             imageString = imageString.Replace(" ", "");
             //imageString += ".png"; 
         }
-
-        print("imageString: " + imageString);
+       
         mainPicture.sprite = Resources.Load<Sprite>(imageString);
 
-        return text;
+        mainIndex = 0;
+        mainArray = text.Split('&');
+        mainText.text = mainArray[mainIndex];       
+
+        if (mainArray.Length > 1)
+        {
+            arrowsNode.SetActive(true);
+            questionsNode.SetActive(false);            
+            leftArrow.interactable = false;
+            rightArrow.interactable = true;
+        }
+        else
+        {
+            arrowsNode.SetActive(false);
+            questionsNode.SetActive(true);           
+        }
     }
 
-    IEnumerator CorrectMainText()
+    public void ActionNext()
     {
-        yield return new WaitForSeconds(0);
+        mainIndex++;
 
-        RectTransform rect = mainText.GetComponent<RectTransform>();
-        rect.anchoredPosition = new Vector2(rect.anchoredPosition.x, 13);
+        if (mainIndex < mainArray.Length)
+            mainText.text = mainArray[mainIndex];
+
+        if (mainIndex >= mainArray.Length - 1)
+        {
+            questionsNode.SetActive(true);
+            rightArrow.interactable = false;
+        }
+        else
+        {
+            leftArrow.interactable = true;
+        }
+    }
+
+    public void ActionPreviuos()
+    {
+        mainIndex--;
+        if (mainIndex >= 0)
+            mainText.text = mainArray[mainIndex];
+
+        questionsNode.SetActive(false);
+
+        if (mainIndex == 0)
+        {
+            leftArrow.interactable = false;
+        }
+        else
+        {
+            rightArrow.interactable = true;
+        }
     }
 
     public void ShowPassage(Passage passage)
-    {      
+    {
+        leftArrow.interactable = false;
+        rightArrow.interactable = false;
+
         //влияние на параметры
         InfluenceOnParameters(passage);
 
@@ -347,7 +395,7 @@ public class GamePanel : MonoBehaviour
         }
         else // показ описания перехода и кнопку "далее"
         {
-            mainText.text = ParseText(passage.description);
+            GutMainText(ParseText(passage.description));
 
             foreach (Transform tr in questionsContent)
                 Destroy(tr.gameObject);
@@ -501,9 +549,9 @@ public class GamePanel : MonoBehaviour
 
                 if (parameter.paramType != ParamType.Usual &&
                     ((parameter.isCriticMax && parameter.value >= parameter.maxValue) || (!parameter.isCriticMax && parameter.value <= parameter.minValue)))
-                {                   
-                     player.gameOver = true;
-                    mainText.text = ParseText(parameter.criticText);
+                {                  
+                    player.gameOver = true;
+                    GutMainText(ParseText(parameter.criticText));
 
                      foreach (Transform tr in questionsContent)
                          Destroy(tr.gameObject);
