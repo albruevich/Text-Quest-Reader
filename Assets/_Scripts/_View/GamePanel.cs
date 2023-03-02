@@ -8,7 +8,7 @@ using TMPro;
 public class GamePanel : MonoBehaviour
 {
     public Image mainPicture;   
-    public RectTransform questionsContent, paramsContent, descriptionScrollArea, questionsRect, paramsRect;
+    public RectTransform questionsContent, paramsContent, questionsRect, paramsRect;
     public GameObject questionCellPref, parameterTextPref, victoryCell, defeatCell;     
     public TMP_Text mainText; 
     public RectTransform mainPictureRect;
@@ -289,18 +289,10 @@ public class GamePanel : MonoBehaviour
         else if (questionCells.Count == 0)
             Director.Instance.WarningWithText("Ошибка, нет доступных переходов!");
 
-        StartCoroutine(CorrectMainText());
-        StartCoroutine(CorrectMainTextPosition());
+        StartCoroutine(CorrectMainText());       
 
         location.visitCounter++;
-    }
-    
-    IEnumerator CorrectMainTextPosition()
-    {
-        yield return new WaitForSeconds(0.02f);
-        if(mainTextRect.sizeDelta.y > descriptionScrollArea.sizeDelta.y)
-            mainTextRect.anchoredPosition = new Vector2(mainTextRect.anchoredPosition.x, descriptionScrollArea.sizeDelta.y - mainTextRect.sizeDelta.y - 5f);       
-    }
+    }   
     
     private string ExtractImage(string text)
     {

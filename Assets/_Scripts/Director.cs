@@ -24,6 +24,7 @@ public class Director : MonoBehaviour
         if (warningPanel != null)
             Destroy(warningPanel);
 
+        //todo
         //warningPanel = Instantiate(warningPref, uiCanvas);
         //warningPanel.GetComponent<WarningPanel>().warningText.text = text;
     }      
