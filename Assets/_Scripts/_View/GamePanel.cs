@@ -6,15 +6,15 @@ using Z.Expressions;
 using TMPro;
 
 public class GamePanel : MonoBehaviour
-{
-    public Image mainPicture;   
+{      
     public RectTransform questionsContent, paramsContent, questionsRect, paramsRect;
-    public GameObject questionCellPref, parameterTextPref, victoryCell, defeatCell;
-    public GameObject questionsNode, arrowsNode;
-    public Button leftArrow, rightArrow;
+    public GameObject questionCellPref, parameterTextPref, victoryCell, defeatCell, textBg;
+    public GameObject questionsNode, arrowsNode, startNode;
+    public Button leftArrow, rightArrow, startButton;
     public AliveText mainText; 
     public RectTransform mainPictureRect;
     public AutoCanvasScaler autoCanvasScaler;
+    public PictureNode pictureNode;
 
     [HideInInspector]
     public Player player;
@@ -23,24 +23,23 @@ public class GamePanel : MonoBehaviour
  
     int lastDescriptionIndex;
 
-    RectTransform mainTextRect;
-
     string[] mainArray;
     int mainIndex;
 
     private void Start()
     {
-        //todo в версии реальной игры сделать обязательно загрузку квеста из файла и при рестарте игры также загрузка должна быть из файла, чтобы обнулить все значения в квесте!                    
-
-        mainPicture.color = Color.white;
-
-        mainTextRect = mainText.GetComponent<RectTransform>();
+        //todo в версии реальной игры сделать обязательно загрузку квеста из файла и при рестарте игры также загрузка должна быть из файла, чтобы обнулить все значения в квесте!                                        
 
         mainPictureRect.sizeDelta = new Vector2(mainPictureRect.sizeDelta.x, mainPictureRect.rect.width / autoCanvasScaler.scaleFactor);
         paramsRect.sizeDelta = new Vector2(paramsRect.sizeDelta.x, paramsRect.rect.width / 3f / autoCanvasScaler.scaleFactor);
 
+        startButton.interactable = true;
+
+        textBg.SetActive(false);
+        arrowsNode.SetActive(false);
         victoryCell.SetActive(false);
         defeatCell.SetActive(false);
+        paramsRect.gameObject.SetActive(false);
 
         player = new Player {
             locationID = Quest.Instance.FindStartLocation().id,
@@ -60,9 +59,7 @@ public class GamePanel : MonoBehaviour
             parameter.value = parameter.startValue;
        
         float questionH = (Screen.safeArea.height - paramsRect.sizeDelta.y * autoCanvasScaler.scaleFactor - mainPictureRect.sizeDelta.y * autoCanvasScaler.scaleFactor) / autoCanvasScaler.scaleFactor;       
-        questionsRect.sizeDelta = new Vector2(questionsRect.sizeDelta.x, questionH);     
-
-        ShowCurrentLocation();
+        questionsRect.sizeDelta = new Vector2(questionsRect.sizeDelta.x, questionH);             
     }    
 
     private void ShowCurrentLocation()
@@ -310,9 +307,9 @@ public class GamePanel : MonoBehaviour
             //imageString += ".png"; 
         }
 
-        text = text.Replace(System.Environment.NewLine, "");              
+        text = text.Replace(System.Environment.NewLine, "");
 
-        mainPicture.sprite = Resources.Load<Sprite>(imageString);
+        pictureNode.SetNewPicture(imageString);       
 
         mainIndex = 0;
         mainArray = text.Split('&');
@@ -322,8 +319,8 @@ public class GamePanel : MonoBehaviour
         {
             arrowsNode.SetActive(true);
             questionsNode.SetActive(false);            
-            leftArrow.interactable = false;
-            rightArrow.interactable = true;
+            leftArrow.interactable = false;            
+            StartCoroutine(TurnOnButton(rightArrow, 0.35f));            
         }
         else
         {
@@ -333,11 +330,11 @@ public class GamePanel : MonoBehaviour
     }
 
     public void ActionNext()
-    {
+    {      
         mainIndex++;
 
         if (mainIndex < mainArray.Length)
-            mainText.SetText(CleanText(mainArray[mainIndex]));        
+            mainText.SetText(CleanText(mainArray[mainIndex]));
 
         if (mainIndex >= mainArray.Length - 1)
         {
@@ -346,22 +343,38 @@ public class GamePanel : MonoBehaviour
         }
         else
         {
-            leftArrow.interactable = true;
+            rightArrow.interactable = false;            
+            StartCoroutine(TurnOnButton(rightArrow, 0.2f));
         }
-    }
+
+        leftArrow.interactable = false;
+        StartCoroutine(TurnOnButton(leftArrow, 0.2f));
+    } 
 
     public void ActionPreviuos()
-    {
+    {              
         mainIndex--;
         if (mainIndex >= 0)
             mainText.SetText(CleanText(mainArray[mainIndex]));
 
         questionsNode.SetActive(false);
 
-        if (mainIndex == 0)        
-            leftArrow.interactable = false;        
-        else        
-            rightArrow.interactable = true;        
+        if (mainIndex == 0)
+            leftArrow.interactable = false;
+        else
+        {            
+            leftArrow.interactable = false;
+            StartCoroutine(TurnOnButton(leftArrow, 0.2f));            
+        }
+
+        rightArrow.interactable = false;
+        StartCoroutine(TurnOnButton(rightArrow, 0.2f));
+    }
+
+    IEnumerator TurnOnButton(Button button, float delay)
+    {       
+        yield return new WaitForSeconds(delay);
+        button.interactable = true;
     }
 
     private string CleanText(string text)
@@ -636,7 +649,19 @@ public class GamePanel : MonoBehaviour
 
         victoryCell.SetActive(false);
         defeatCell.SetActive(false);
-    }          
+    }
+
+    public void ActionStart()
+    {
+        rightArrow.interactable = false;        
+
+        startButton.interactable = false;
+        paramsRect.gameObject.SetActive(true);
+        startNode.SetActive(false);
+        textBg.SetActive(true);
+        arrowsNode.SetActive(true);
+        ShowCurrentLocation();
+    }
 }
 
 public struct PassageInfo
