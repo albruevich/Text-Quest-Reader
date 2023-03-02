@@ -309,7 +309,9 @@ public class GamePanel : MonoBehaviour
             imageString = imageString.Replace(" ", "");
             //imageString += ".png"; 
         }
-       
+
+        text = text.Replace(System.Environment.NewLine, "");              
+
         mainPicture.sprite = Resources.Load<Sprite>(imageString);
 
         mainIndex = 0;
@@ -334,8 +336,8 @@ public class GamePanel : MonoBehaviour
     {
         mainIndex++;
 
-        if (mainIndex < mainArray.Length)
-            mainText.text = mainArray[mainIndex];
+        if (mainIndex < mainArray.Length)        
+            mainText.text = CleanText(mainArray[mainIndex]);        
 
         if (mainIndex >= mainArray.Length - 1)
         {
@@ -352,18 +354,29 @@ public class GamePanel : MonoBehaviour
     {
         mainIndex--;
         if (mainIndex >= 0)
-            mainText.text = mainArray[mainIndex];
+            mainText.text = CleanText(mainArray[mainIndex]);
 
         questionsNode.SetActive(false);
 
-        if (mainIndex == 0)
+        if (mainIndex == 0)        
+            leftArrow.interactable = false;        
+        else        
+            rightArrow.interactable = true;        
+    }
+
+    private string CleanText(string text)
+    {
+        int spaces = 0;
+        for (int i = 0; i < text.Length; i++)
         {
-            leftArrow.interactable = false;
+            if (text.Substring(i, 1) == " ")
+                spaces++;
+            else break;
         }
-        else
-        {
-            rightArrow.interactable = true;
-        }
+
+        if (spaces > 0)
+            text = text.Remove(0, spaces);
+        return text;
     }
 
     public void ShowPassage(Passage passage)
