@@ -12,7 +12,7 @@ public class GamePanel : MonoBehaviour
     public GameObject questionCellPref, parameterTextPref, victoryCell, defeatCell;
     public GameObject questionsNode, arrowsNode;
     public Button leftArrow, rightArrow;
-    public TMP_Text mainText; 
+    public AliveText mainText; 
     public RectTransform mainPictureRect;
     public AutoCanvasScaler autoCanvasScaler;
 
@@ -316,7 +316,7 @@ public class GamePanel : MonoBehaviour
 
         mainIndex = 0;
         mainArray = text.Split('&');
-        mainText.text = mainArray[mainIndex];       
+        mainText.SetText(mainArray[mainIndex]);       
 
         if (mainArray.Length > 1)
         {
@@ -336,8 +336,8 @@ public class GamePanel : MonoBehaviour
     {
         mainIndex++;
 
-        if (mainIndex < mainArray.Length)        
-            mainText.text = CleanText(mainArray[mainIndex]);        
+        if (mainIndex < mainArray.Length)
+            mainText.SetText(CleanText(mainArray[mainIndex]));        
 
         if (mainIndex >= mainArray.Length - 1)
         {
@@ -354,7 +354,7 @@ public class GamePanel : MonoBehaviour
     {
         mainIndex--;
         if (mainIndex >= 0)
-            mainText.text = CleanText(mainArray[mainIndex]);
+            mainText.SetText(CleanText(mainArray[mainIndex]));
 
         questionsNode.SetActive(false);
 

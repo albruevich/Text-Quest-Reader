@@ -2313,6 +2313,7 @@ MonoBehaviour:
   victoryCell: {fileID: 7911495764742527834}
   defeatCell: {fileID: 314486584}
   questionsNode: {fileID: 3961656791363785509}
+  arrowsNode: {fileID: 202729837}
   leftArrow: {fileID: 406583072}
   rightArrow: {fileID: 1442012529}
   mainText: {fileID: 76452922}
