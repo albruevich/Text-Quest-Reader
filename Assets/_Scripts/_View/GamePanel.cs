@@ -289,9 +289,7 @@ public class GamePanel : MonoBehaviour
         singlePassage = null;
 
         if (visiblePassages.Count > 1)
-        {
-            furtherNode.SetActive(false);
-
+        {           
             const float interval = 120;
             int m = 0;
             foreach (PassageInfo info in visiblePassages)
