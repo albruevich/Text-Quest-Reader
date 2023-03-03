@@ -20,12 +20,12 @@ public class QuestionCell : MonoBehaviour
         
         string str = gamePanel.ParseText(passage.question);        
 
-        questionText.text = "- " + str;
+        questionText.text = str;
         
         selectedImage.SetActive(false);             
         
-        RectTransform rect = GetComponent<RectTransform>();           
-        rect.sizeDelta = new Vector2(Mathf.Min(questionText.preferredWidth / gamePanel.autoCanvasScaler.scaleFactor + 80, Screen.width / gamePanel.autoCanvasScaler.scaleFactor - 120), rect.sizeDelta.y);
+        //RectTransform rect = GetComponent<RectTransform>();           
+        //rect.sizeDelta = new Vector2(Mathf.Min(questionText.preferredWidth / gamePanel.autoCanvasScaler.scaleFactor + 120, Screen.width / gamePanel.autoCanvasScaler.scaleFactor - 120), rect.sizeDelta.y);
     }
 
     public void ActionSelect()
