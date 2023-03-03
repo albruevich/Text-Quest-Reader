@@ -7,8 +7,8 @@ using TMPro;
 
 public class GamePanel : MonoBehaviour
 {      
-    public RectTransform questionsContent, paramsContent, questionsRect, paramsRect;
-    public GameObject questionCellPref, parameterTextPref, victoryCell, defeatCell, textBg;
+    public RectTransform questionsContent, paramsContent, questionsRect, paramsRect, canvas;
+    public GameObject questionCellPref, parameterTextPref, settingsPref, victoryCell, defeatCell, textBg;
     public GameObject questionsNode, arrowsNode, startNode;
     public Button leftArrow, rightArrow, startButton;
     public AliveText mainText; 
@@ -34,9 +34,7 @@ public class GamePanel : MonoBehaviour
     }
 
     private void Start()
-    {
-        //todo в версии реальной игры сделать обязательно загрузку квеста из файла и при рестарте игры также загрузка должна быть из файла, чтобы обнулить все значения в квесте!                                        
-
+    {                                              
         mainPictureRect.sizeDelta = new Vector2(mainPictureRect.sizeDelta.x, mainPictureRect.rect.width / autoCanvasScaler.scaleFactor);
         paramsRect.sizeDelta = new Vector2(paramsRect.sizeDelta.x, paramsRect.rect.width / 3f / autoCanvasScaler.scaleFactor);
 
@@ -61,6 +59,7 @@ public class GamePanel : MonoBehaviour
         pictureNode.StartPictures();
         startNode.SetActive(true);
 
+        questionsNode.SetActive(false);
         textBg.SetActive(false);
         arrowsNode.SetActive(false);
         victoryCell.SetActive(false);
@@ -685,6 +684,11 @@ public class GamePanel : MonoBehaviour
         textBg.SetActive(true);
         arrowsNode.SetActive(true);
         ShowCurrentLocation();
+    }
+
+    public void ActionSettings()
+    {       
+        Instantiate(settingsPref, canvas);
     }
 }
 
