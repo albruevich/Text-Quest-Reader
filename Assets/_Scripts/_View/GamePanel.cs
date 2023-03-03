@@ -33,7 +33,18 @@ public class GamePanel : MonoBehaviour
         mainPictureRect.sizeDelta = new Vector2(mainPictureRect.sizeDelta.x, mainPictureRect.rect.width / autoCanvasScaler.scaleFactor);
         paramsRect.sizeDelta = new Vector2(paramsRect.sizeDelta.x, paramsRect.rect.width / 3f / autoCanvasScaler.scaleFactor);
 
+        float questionH = (Screen.safeArea.height - paramsRect.sizeDelta.y * autoCanvasScaler.scaleFactor - mainPictureRect.sizeDelta.y * autoCanvasScaler.scaleFactor) / autoCanvasScaler.scaleFactor;
+        questionsRect.sizeDelta = new Vector2(questionsRect.sizeDelta.x, questionH);
+
+        RestartQuest();
+    }    
+
+    public void RestartQuest()
+    {
         startButton.interactable = true;
+
+        pictureNode.StartPictures();
+        startNode.SetActive(true);
 
         textBg.SetActive(false);
         arrowsNode.SetActive(false);
@@ -41,12 +52,13 @@ public class GamePanel : MonoBehaviour
         defeatCell.SetActive(false);
         paramsRect.gameObject.SetActive(false);
 
-        player = new Player {
+        player = new Player
+        {
             locationID = Quest.Instance.FindStartLocation().id,
             quest = (Quest)Quest.Instance.Clone()
-        };      
+        };
 
-        foreach (Location location in player.quest.locations)        
+        foreach (Location location in player.quest.locations)
             location.visitCounter = 0;
 
         foreach (Passage passage in player.quest.passages)
@@ -57,10 +69,7 @@ public class GamePanel : MonoBehaviour
 
         foreach (Parameter parameter in player.quest.parameters)
             parameter.value = parameter.startValue;
-       
-        float questionH = (Screen.safeArea.height - paramsRect.sizeDelta.y * autoCanvasScaler.scaleFactor - mainPictureRect.sizeDelta.y * autoCanvasScaler.scaleFactor) / autoCanvasScaler.scaleFactor;       
-        questionsRect.sizeDelta = new Vector2(questionsRect.sizeDelta.x, questionH);             
-    }    
+    }
 
     private void ShowCurrentLocation()
     {       

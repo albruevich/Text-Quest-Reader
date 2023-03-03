@@ -1382,6 +1382,10 @@ PrefabInstance:
       propertyPath: m_text
       value: "\u0421\u044B\u0433\u0440\u0430\u0442\u044C \u0437\u0430\u043D\u043E\u0432\u043E"
       objectReference: {fileID: 0}
+    - target: {fileID: 8471604944719199673, guid: 1455bd659a10443bb832b1e1c4f02ad3, type: 3}
+      propertyPath: gamePanel
+      value: 
+      objectReference: {fileID: 1003732592353475122}
     - target: {fileID: 8567810783113452001, guid: 1455bd659a10443bb832b1e1c4f02ad3, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -2066,6 +2070,10 @@ PrefabInstance:
       propertyPath: m_text
       value: "\u0421\u044B\u0433\u0440\u0430\u0442\u044C \u0437\u0430\u043D\u043E\u0432\u043E"
       objectReference: {fileID: 0}
+    - target: {fileID: 8471604944719199673, guid: 1455bd659a10443bb832b1e1c4f02ad3, type: 3}
+      propertyPath: gamePanel
+      value: 
+      objectReference: {fileID: 1003732592353475122}
     - target: {fileID: 8567810783113452001, guid: 1455bd659a10443bb832b1e1c4f02ad3, type: 3}
       propertyPath: m_Pivot.x
       value: 0

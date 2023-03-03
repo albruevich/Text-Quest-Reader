@@ -10,7 +10,7 @@ public class QuestionCell : MonoBehaviour
     public GameObject selectedImage, circle;
     public Button button;
 
-    GamePanel gamePanel;
+    public GamePanel gamePanel;
     Passage passage;
 
     string text;
@@ -50,7 +50,7 @@ public class QuestionCell : MonoBehaviour
         }
         else
         {
-            //todo - Сыграть заново
+            gamePanel.RestartQuest();           
         }
     }
 

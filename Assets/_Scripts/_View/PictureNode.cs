@@ -7,15 +7,23 @@ using UnityEngine.UI;
 public class PictureNode : MonoBehaviour
 {
     public Image outerPicture, innerPicture;
+    public Sprite startSprite;
 
     Animator animator;
 
     private void Start()
-    {
-        outerPicture.color = Color.black;
-        innerPicture.color = Color.black;
+    {      
+        animator = GetComponent<Animator>();
 
-        animator = GetComponent<Animator>();       
+        StartPictures();
+    }
+
+    public void StartPictures()
+    {
+        outerPicture.color = Color.white;
+        innerPicture.color = Color.white;
+
+        outerPicture.sprite = innerPicture.sprite = startSprite;
     }
 
     public void SetNewPicture(string pictureName)
