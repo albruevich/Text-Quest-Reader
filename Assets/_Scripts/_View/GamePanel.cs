@@ -9,7 +9,7 @@ public class GamePanel : MonoBehaviour
 {      
     public RectTransform questionsContent, paramsContent, questionsRect, paramsRect, canvas;
     public GameObject questionCellPref, parameterTextPref, settingsPref, victoryCell, defeatCell, textBg;
-    public GameObject questionsNode, arrowsNode, startNode;
+    public GameObject questionsNode, arrowsNode, startNode, furtherNode;
     public Button leftArrow, rightArrow, startButton;
     public AliveText mainText; 
     public RectTransform mainPictureRect;
@@ -27,6 +27,8 @@ public class GamePanel : MonoBehaviour
     int mainIndex;
 
     public static GamePanel Instance;
+
+    Passage singlePassage;
 
     private void Awake()
     {
@@ -59,6 +61,7 @@ public class GamePanel : MonoBehaviour
         pictureNode.StartPictures();
         startNode.SetActive(true);
 
+        furtherNode.SetActive(false);
         questionsNode.SetActive(false);
         textBg.SetActive(false);
         arrowsNode.SetActive(false);
@@ -86,7 +89,9 @@ public class GamePanel : MonoBehaviour
     }
 
     private void ShowCurrentLocation()
-    {       
+    {
+        furtherNode.SetActive(false);
+
         Location location = player.quest.FindLocationWith(player.locationID);             
 
         //влияние на параметры
@@ -281,37 +286,48 @@ public class GamePanel : MonoBehaviour
                 visiblePassages.Add(new PassageInfo { pass = passage, isAllConditions = allConditions });                                                
         }
 
-        const float interval = 120;
-        int m = 0;
-        foreach (PassageInfo info in visiblePassages)
+        singlePassage = null;
+
+        if (visiblePassages.Count > 1)
         {
-            GameObject obj = Instantiate(questionCellPref, questionsContent);
+            furtherNode.SetActive(false);
 
-            QuestionCell cell = obj.GetComponent<QuestionCell>();
-            cell.StartWith(this, info.pass, m * 0.15f);          
+            const float interval = 120;
+            int m = 0;
+            foreach (PassageInfo info in visiblePassages)
+            {
+                GameObject obj = Instantiate(questionCellPref, questionsContent);
 
-            RectTransform cellRect = obj.GetComponent<RectTransform>();
+                QuestionCell cell = obj.GetComponent<QuestionCell>();
+                cell.StartWith(this, info.pass, m * 0.15f);
 
-            float Y = (visiblePassages.Count - 1) * interval / 2 - interval * m; //центровка
+                RectTransform cellRect = obj.GetComponent<RectTransform>();
 
-            cellRect.anchoredPosition = new Vector2(60, Y);
+                float Y = (visiblePassages.Count - 1) * interval / 2 - interval * m; //центровка
 
-            if (!info.isAllConditions && info.pass.alwaysShow)
-                cell.DisableButton();
+                cellRect.anchoredPosition = new Vector2(60, Y);
 
-            questionCells.Add(cell);
-            m++;
+                if (!info.isAllConditions && info.pass.alwaysShow)
+                    cell.DisableButton();
+
+                questionCells.Add(cell);
+                m++;
+            }
+
+            RectTransform viewPort = (RectTransform)questionsContent.parent;
+            questionsContent.sizeDelta = new Vector2(questionsContent.sizeDelta.x, Mathf.Max(viewPort.rect.height, m * interval));
         }
-
-        RectTransform viewPort = (RectTransform)questionsContent.parent;
-        questionsContent.sizeDelta = new Vector2(questionsContent.sizeDelta.x, Mathf.Max(viewPort.rect.height, m * interval));
-
+        else if (visiblePassages.Count == 1)
+        {            
+            singlePassage = visiblePassages[0].pass;                      
+        }       
+     
         //проверка на победу, покажение, наличие переходов
         if (location.locationType == LocationType.Victory)        
             FinalWithText("Квест пройден!");                
         else if (location.locationType == LocationType.Fail)        
             FinalWithText("Квест провален!");                 
-        else if (questionCells.Count == 0)
+        else if (visiblePassages.Count == 0)
             Director.Instance.WarningWithText("Ошибка, нет доступных переходов!");              
 
         location.visitCounter++;
@@ -326,8 +342,7 @@ public class GamePanel : MonoBehaviour
             text = text.Replace(str, "");
             imageString = str.Replace("<im", "");
             imageString = imageString.Replace("im>", "");
-            imageString = imageString.Replace(" ", "");
-            //imageString += ".png"; 
+            imageString = imageString.Replace(" ", "");            
         }
 
         text = text.Replace(System.Environment.NewLine, "");
@@ -361,7 +376,11 @@ public class GamePanel : MonoBehaviour
 
         if (mainIndex >= mainArray.Length - 1)
         {
-            questionsNode.SetActive(true);
+            if(singlePassage != null)            
+                furtherNode.SetActive(true);            
+            else            
+                questionsNode.SetActive(true);            
+           
             rightArrow.interactable = false;
         }
         else
@@ -381,6 +400,7 @@ public class GamePanel : MonoBehaviour
             mainText.SetText(CleanText(mainArray[mainIndex]));
 
         questionsNode.SetActive(false);
+        furtherNode.SetActive(false);
 
         if (mainIndex == 0)
             leftArrow.interactable = false;
@@ -419,6 +439,8 @@ public class GamePanel : MonoBehaviour
     {
         leftArrow.interactable = false;
         rightArrow.interactable = false;
+
+        furtherNode.SetActive(false);
 
         //влияние на параметры
         InfluenceOnParameters(passage);
@@ -689,6 +711,13 @@ public class GamePanel : MonoBehaviour
     public void ActionSettings()
     {       
         Instantiate(settingsPref, canvas);
+    }
+
+    public void ActionFurther()
+    {
+        player.locationID = singlePassage.to;
+        player.passageID = singlePassage.id;
+        ShowPassage(singlePassage);
     }
 }
 
