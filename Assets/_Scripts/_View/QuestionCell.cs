@@ -6,27 +6,39 @@ using TMPro;
 
 public class QuestionCell : MonoBehaviour
 {
-    public TMP_Text questionText;
-    public GameObject selectedImage;
+    public AliveText questionText;
+    public GameObject selectedImage, circle;
     public Button button;
 
     GamePanel gamePanel;
-    Passage passage; 
+    Passage passage;
 
-    public void StartWith(GamePanel gamePanel, Passage passage)
+    string text;
+    float delay;
+
+    public void StartWith(GamePanel gamePanel, Passage passage, float delay = 0)
     {
         this.gamePanel = gamePanel;
         this.passage = passage;
-        
-        string str = gamePanel.ParseText(passage.question);        
+        this.delay = delay;
 
-        questionText.text = str;
+        text = gamePanel.ParseText(passage.question);
         
-        selectedImage.SetActive(false);             
-        
-        //RectTransform rect = GetComponent<RectTransform>();           
-        //rect.sizeDelta = new Vector2(Mathf.Min(questionText.preferredWidth / gamePanel.autoCanvasScaler.scaleFactor + 120, Screen.width / gamePanel.autoCanvasScaler.scaleFactor - 120), rect.sizeDelta.y);
+        selectedImage.SetActive(false);     
     }
+
+    private void OnEnable()
+    {
+        circle.SetActive(false);
+        StartCoroutine(Delay(delay));
+    }
+
+    IEnumerator Delay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        circle.SetActive(true);
+        questionText.SetText(text);
+    }   
 
     public void ActionSelect()
     {
@@ -45,7 +57,7 @@ public class QuestionCell : MonoBehaviour
     public void DisableButton()
     {
         button.enabled = false;
-        questionText.color = Color.gray;
+        questionText.aliveText.color = Color.gray;
     }
 
     public void OnPointerEnter ()

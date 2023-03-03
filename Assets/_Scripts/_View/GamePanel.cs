@@ -265,11 +265,11 @@ public class GamePanel : MonoBehaviour
             GameObject obj = Instantiate(questionCellPref, questionsContent);
 
             QuestionCell cell = obj.GetComponent<QuestionCell>();
-            cell.StartWith(this, info.pass);
+            cell.StartWith(this, info.pass, m * 0.15f);          
 
             RectTransform cellRect = obj.GetComponent<RectTransform>();
 
-            float Y = -(visiblePassages.Count - 1) * interval / 2 + interval * m; //центровка
+            float Y = (visiblePassages.Count - 1) * interval / 2 - interval * m; //центровка
 
             cellRect.anchoredPosition = new Vector2(60, Y);
 
@@ -292,8 +292,8 @@ public class GamePanel : MonoBehaviour
             Director.Instance.WarningWithText("Ошибка, нет доступных переходов!");              
 
         location.visitCounter++;
-    }   
-    
+    }
+
     private void GutMainText(string text)
     {
         List<string> list = GetBetween(text, "<im", "im>");

@@ -5,21 +5,33 @@ using TMPro;
 [RequireComponent(typeof(TMP_Text))]
 public class AliveText : MonoBehaviour
 {
-    private TMP_Text aliveText;
+    [HideInInspector]
+    public TMP_Text aliveText;
 
-    private void Start()
+    string startText;
+
+    private void Awake()
     {
         aliveText = GetComponent<TMP_Text>();
+        startText = aliveText.text;
+    } 
+
+    private void OnEnable()
+    {       
+        aliveText.text = startText;
     }
 
     public void SetText(string str)
-    {
+    {       
         StartCoroutine(AnimateText(str));       
     }
 
     IEnumerator AnimateText(string str)
     {
-        int length = 0;      
+        if (string.IsNullOrEmpty(str))
+            yield break;
+
+        int length = 0;        
 
         while(length < str.Length)
         {
