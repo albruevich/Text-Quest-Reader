@@ -22,7 +22,8 @@ public class AliveText : MonoBehaviour
     }
 
     public void SetText(string str)
-    {       
+    {
+        StopAllCoroutines();
         StartCoroutine(AnimateText(str));       
     }
 
@@ -35,7 +36,7 @@ public class AliveText : MonoBehaviour
 
         while(length < str.Length)
         {
-            yield return new WaitForSeconds(0.015f); 
+            yield return new WaitForSeconds(0.013f); 
 
             length++;
 

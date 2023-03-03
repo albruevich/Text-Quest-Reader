@@ -353,6 +353,7 @@ public class GamePanel : MonoBehaviour
 
         if (mainArray.Length > 1)
         {
+            furtherNode.SetActive(false);
             arrowsNode.SetActive(true);
             questionsNode.SetActive(false);            
             leftArrow.interactable = false;            
@@ -360,6 +361,7 @@ public class GamePanel : MonoBehaviour
         }
         else
         {
+            furtherNode.SetActive(true);
             arrowsNode.SetActive(false);
             questionsNode.SetActive(true);           
         }
@@ -438,6 +440,8 @@ public class GamePanel : MonoBehaviour
         leftArrow.interactable = false;
         rightArrow.interactable = false;
 
+        singlePassage = null;
+
         furtherNode.SetActive(false);
 
         //влияние на параметры
@@ -458,8 +462,8 @@ public class GamePanel : MonoBehaviour
         {
             //работа с пустой локацией
             if (location.locationType == LocationType.Empty && passage.description != null && passage.description != "")                           
-                location.descriptions[0] = passage.description;                       
-
+                location.descriptions[0] = passage.description;
+            
             ShowCurrentLocation();
         }
         else // показ описания перехода и кнопку "далее"
@@ -476,12 +480,7 @@ public class GamePanel : MonoBehaviour
                 ignoreDemonstration = true
             };
 
-            GameObject obj = Instantiate(questionCellPref, questionsContent);
-
-            QuestionCell cell = obj.GetComponent<QuestionCell>();
-            cell.StartWith(this, next);
-
-            obj.GetComponent<RectTransform>().anchoredPosition = new Vector2(60, -6);            
+            singlePassage = next;            
         }       
     }
 
@@ -713,9 +712,12 @@ public class GamePanel : MonoBehaviour
 
     public void ActionFurther()
     {
-        player.locationID = singlePassage.to;
-        player.passageID = singlePassage.id;
-        ShowPassage(singlePassage);
+        if(singlePassage != null)
+        {
+            player.locationID = singlePassage.to;
+            player.passageID = singlePassage.id;
+            ShowPassage(singlePassage);
+        }      
     }
 }
 
