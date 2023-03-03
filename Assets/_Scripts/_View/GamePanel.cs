@@ -26,6 +26,13 @@ public class GamePanel : MonoBehaviour
     string[] mainArray;
     int mainIndex;
 
+    public static GamePanel Instance;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
+
     private void Start()
     {
         //todo в версии реальной игры сделать обязательно загрузку квеста из файла и при рестарте игры также загрузка должна быть из файла, чтобы обнулить все значения в квесте!                                        
@@ -34,9 +41,17 @@ public class GamePanel : MonoBehaviour
         paramsRect.sizeDelta = new Vector2(paramsRect.sizeDelta.x, paramsRect.rect.width / 3f / autoCanvasScaler.scaleFactor);
 
         float questionH = (Screen.safeArea.height - paramsRect.sizeDelta.y * autoCanvasScaler.scaleFactor - mainPictureRect.sizeDelta.y * autoCanvasScaler.scaleFactor) / autoCanvasScaler.scaleFactor;
-        questionsRect.sizeDelta = new Vector2(questionsRect.sizeDelta.x, questionH);
+        questionsRect.sizeDelta = new Vector2(questionsRect.sizeDelta.x, questionH);       
 
-        RestartQuest();
+        if(SaveLoadManager.Manager.loadedPlayer == null)
+        {
+            RestartQuest();
+        }
+        else
+        {          
+            player = SaveLoadManager.Manager.loadedPlayer;
+            ActionStart();
+        }     
     }    
 
     public void RestartQuest()

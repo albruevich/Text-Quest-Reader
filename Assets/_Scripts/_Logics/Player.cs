@@ -16,4 +16,9 @@ public class Player : ICloneable
 
         return clone;
     }
+
+    public override string ToString()
+    {
+        return string.Format("Player: locationID={0}, passageID={1}, quest={2}", locationID, passageID, quest);
+    }
 }

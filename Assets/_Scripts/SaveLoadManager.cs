@@ -7,10 +7,15 @@ using Newtonsoft.Json;
 using System.IO;
 
 public class SaveLoadManager 
-{  
-    public static string last_save = "last_save";
+{      
+    public static string SAVE_FOLDER;
+    public static string fileName = "player.txt";
 
     private static SaveLoadManager instance;
+
+    JsonSerializerSettings settings;
+
+    public Player loadedPlayer;
 
     public static SaveLoadManager Manager
     {
@@ -18,14 +23,16 @@ public class SaveLoadManager
         set { instance = value; }
     }
 
-    public void Init() { }
+    public void Init() {}
 
     public SaveLoadManager()
     {
-        JsonSerializerSettings settings = new JsonSerializerSettings
-        {
-            TypeNameHandling = TypeNameHandling.None,           
-        };
+        SAVE_FOLDER = Application.persistentDataPath + "/Saves/";
+
+        if (!Directory.Exists(SAVE_FOLDER))
+            Directory.CreateDirectory(SAVE_FOLDER);
+
+        settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.None, ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
 
         TextAsset[] allQuests = Resources.LoadAll<TextAsset>("_Quests");
 
@@ -33,41 +40,28 @@ public class SaveLoadManager
         {
             TextAsset asset = allQuests[0];
             Quest.Instance = JsonConvert.DeserializeObject<Quest>(asset.text, settings);           
+        }
+
+        LoadPlayer();
+    }
+
+    public void SavePlayer()
+    {
+        if(GamePanel.Instance.player != null)
+        {
+            string jsonString = JsonConvert.SerializeObject(GamePanel.Instance.player, settings);
+            File.WriteAllText(SAVE_FOLDER + fileName, jsonString);
         }       
     }
- 
-    /*
-    public void Save(string saveFile)
+
+    public void LoadPlayer()
     {
-        JsonSerializerSettings settings = new JsonSerializerSettings
+        string filePath = SAVE_FOLDER + fileName;
+
+        if (File.Exists(filePath))
         {
-            TypeNameHandling = TypeNameHandling.None
-        };
-        settings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-
-        string jsonString = JsonConvert.SerializeObject(Quest.Instance, settings);
-        File.WriteAllText(SAVE_FOLDER + saveFile + ".txt", jsonString);
-
+            string saveString = File.ReadAllText(filePath);
+            loadedPlayer = JsonConvert.DeserializeObject<Player>(saveString, settings);            
+        }
     }
-
-    public void Load(string saveFile)
-    {
-        saveFile += ".txt";
-
-        JsonSerializerSettings settings = new JsonSerializerSettings
-        {
-            TypeNameHandling = TypeNameHandling.None
-        };
-
-        if (!File.Exists(SAVE_FOLDER + saveFile))
-        {           
-            Director.Instance.WarningWithText("Нет такого файла!");
-
-            return;
-        }           
-
-        string saveString = File.ReadAllText(SAVE_FOLDER + saveFile);
-
-        Quest.Instance = JsonConvert.DeserializeObject<Quest>(saveString, settings);
-    }*/
 }

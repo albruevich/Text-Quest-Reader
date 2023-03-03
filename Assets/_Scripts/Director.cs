@@ -10,14 +10,13 @@ public class Director : MonoBehaviour
 
     public static Director Instance;
 
-    GameObject warningPanel;   
-  
-    void Start()
-    {     
-        Instance = this;                       
+    GameObject warningPanel;
 
-        SaveLoadManager.Manager.Init();                                
-    }  
+    private void Awake()
+    {
+        Instance = this;
+        SaveLoadManager.Manager.Init();
+    }
     
     public void WarningWithText(string text)
     {
@@ -27,104 +26,17 @@ public class Director : MonoBehaviour
         //todo
         //warningPanel = Instantiate(warningPref, uiCanvas);
         //warningPanel.GetComponent<WarningPanel>().warningText.text = text;
-    }      
-    
-    public Color ColorFromLocationType(LocationType locationType)
+    }         
+             
+    private void OnApplicationPause(bool pause)
     {
-        Color color = new Color();
-        switch (locationType)
-        {
-            case LocationType.Start: color = new Color(0, 1, 1); break;
-            case LocationType.Neutral: color = new Color(1, 1, 1); break;
-            case LocationType.Fail: color = new Color(1, 0.5f, 0); break;
-            case LocationType.Victory: color = new Color(0, 1, 0.5f); break;
-            case LocationType.Empty: color = new Color(0.5f, 0.5f, 0.5f); break;
-        }
+        SaveLoadManager.Manager.SavePlayer();
+    }
 
-        return color;
-    }          
-
-    //-----------------------------------------------------------------------
-    public static string GetTextForUnit(Unit unit, int paramIndex)
+    private void OnApplicationQuit()
     {
-        string nameText = "";
-       
-        if (unit.influences.Count == 0 || paramIndex > unit.influences.Count)
-            return nameText;       
-
-        Influence influence = unit.influences[paramIndex - 1];
-        string add = "";
-
-        switch (influence.influenceType)
-        {
-            case InfluenceType.Units:
-                if (influence.value > 0)
-                    add = ", +" + influence.value;
-                else if (influence.value < 0)
-                    add = ", " + influence.value;
-                break;
-
-            case InfluenceType.Percent:
-                if (influence.value > 0)
-                    add = ", +" + influence.value + "%";
-                else if (influence.value < 0)
-                    add = ", " + influence.value + "%";
-                break;
-
-            case InfluenceType.Value:
-                add = Mathf.Abs(influence.value) > 0 ? ", =" + influence.value : "";
-                break;
-            case InfluenceType.Formula:
-                add = influence.formula != "" ? ", =" + influence.formula : "";
-                break;
-        }
-
-        string actStr = "";
-        ParamsAction paramsAction = unit.paramsActions[paramIndex - 1];
-
-        switch (paramsAction)
-        {
-            case ParamsAction.Hide: actStr = ", (скрыть)"; break;
-            case ParamsAction.Show: actStr = ", (показать)"; break;
-        }
-
-        nameText = add + actStr;
-
-        if (unit.GetType() == typeof(Passage))
-        {
-            Passage passage = (Passage)unit;
-
-            NecessaryRange range = passage.necessaryRanges[paramIndex - 1];
-            string rangeStr = "";
-
-            if (range.isOn)
-                rangeStr = ", [" + range.min + ".." + range.max + "]";
-
-            TakenValues takenValues = passage.takenValues[paramIndex - 1];
-            string takenStr = "";
-            if (takenValues.formula != null && takenValues.formula != "")
-            {
-                if (takenValues.nonTaken)
-                    takenStr = ", !=" + takenValues.formula;
-                else
-                    takenStr = ", ==" + takenValues.formula;
-            }
-
-            MultipleValues multiple = passage.multipleValues[paramIndex - 1];
-            string multipleStr = "";
-            if (multiple.formula != null && multiple.formula != "")
-            {
-                if (multiple.nonMultiple)
-                    multipleStr = ", X" + multiple.formula;
-                else
-                    multipleStr = ", /" + multiple.formula;
-            }
-
-            nameText += rangeStr + takenStr + multipleStr;           
-        }
-
-        return nameText;
-    }  
+        SaveLoadManager.Manager.SavePlayer();
+    }
 }
 
 public enum MainTogleType
