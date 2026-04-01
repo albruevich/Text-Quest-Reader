@@ -224,9 +224,7 @@ public class GamePanel : MonoBehaviour
             }
 
             RectTransform viewPort = (RectTransform)questionsContent.parent;
-            questionsContent.sizeDelta = new Vector2(
-                questionsContent.sizeDelta.x,
-                Mathf.Max(viewPort.rect.height, index * interval));
+            questionsContent.sizeDelta = new Vector2(questionsContent.sizeDelta.x, Mathf.Max(viewPort.rect.height, index * interval));
         }
         else if (visiblePassages.Count == 1)
         {
@@ -261,9 +259,6 @@ public class GamePanel : MonoBehaviour
             imageName = imageName.Replace("im>", "");
             imageName = imageName.Replace(" ", "");
         }
-
-        text = text.Replace("\r", "");
-        text = text.Replace("\n", "");
 
         pictureNode.SetNewPicture(imageName);
         mainText.SetText(text);
