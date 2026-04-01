@@ -21,7 +21,7 @@ public class QuestionCell : MonoBehaviour
         this.passage = passage;
         this.delay = delay;
 
-        text = gamePanel.ParseText(passage.question);
+        text = gamePanel.TextParser.Parse(passage.question);
 
         selectedImage.SetActive(false);
     }
