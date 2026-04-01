@@ -5,7 +5,7 @@ using UnityEngine;
 public class SaveLoadManager
 {
     private const string SavesFolderName = "Saves";
-    private const string PlayerFileName = "player.txt";
+    private const string SaveFileName = "save.txt";
     private const string QuestsResourcesPath = "_Quests";
 
     private static SaveLoadManager instance;
@@ -44,7 +44,9 @@ public class SaveLoadManager
         if (player == null)
             return;
 
-        string json = JsonConvert.SerializeObject(player, serializerSettings);
+        PlayerSaveData saveData = CreateSaveData(player);
+
+        string json = JsonConvert.SerializeObject(saveData, serializerSettings);
         string playerSavePath = GetPlayerSavePath();
 
         File.WriteAllText(playerSavePath, json);
@@ -60,7 +62,89 @@ public class SaveLoadManager
             return;
 
         string json = File.ReadAllText(playerSavePath);
-        LoadedPlayer = JsonConvert.DeserializeObject<Player>(json, serializerSettings);
+        PlayerSaveData saveData = JsonConvert.DeserializeObject<PlayerSaveData>(json, serializerSettings);
+
+        if (saveData == null)
+            return;
+
+        Quest questClone = (Quest)Quest.Instance.Clone();
+
+        Player player = new Player
+        {
+            locationID = saveData.locationID,
+            passageID = saveData.passageID,
+            gameOver = saveData.gameOver,
+            quest = questClone
+        };
+
+        RestoreParameters(questClone, saveData);
+        RestoreLocations(questClone, saveData);
+        RestorePassages(questClone, saveData);
+
+        LoadedPlayer = player;
+    }
+
+    private PlayerSaveData CreateSaveData(Player player)
+    {
+        PlayerSaveData saveData = new PlayerSaveData
+        {
+            locationID = player.locationID,
+            passageID = player.passageID,
+            gameOver = player.gameOver
+        };
+
+        foreach (Parameter parameter in player.quest.parameters)
+        {
+            saveData.parameterValues.Add(parameter.value);
+            saveData.parameterHidden.Add(parameter.isHidden);
+        }
+
+        foreach (Location location in player.quest.locations)
+        {
+            if (location.visitCounter > 0)
+                saveData.locationVisitCounters[location.id] = location.visitCounter;
+        }
+
+        foreach (Passage passage in player.quest.passages)
+        {
+            if (passage.visitCounter > 0)
+                saveData.passageVisitCounters[passage.id] = passage.visitCounter;
+        }
+
+        return saveData;
+    }
+
+    private void RestoreParameters(Quest quest, PlayerSaveData saveData)
+    {
+        int count = Mathf.Min(quest.parameters.Count, saveData.parameterValues.Count);
+
+        for (int i = 0; i < count; i++)
+        {
+            quest.parameters[i].value = saveData.parameterValues[i];
+
+            if (i < saveData.parameterHidden.Count)
+                quest.parameters[i].isHidden = saveData.parameterHidden[i];
+        }
+    }
+
+    private void RestoreLocations(Quest quest, PlayerSaveData saveData)
+    {
+        foreach (Location location in quest.locations)
+        {
+            if (saveData.locationVisitCounters.TryGetValue(location.id, out int counter))
+                location.visitCounter = counter;
+        }
+    }
+
+    private void RestorePassages(Quest quest, PlayerSaveData saveData)
+    {
+        foreach (Passage passage in quest.passages)
+        {
+            if (saveData.passageVisitCounters.TryGetValue(passage.id, out int counter))
+                passage.visitCounter = counter;
+
+            passage.FindControversials();
+        }
     }
 
     private void LoadQuestFromResources()
@@ -81,7 +165,7 @@ public class SaveLoadManager
 
     private string GetPlayerSavePath()
     {
-        return Path.Combine(saveFolderPath, PlayerFileName);
+        return Path.Combine(saveFolderPath, $"{Quest.Instance.questName}_{SaveFileName}");
     }
 
     private static JsonSerializerSettings CreateSerializerSettings()
