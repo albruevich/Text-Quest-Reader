@@ -13,13 +13,13 @@ public class GamePanel : MonoBehaviour
     [SerializeField] private RectTransform paramsRect;
     [SerializeField] private RectTransform canvas;
 
-    [SerializeField] private GameObject questionCellPref;
+    [SerializeField] private SettingsPanel settingsPref;
+    [SerializeField] private QuestionCell questionCellPref;
+
     [SerializeField] private GameObject parameterTextPref;
-    [SerializeField] private GameObject settingsPref;
     [SerializeField] private GameObject victoryCell;
     [SerializeField] private GameObject defeatCell;
     [SerializeField] private GameObject textBg;
-
     [SerializeField] private GameObject questionsNode;
     [SerializeField] private GameObject arrowsNode;
     [SerializeField] private GameObject startNode;
@@ -303,12 +303,10 @@ public class GamePanel : MonoBehaviour
             int m = 0;
             foreach (PassageInfo info in visiblePassages)
             {
-                GameObject obj = Instantiate(questionCellPref, questionsContent);
-
-                QuestionCell cell = obj.GetComponent<QuestionCell>();
+                QuestionCell cell = Instantiate(questionCellPref, questionsContent);            
                 cell.StartWith(this, info.pass, m * 0.15f);
 
-                RectTransform cellRect = obj.GetComponent<RectTransform>();
+                RectTransform cellRect = cell.GetComponent<RectTransform>();
 
                 float Y = (visiblePassages.Count - 1) * interval / 2 - interval * m; 
 

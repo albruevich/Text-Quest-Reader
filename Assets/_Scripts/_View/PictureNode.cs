@@ -8,35 +8,40 @@ public class PictureNode : MonoBehaviour
     [SerializeField] private Image innerPicture;
     [SerializeField] private Sprite startSprite;
 
-    Animator animator;
+    private Animator animator;
 
     private void Start()
-    {      
+    {
         animator = GetComponent<Animator>();
-
-        StartPictures();
+        InitializePictures();
     }
 
-    public void StartPictures()
+    public void InitializePictures()
     {
         outerPicture.color = Color.white;
-        innerPicture.color = Color.white;       
+        innerPicture.color = Color.white;
 
-        outerPicture.sprite = innerPicture.sprite = startSprite;
+        outerPicture.sprite = startSprite;
+        innerPicture.sprite = startSprite;
     }
 
     public void SetNewPicture(string pictureName)
-    {       
-        if (innerPicture.sprite && innerPicture.sprite.name == pictureName)
+    {
+        if (innerPicture.sprite != null && innerPicture.sprite.name == pictureName)
             return;
 
-        innerPicture.sprite = Resources.Load<Sprite>(pictureName);
-      
+        var sprite = Resources.Load<Sprite>(pictureName);
+
+        if (sprite != null)        
+            innerPicture.sprite = sprite;        
+        else        
+            Debug.LogWarning($"Sprite not found: {pictureName}");        
+
         animator.Play("FadePictures");
-    }   
+    }
 
     public void Callback()
     {
-        outerPicture.sprite = innerPicture.sprite;        
+        outerPicture.sprite = innerPicture.sprite;
     }
 }

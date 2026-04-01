@@ -9,48 +9,51 @@ public class QuestionCell : MonoBehaviour
     [SerializeField] private GameObject circle;
     [SerializeField] private Button button;
 
-    GamePanel gamePanel;
+    private GamePanel gamePanel;
+    private Passage passage;
 
-    Passage passage;
+    private string text;
+    private float delay;
 
-    string text;
-    float delay;
-
-    public void StartWith(GamePanel gamePanel, Passage passage, float delay = 0)
+    public void StartWith(GamePanel gamePanel, Passage passage, float delay = 0f)
     {
         this.gamePanel = gamePanel;
         this.passage = passage;
         this.delay = delay;
 
         text = gamePanel.ParseText(passage.question);
-        
-        selectedImage.SetActive(false);     
+
+        selectedImage.SetActive(false);
     }
 
     private void OnEnable()
     {
         circle.SetActive(false);
-        StartCoroutine(Delay(delay));
+        StartCoroutine(ShowWithDelay());
     }
 
-    IEnumerator Delay(float delay)
+    private IEnumerator ShowWithDelay()
     {
         yield return new WaitForSeconds(delay);
+
         circle.SetActive(true);
         questionText.SetText(text);
-    }   
+    }
 
     public void ActionSelect()
     {
-        if(passage != null)
+        if (passage != null)
         {
-            gamePanel.Player.locationID = passage.to;
-            gamePanel.Player.passageID = passage.id;
+            var player = gamePanel.Player;
+
+            player.locationID = passage.to;
+            player.passageID = passage.id;
+
             gamePanel.ShowPassage(passage);
         }
         else
         {
-            gamePanel.RestartQuest();           
+            gamePanel.RestartQuest();
         }
     }
 
@@ -60,15 +63,15 @@ public class QuestionCell : MonoBehaviour
         questionText.Text.color = Color.gray;
     }
 
-    public void OnPointerEnter ()
-    {       
-        if(button && button.enabled)
-            selectedImage.SetActive(true); 
+    public void OnPointerEnter()
+    {
+        if (button != null && button.enabled)
+            selectedImage.SetActive(true);
     }
 
     public void OnPointerExit()
     {
-        if (button && button.enabled)
+        if (button != null && button.enabled)
             selectedImage.SetActive(false);
     }
 }
