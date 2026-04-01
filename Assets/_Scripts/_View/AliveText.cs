@@ -10,7 +10,7 @@ public class AliveText : MonoBehaviour
 
     private string startText;
 
-    private const float CharDelay = 0.013f;
+    private const float CharDelay = 0.004f;
 
     private void Awake()
     {
@@ -35,24 +35,31 @@ public class AliveText : MonoBehaviour
             yield break;
 
         int length = 0;
+        float timer = 0f;
 
         while (length < value.Length)
         {
-            yield return new WaitForSeconds(CharDelay);
+            timer += Time.deltaTime;
 
-            length++;
-
-            // skip rich text tags <...>
-            if (value.Substring(length - 1, 1) == "<")
+            if (timer >= CharDelay)
             {
+                timer = 0f;
+
                 length++;
 
-                while (value.Substring(length - 1, 1) != ">")
+                // skip rich text tags <...>
+                if (value[length - 1] == '<')
+                {
                     length++;
+
+                    while (value[length - 1] != '>')
+                        length++;
+                }
+
+                text.text = value.Substring(0, length);
             }
 
-            string sub = value.Substring(0, length);
-            text.text = sub;
+            yield return null;
         }
     }
 }

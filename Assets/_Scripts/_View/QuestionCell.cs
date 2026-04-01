@@ -8,8 +8,8 @@ public class QuestionCell : MonoBehaviour
     [SerializeField] private GameObject selectedImage;
     [SerializeField] private GameObject circle;
     [SerializeField] private Button button;
+    [SerializeField] private GamePanel gamePanel;
 
-    private GamePanel gamePanel;
     private Passage passage;
 
     private string text;

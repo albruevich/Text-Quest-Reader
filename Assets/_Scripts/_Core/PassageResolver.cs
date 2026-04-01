@@ -146,7 +146,7 @@ public class PassageResolver
             }
             catch
             {
-                Director.Instance.WarningWithText("Invalid logical condition formula!");
+                Debug.LogWarning("Invalid logical condition formula!");
             }
         }
 
@@ -175,7 +175,7 @@ public class PassageResolver
                 }
                 catch
                 {
-                    Director.Instance.WarningWithText("Invalid accepted values formula!");
+                    Debug.LogWarning("Invalid accepted values formula!");
                 }
             }
 
@@ -193,7 +193,7 @@ public class PassageResolver
                 }
                 catch
                 {
-                    Director.Instance.WarningWithText("Invalid divisibility formula!");
+                    Debug.LogWarning("Invalid divisibility formula!");
                 }
             }
         }

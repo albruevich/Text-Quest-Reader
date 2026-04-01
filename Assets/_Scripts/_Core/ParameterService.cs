@@ -131,7 +131,7 @@ public class ParameterService
     {
         if (string.IsNullOrEmpty(formula))
         {
-            Director.Instance.WarningWithText($"Empty influence formula! Parameter: p{parameter.index}");
+            Debug.LogWarning($"Empty influence formula! Parameter: p{parameter.index}");
             return;
         }
 
@@ -164,7 +164,7 @@ public class ParameterService
         }
         catch
         {
-            Director.Instance.WarningWithText($"Invalid influence formula! Parameter: p{parameter.index}");
+            Debug.LogWarning($"Invalid influence formula! Parameter: p{parameter.index}");
         }
     }
 

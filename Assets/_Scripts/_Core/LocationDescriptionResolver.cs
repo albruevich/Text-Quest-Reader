@@ -45,7 +45,7 @@ public class LocationDescriptionResolver
             }
             catch
             {
-                Director.Instance.WarningWithText("Invalid description selection formula!");
+                Debug.LogWarning("Invalid description selection formula!");
             }
 
             index -= 1;

@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using Z.Expressions;
+using UnityEngine;
 
 public class TextParser
 {
     private readonly GamePanel gamePanel;
+    private const string replacementColor = "<color=#6BBEFF>";
 
     public TextParser(GamePanel gamePanel)
     {
@@ -24,15 +26,13 @@ public class TextParser
             try
             {
                 int value = Eval.Execute<int>(expression.Replace("{", "").Replace("}", ""), FillFormulaDict());
-                string replacement = ignoreColor
-                    ? value.ToString()
-                    : "<color=#6BBEFF>" + value + "</color>";
+                string replacement = ignoreColor ? value.ToString() : replacementColor + value + "</color>";
 
                 result = result.Replace(expression, replacement);
             }
             catch
             {
-                Director.Instance.WarningWithText("Invalid substitution formula!");
+                Debug.LogWarning("Invalid substitution formula!");
             }
         }
 
