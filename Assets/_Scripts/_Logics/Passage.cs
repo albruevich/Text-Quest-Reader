@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
-using System;
-using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
 
 public class Passage : Unit, ICloneable, IComparable
-{   
+{
     public int from;
-    public int to;   
+    public int to;
     public int same;
 
     public string question;
@@ -13,9 +12,7 @@ public class Passage : Unit, ICloneable, IComparable
     public string logicalCondition;
     public float priority;
     public int displayOrder;
-    public bool alwaysShow;    
-
-    //для игры
+    public bool alwaysShow;
     public bool ignoreDemonstration;
 
     public List<NecessaryRange> necessaryRanges = new List<NecessaryRange>();
@@ -27,55 +24,66 @@ public class Passage : Unit, ICloneable, IComparable
 
     public object Clone()
     {
-        Passage clone = (Passage)MemberwiseClone();
+        var clone = (Passage)MemberwiseClone();
+
         clone.influences = new List<Influence>(influences);
         clone.paramsActions = new List<ParamsAction>(paramsActions);
         clone.necessaryRanges = new List<NecessaryRange>(necessaryRanges);
         clone.takenValues = new List<TakenValues>(takenValues);
         clone.multipleValues = new List<MultipleValues>(multipleValues);
+
         return clone;
     }
 
     public virtual int CompareTo(object otherObject)
     {
-        Passage other = (Passage)otherObject;
-        if (displayOrder < other.displayOrder) return -1;
-        if (displayOrder > other.displayOrder) return 1;
+        var other = (Passage)otherObject;
+
+        if (displayOrder < other.displayOrder)
+            return -1;
+
+        if (displayOrder > other.displayOrder)
+            return 1;
+
         return 0;
     }
 
     public static void RecountAllPassages()
     {
-        List<Passage> copy = new List<Passage>();
+        var copy = new List<Passage>();
 
-        foreach (Passage passage in Quest.Instance.passages)
+        foreach (var passage in Quest.Instance.passages)
         {
             int same = 0;
-            foreach (Passage p in copy)
+
+            foreach (var existingPassage in copy)
             {
-                if ((p.from == passage.from && p.to == passage.to) || (p.from == passage.to && p.to == passage.from))
+                if ((existingPassage.from == passage.from && existingPassage.to == passage.to) ||
+                    (existingPassage.from == passage.to && existingPassage.to == passage.from))
+                {
                     same++;
+                }
             }
 
             passage.same = same;
-            copy.Add(passage);           
-        }            
-    }
-
-    public override string ToString()
-    {
-        return string.Format("Passage: id={0}, from={1}, to={2}, same={3}", id, from, to, same);
+            copy.Add(passage);
+        }
     }
 
     public void FindControversials()
     {
         controversials.Clear();
 
-        foreach (Passage p in Quest.Instance.passages)
-        {           
-            if (p.from == from && p.id != id && p.question == question)
-                controversials.Add(p);
-        }       
+        foreach (var passage in Quest.Instance.passages)
+        {
+            if (passage.from == from && passage.id != id && passage.question == question)
+                controversials.Add(passage);
+        }
+    }
+
+    public override string ToString()
+    {
+        return $"Passage: id={id}, from={from}, to={to}, same={same}";
     }
 }
 
@@ -87,7 +95,7 @@ public class NecessaryRange
 
     public override string ToString()
     {
-        return string.Format("NecessaryRange: isOn={0}, min={1}, max={2}", isOn, min, max);
+        return $"NecessaryRange: isOn={isOn}, min={min}, max={max}";
     }
 }
 

@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
-using System;
+﻿using UnityEngine;
 
 public class Director : MonoBehaviour
 {
@@ -14,8 +11,7 @@ public class Director : MonoBehaviour
 
     private void Awake()
     {
-        Instance = this;
-        SaveLoadManager.Manager.Init();
+        Instance = this;      
     }
     
     public void WarningWithText(string text)
@@ -30,12 +26,12 @@ public class Director : MonoBehaviour
              
     private void OnApplicationPause(bool pause)
     {
-        SaveLoadManager.Manager.SavePlayer();
+        SaveLoadManager.Instance.SavePlayer();
     }
 
     private void OnApplicationQuit()
     {
-        SaveLoadManager.Manager.SavePlayer();
+        SaveLoadManager.Instance.SavePlayer();
     }
 }
 

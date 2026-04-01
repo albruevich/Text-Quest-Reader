@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System;
+﻿using System;
+using System.Collections.Generic;
 
 public class Quest : ICloneable
 {
@@ -7,76 +7,85 @@ public class Quest : ICloneable
 
     public static Quest Instance
     {
-        get { if (instance == null) instance = new Quest(); return instance; }
-        set { instance = value; }
+        get
+        {
+            if (instance == null)
+                instance = new Quest();
+
+            return instance;
+        }
+        set => instance = value;
     }
 
     public string questName;
     public int locationCount;
     public int passageCount;
+
     public List<Parameter> parameters = new List<Parameter>();
     public List<Location> locations = new List<Location>();
-    public List<Passage> passages = new List<Passage>();   
+    public List<Passage> passages = new List<Passage>();
 
     public Location FindLocationWith(int id)
     {
-        Location location = null;
-        foreach(Location loc in locations)        
-            if(loc.id == id)
-            {
-                location = loc;
-                break;
-            }       
-        return location;
+        foreach (var location in locations)
+        {
+            if (location.id == id)
+                return location;
+        }
+
+        return null;
     }
 
     public Passage FindPassageWith(int id)
     {
-        Passage passage = null;
-        foreach (Passage pas in passages)
-            if (pas.id == id)
-            {
-                passage = pas;
-                break;
-            }
-        return passage;
+        foreach (var passage in passages)
+        {
+            if (passage.id == id)
+                return passage;
+        }
+
+        return null;
     }
 
     public Location FindStartLocation()
     {
-        Location location = null;
-        foreach (Location loc in locations)
-            if (loc.locationType == LocationType.Start)
-            {
-                location = loc;
-                break;
-            }
-        return location;
+        foreach (var location in locations)
+        {
+            if (location.locationType == LocationType.Start)
+                return location;
+        }
+
+        return null;
     }
 
-    public List<Passage> FindAllPassagesFromLocation(int locID)
+    public List<Passage> FindAllPassagesFromLocation(int locationId)
     {
-        List<Passage> fromPassages = new List<Passage>();
-        foreach(Passage p in passages)        
-            if (p.from == locID)
-                fromPassages.Add(p);       
-        return fromPassages;
+        var result = new List<Passage>();
+
+        foreach (var passage in passages)
+        {
+            if (passage.from == locationId)
+                result.Add(passage);
+        }
+
+        return result;
     }
 
     public object Clone()
     {
-        Quest clone = (Quest)MemberwiseClone();
+        var clone = (Quest)MemberwiseClone();
+
         clone.parameters = new List<Parameter>();
         clone.locations = new List<Location>();
         clone.passages = new List<Passage>();
 
-        foreach (Parameter parameter in parameters)
+        foreach (var parameter in parameters)
             clone.parameters.Add((Parameter)parameter.Clone());
 
-        foreach (Location location in locations)        
+        foreach (var location in locations)
             clone.locations.Add((Location)location.Clone());
 
-        foreach (Passage passage in passages)
+        foreach (var passage in passages)
             clone.passages.Add((Passage)passage.Clone());
 
         return clone;
@@ -84,6 +93,6 @@ public class Quest : ICloneable
 
     public override string ToString()
     {
-        return string.Format("Quest: questName={0}, parameters.count={1}", questName, parameters.Count);
+        return $"Quest: questName={questName}, parameters.count={parameters.Count}";
     }
 }

@@ -1,13 +1,12 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(Animator))]
 public class PictureNode : MonoBehaviour
 {
-    public Image outerPicture, innerPicture;
-    public Sprite startSprite;
+    [SerializeField] private Image outerPicture;
+    [SerializeField] private Image innerPicture;
+    [SerializeField] private Sprite startSprite;
 
     Animator animator;
 

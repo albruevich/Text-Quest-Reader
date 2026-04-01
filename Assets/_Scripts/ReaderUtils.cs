@@ -1,9 +1,7 @@
 using UnityEngine;
-using System;
 
 public class ReaderUtils
 {
-
     public static bool IsPad()
     {
         float res = (float)Screen.width / Screen.height;

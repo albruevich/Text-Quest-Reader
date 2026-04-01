@@ -15,11 +15,9 @@ public class Parameter : ICloneable
 
     public bool isActive;
     public bool isCriticMax;
+    public bool isHidden;
 
     public string criticText;
-
-    //для игры
-    public bool isHidden;
 
     public List<ParamsRange> paramsRanges;
 
@@ -27,11 +25,11 @@ public class Parameter : ICloneable
     {
         this.index = index;
 
-        workingName = "Параметр " + index;
+        workingName = "Parameter " + index;
         paramType = ParamType.Usual;
         maxValue = 1;
         isActive = true;
-        criticText = "Сообщение достижения критического значения";
+        criticText = "Message on reaching a critical value";
 
         paramsRanges = new List<ParamsRange>();
         AddRange();
@@ -39,22 +37,20 @@ public class Parameter : ICloneable
 
     public void AddRange()
     {
-        ParamsRange range = new ParamsRange
+        var range = new ParamsRange
         {
             min = 0,
             max = maxValue,
-            output = "Параметр номер " + index + ": <>"
+            output = "Parameter number " + index + ": <>"
         };
 
         paramsRanges.Add(range);
-
         UpdateAllRanges();
     }
-  
-    public void DeleteRange()
-    {       
-        paramsRanges.RemoveAt(paramsRanges.Count-1);
 
+    public void DeleteRange()
+    {
+        paramsRanges.RemoveAt(paramsRanges.Count - 1);
         UpdateAllRanges();
     }
 
@@ -62,18 +58,19 @@ public class Parameter : ICloneable
     {
         float step = (maxValue - minValue) / paramsRanges.Count;
         int lastMax = minValue;
-       
-        if((int)step > 0)
+
+        if ((int)step > 0)
         {
             int i = 0;
-            foreach (ParamsRange r in paramsRanges)
+
+            foreach (var range in paramsRanges)
             {
-                r.min = lastMax == minValue ? minValue : lastMax + 1;
-                r.max = minValue + (int)(step * (i + 1));
-                lastMax = r.max;
+                range.min = lastMax == minValue ? minValue : lastMax + 1;
+                range.max = minValue + (int)(step * (i + 1));
+                lastMax = range.max;
 
                 if (i == paramsRanges.Count - 1)
-                    r.max = maxValue;
+                    range.max = maxValue;
 
                 i++;
             }
@@ -81,74 +78,92 @@ public class Parameter : ICloneable
         else
         {
             int i = minValue;
-            foreach (ParamsRange r in paramsRanges)
+
+            foreach (var range in paramsRanges)
             {
-                r.min = r.max = i;             
+                range.min = i;
+                range.max = i;
                 i++;
             }
-        }        
+        }
     }
 
     public void CorrectRanges(int index, bool isMin)
     {
-        ParamsRange curRange = paramsRanges[index];
+        var currentRange = paramsRanges[index];
 
         int lastMin;
         int lastMax;
 
         if (isMin)
         {
-            lastMax = curRange.min;
-            if (curRange.min > curRange.max) curRange.max = curRange.min;
-            lastMin = curRange.max;
+            lastMax = currentRange.min;
+
+            if (currentRange.min > currentRange.max)
+                currentRange.max = currentRange.min;
+
+            lastMin = currentRange.max;
         }
         else
         {
-            lastMin = curRange.max;
-            if (curRange.max < curRange.min) curRange.min = curRange.max;
-            lastMax = curRange.min;
+            lastMin = currentRange.max;
+
+            if (currentRange.max < currentRange.min)
+                currentRange.min = currentRange.max;
+
+            lastMax = currentRange.min;
         }
 
         for (int i = index + 1; i < paramsRanges.Count; i++)
         {
-            ParamsRange r = paramsRanges[i];
-            if (r.min <= lastMin) r.min = Mathf.Min(lastMin + 1, maxValue);
-            if (r.max <= lastMin) r.max = Mathf.Min(lastMin + 1, maxValue);
-            lastMin = r.max;
+            var range = paramsRanges[i];
+
+            if (range.min <= lastMin)
+                range.min = Mathf.Min(lastMin + 1, maxValue);
+
+            if (range.max <= lastMin)
+                range.max = Mathf.Min(lastMin + 1, maxValue);
+
+            lastMin = range.max;
         }
 
         for (int i = index - 1; i >= 0; i--)
         {
-            ParamsRange r = paramsRanges[i];
-            if (r.max >= lastMax) r.max = Mathf.Max(lastMax - 1, minValue);
-            if (r.min >= lastMax) r.min = Mathf.Max(lastMax - 1, minValue);
-            lastMax = r.min;
+            var range = paramsRanges[i];
+
+            if (range.max >= lastMax)
+                range.max = Mathf.Max(lastMax - 1, minValue);
+
+            if (range.min >= lastMax)
+                range.min = Mathf.Max(lastMax - 1, minValue);
+
+            lastMax = range.min;
         }
     }
 
     public ParamsRange FindCorrectRange()
     {
-        ParamsRange paramsRange = null;      
-        foreach (ParamsRange range in paramsRanges)        
-            if(range.min <= value && range.max >= value)
-            {
-                paramsRange = range;
-                break;
-            }       
-        return paramsRange;
+        foreach (var range in paramsRanges)
+        {
+            if (range.min <= value && range.max >= value)
+                return range;
+        }
+
+        return null;
     }
 
     public object Clone()
     {
-        Parameter clone = (Parameter)MemberwiseClone();
-        clone.paramsRanges = new List<ParamsRange>(paramsRanges);        
+        var clone = (Parameter)MemberwiseClone();
+        clone.paramsRanges = new List<ParamsRange>(paramsRanges);
+
         return clone;
     }
 
     public override string ToString()
     {
-        return string.Format("Parameter: workingName={0}, paramType={1}, value={2}, startValue={3}, minValue={4}, maxValue={5}, isActive={6}, isCriticMax={7}",
-            workingName, paramType, value, startValue, minValue, maxValue, isActive, isCriticMax);
+        return $"Parameter: workingName={workingName}, paramType={paramType}, value={value}, startValue={startValue}," +
+            $" minValue={minValue}, maxValue={maxValue}, isActive={isActive}, isCriticMax={isCriticMax}";
     }
 }
 
@@ -160,7 +175,7 @@ public class ParamsRange
 
     public override string ToString()
     {
-        return string.Format("ParamsRange: min={0}, max={1}, output={2}", min, max, output);
+        return $"ParamsRange: min={min}, max={max}, output={output}";
     }
 }
 

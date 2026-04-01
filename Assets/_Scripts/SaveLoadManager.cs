@@ -1,67 +1,95 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.IO;
+using Newtonsoft.Json;
 using UnityEngine;
 
-using System;
-using Newtonsoft.Json;
-using System.IO;
-
-public class SaveLoadManager 
-{      
-    public static string SAVE_FOLDER;
-    public static string fileName = "player.txt";
+public class SaveLoadManager
+{
+    private const string SavesFolderName = "Saves";
+    private const string PlayerFileName = "player.txt";
+    private const string QuestsResourcesPath = "_Quests";
 
     private static SaveLoadManager instance;
 
-    JsonSerializerSettings settings;
+    private readonly JsonSerializerSettings serializerSettings;
+    private readonly string saveFolderPath;
 
-    public Player loadedPlayer;
+    public Player LoadedPlayer { get; private set; }
 
-    public static SaveLoadManager Manager
+    public static SaveLoadManager Instance
     {
-        get { if (instance == null) instance = new SaveLoadManager(); return instance; }
-        set { instance = value; }
-    }
+        get
+        {
+            if (instance == null)
+                instance = new SaveLoadManager();
 
-    public void Init() {}
+            return instance;
+        }
+        set => instance = value;
+    }
 
     public SaveLoadManager()
     {
-        SAVE_FOLDER = Application.persistentDataPath + "/Saves/";
+        saveFolderPath = Path.Combine(Application.persistentDataPath, SavesFolderName);
+        EnsureSaveFolderExists();
 
-        if (!Directory.Exists(SAVE_FOLDER))
-            Directory.CreateDirectory(SAVE_FOLDER);
+        serializerSettings = CreateSerializerSettings();
 
-        settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.None, ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
-
-        TextAsset[] allQuests = Resources.LoadAll<TextAsset>("_Quests");
-
-        if(allQuests.Length > 0)
-        {
-            TextAsset asset = allQuests[0];
-            Quest.Instance = JsonConvert.DeserializeObject<Quest>(asset.text, settings);           
-        }
-
+        LoadQuestFromResources();
         LoadPlayer();
     }
 
     public void SavePlayer()
     {
-        if(GamePanel.Instance.player != null)
-        {
-            string jsonString = JsonConvert.SerializeObject(GamePanel.Instance.player, settings);
-            File.WriteAllText(SAVE_FOLDER + fileName, jsonString);
-        }       
+        var player = GamePanel.Instance.Player;
+        if (player == null)
+            return;
+
+        string json = JsonConvert.SerializeObject(player, serializerSettings);
+        string playerSavePath = GetPlayerSavePath();
+
+        File.WriteAllText(playerSavePath, json);
     }
 
     public void LoadPlayer()
     {
-        string filePath = SAVE_FOLDER + fileName;
+        string playerSavePath = GetPlayerSavePath();
 
-        if (File.Exists(filePath))
+        Debug.Log(playerSavePath);
+
+        if (!File.Exists(playerSavePath))
+            return;
+
+        string json = File.ReadAllText(playerSavePath);
+        LoadedPlayer = JsonConvert.DeserializeObject<Player>(json, serializerSettings);
+    }
+
+    private void LoadQuestFromResources()
+    {
+        TextAsset[] allQuests = Resources.LoadAll<TextAsset>(QuestsResourcesPath);
+        if (allQuests.Length == 0)
+            return;
+
+        TextAsset questAsset = allQuests[0];
+        Quest.Instance = JsonConvert.DeserializeObject<Quest>(questAsset.text, serializerSettings);
+    }
+
+    private void EnsureSaveFolderExists()
+    {
+        if (!Directory.Exists(saveFolderPath))
+            Directory.CreateDirectory(saveFolderPath);
+    }
+
+    private string GetPlayerSavePath()
+    {
+        return Path.Combine(saveFolderPath, PlayerFileName);
+    }
+
+    private static JsonSerializerSettings CreateSerializerSettings()
+    {
+        return new JsonSerializerSettings
         {
-            string saveString = File.ReadAllText(filePath);
-            loadedPlayer = JsonConvert.DeserializeObject<Player>(saveString, settings);            
-        }
+            TypeNameHandling = TypeNameHandling.None,
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+        };
     }
 }

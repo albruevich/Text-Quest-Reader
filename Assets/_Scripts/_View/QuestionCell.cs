@@ -1,16 +1,16 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 public class QuestionCell : MonoBehaviour
 {
-    public AliveText questionText;
-    public GameObject selectedImage, circle;
-    public Button button;
+    [SerializeField] private AliveText questionText;
+    [SerializeField] private GameObject selectedImage;
+    [SerializeField] private GameObject circle;
+    [SerializeField] private Button button;
 
-    public GamePanel gamePanel;
+    GamePanel gamePanel;
+
     Passage passage;
 
     string text;
@@ -44,8 +44,8 @@ public class QuestionCell : MonoBehaviour
     {
         if(passage != null)
         {
-            gamePanel.player.locationID = passage.to;
-            gamePanel.player.passageID = passage.id;
+            gamePanel.Player.locationID = passage.to;
+            gamePanel.Player.passageID = passage.id;
             gamePanel.ShowPassage(passage);
         }
         else
@@ -57,7 +57,7 @@ public class QuestionCell : MonoBehaviour
     public void DisableButton()
     {
         button.enabled = false;
-        questionText.aliveText.color = Color.gray;
+        questionText.Text.color = Color.gray;
     }
 
     public void OnPointerEnter ()

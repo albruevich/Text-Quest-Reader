@@ -6,18 +6,36 @@ using Z.Expressions;
 using TMPro;
 
 public class GamePanel : MonoBehaviour
-{      
-    public RectTransform questionsContent, paramsContent, questionsRect, paramsRect, canvas;
-    public GameObject questionCellPref, parameterTextPref, settingsPref, victoryCell, defeatCell, textBg;
-    public GameObject questionsNode, arrowsNode, startNode, furtherNode;
-    public Button leftArrow, rightArrow, startButton;
-    public AliveText mainText; 
-    public RectTransform mainPictureRect;
-    public AutoCanvasScaler autoCanvasScaler;
-    public PictureNode pictureNode;
+{
+    [SerializeField] private RectTransform questionsContent;
+    [SerializeField] private RectTransform paramsContent;
+    [SerializeField] private RectTransform questionsRect;
+    [SerializeField] private RectTransform paramsRect;
+    [SerializeField] private RectTransform canvas;
 
-    [HideInInspector]
-    public Player player;
+    [SerializeField] private GameObject questionCellPref;
+    [SerializeField] private GameObject parameterTextPref;
+    [SerializeField] private GameObject settingsPref;
+    [SerializeField] private GameObject victoryCell;
+    [SerializeField] private GameObject defeatCell;
+    [SerializeField] private GameObject textBg;
+
+    [SerializeField] private GameObject questionsNode;
+    [SerializeField] private GameObject arrowsNode;
+    [SerializeField] private GameObject startNode;
+    [SerializeField] private GameObject furtherNode;
+
+    [SerializeField] private Button leftArrow;
+    [SerializeField] private Button rightArrow;
+    [SerializeField] private Button startButton;
+
+    [SerializeField] private AliveText mainText;
+    [SerializeField] private RectTransform mainPictureRect;
+
+    [SerializeField] private AutoCanvasScaler autoCanvasScaler;
+    [SerializeField] private PictureNode pictureNode;
+   
+    public Player Player { get; set; }
 
     List<QuestionCell> questionCells = new List<QuestionCell>(); 
  
@@ -43,13 +61,13 @@ public class GamePanel : MonoBehaviour
         float questionH = (Screen.safeArea.height - paramsRect.sizeDelta.y * autoCanvasScaler.scaleFactor - mainPictureRect.sizeDelta.y * autoCanvasScaler.scaleFactor) / autoCanvasScaler.scaleFactor;
         questionsRect.sizeDelta = new Vector2(questionsRect.sizeDelta.x, questionH);       
 
-        if(SaveLoadManager.Manager.loadedPlayer == null)
+        if(SaveLoadManager.Instance.LoadedPlayer == null)
         {
             RestartQuest();
         }
         else
         {          
-            player = SaveLoadManager.Manager.loadedPlayer;
+            Player = SaveLoadManager.Instance.LoadedPlayer;
             ActionStart();
         }     
     }    
@@ -69,22 +87,22 @@ public class GamePanel : MonoBehaviour
         defeatCell.SetActive(false);
         paramsRect.gameObject.SetActive(false);
 
-        player = new Player
+        Player = new Player
         {
             locationID = Quest.Instance.FindStartLocation().id,
             quest = (Quest)Quest.Instance.Clone()
         };
 
-        foreach (Location location in player.quest.locations)
+        foreach (Location location in Player.quest.locations)
             location.visitCounter = 0;
 
-        foreach (Passage passage in player.quest.passages)
+        foreach (Passage passage in Player.quest.passages)
         {
             passage.visitCounter = 0;
             passage.FindControversials();
         }
 
-        foreach (Parameter parameter in player.quest.parameters)
+        foreach (Parameter parameter in Player.quest.parameters)
             parameter.value = parameter.startValue;
     }
 
@@ -92,17 +110,13 @@ public class GamePanel : MonoBehaviour
     {
         furtherNode.SetActive(false);
 
-        Location location = player.quest.FindLocationWith(player.locationID);             
-
-        //влияние на параметры
-        InfluenceOnParameters(location);
-
-        //показ параметров
+        Location location = Player.quest.FindLocationWith(Player.locationID);             
+       
+        InfluenceOnParameters(location);       
         ParameterDemonstration(location);
 
-        if (player.gameOver) return;       
-
-        //описания
+        if (Player.gameOver) return;       
+       
         if (location.descriptions.Count == 1 || location.locationType == LocationType.Empty)
         {
             GutMainText(ParseText(location.descriptions[0]));           
@@ -119,7 +133,7 @@ public class GamePanel : MonoBehaviour
                 else
                 {
                     try { index = Eval.Execute<int>(location.formula, FillFormulaDict()); }
-                    catch { Director.Instance.WarningWithText("Неправильная формула выбора описаний!"); }
+                    catch { Director.Instance.WarningWithText("Invalid description selection formula!"); }
 
                     index -= 1;
 
@@ -135,18 +149,16 @@ public class GamePanel : MonoBehaviour
                 lastDescriptionIndex = location.visitCounter % location.descriptions.Count;
                 GutMainText(ParseText(location.descriptions[lastDescriptionIndex]));                
             }
-        }
-       
-        //переходы
+        }       
+        
         foreach (Transform tr in questionsContent)        
             Destroy(tr.gameObject);
 
         questionCells.Clear();
 
-        List<Passage> passages = player.quest.FindAllPassagesFromLocation(location.id);
+        List<Passage> passages = Player.quest.FindAllPassagesFromLocation(location.id);
         List<Passage> workPassages = new List<Passage>();
-
-        //переходы с вероятностью
+       
         List<Passage> toDeleteV = new List<Passage>();
         foreach (Passage p in passages)
         {
@@ -161,8 +173,7 @@ public class GamePanel : MonoBehaviour
 
         foreach (Passage p in toDeleteV)
             passages.Remove(p);
-
-        //работа со спорными переходами        
+             
         for (int n = passages.Count - 1; n >= 0; n--)
         {           
             try
@@ -225,12 +236,10 @@ public class GamePanel : MonoBehaviour
        
         foreach (Passage passage in workPassages)
         {            
-            Location toLoc = player.quest.FindLocationWith(passage.to);
-
-            //проходимость
+            Location toLoc = Player.quest.FindLocationWith(passage.to);
+           
             bool passCondition = (passage.passability == 0 || passage.visitCounter < passage.passability) && (toLoc.passability == 0 || toLoc.visitCounter < toLoc.passability);
-
-            //выполнение условий для показа перехода
+        
             bool logicalCondition = true;
             bool inRange = true;
             bool takesOrNotValues = true;
@@ -238,12 +247,12 @@ public class GamePanel : MonoBehaviour
             if (passage.logicalCondition != null && passage.logicalCondition != "")
             {
                 try { logicalCondition = Eval.Execute<bool>(passage.logicalCondition, FillFormulaDict()); }
-                catch { Director.Instance.WarningWithText("Неправильная формула логического условия!"); }               
+                catch { Director.Instance.WarningWithText("Invalid logical condition formula!"); }               
             }
             
-            for (int i = 0; i < player.quest.parameters.Count; i++)
+            for (int i = 0; i < Player.quest.parameters.Count; i++)
             {
-                Parameter parameter = player.quest.parameters[i];
+                Parameter parameter = Player.quest.parameters[i];
                 NecessaryRange range = passage.necessaryRanges[i];
                 if (range.isOn && (parameter.value < range.min || parameter.value > range.max))
                 {
@@ -262,7 +271,7 @@ public class GamePanel : MonoBehaviour
                         else
                             takesOrNotValues = parameter.value == val;                        
                     }
-                    catch { Director.Instance.WarningWithText("Неправильная формула принятия значений!"); }
+                    catch { Director.Instance.WarningWithText("Invalid accepted values formula!"); }
                 }
 
                 MultipleValues multipleValues = passage.multipleValues[i];
@@ -276,7 +285,7 @@ public class GamePanel : MonoBehaviour
                         else
                             multipleOrNotValues = parameter.value % val == 0;
                     }
-                    catch { Director.Instance.WarningWithText("Неправильная формула кратности значениям!"); }
+                    catch { Director.Instance.WarningWithText("Invalid divisibility formula!"); }
                 }
             }
 
@@ -301,7 +310,7 @@ public class GamePanel : MonoBehaviour
 
                 RectTransform cellRect = obj.GetComponent<RectTransform>();
 
-                float Y = (visiblePassages.Count - 1) * interval / 2 - interval * m; //центровка
+                float Y = (visiblePassages.Count - 1) * interval / 2 - interval * m; 
 
                 cellRect.anchoredPosition = new Vector2(60, Y);
 
@@ -318,15 +327,15 @@ public class GamePanel : MonoBehaviour
         else if (visiblePassages.Count == 1)
         {            
             singlePassage = visiblePassages[0].pass;                      
-        }       
-     
-        //проверка на победу, покажение, наличие переходов
-        if (location.locationType == LocationType.Victory)        
-            FinalWithText("Квест пройден!");                
-        else if (location.locationType == LocationType.Fail)        
-            FinalWithText("Квест провален!");                 
+        }
+
+        // check for victory, fail, and available transitions
+        if (location.locationType == LocationType.Victory)
+            FinalWithText("Quest completed!");
+        else if (location.locationType == LocationType.Fail)
+            FinalWithText("Quest failed!");
         else if (visiblePassages.Count == 0)
-            Director.Instance.WarningWithText("Ошибка, нет доступных переходов!");              
+            Director.Instance.WarningWithText("Error: no available transitions!");
 
         location.visitCounter++;
     }
@@ -444,29 +453,29 @@ public class GamePanel : MonoBehaviour
 
         furtherNode.SetActive(false);
 
-        //влияние на параметры
+        // influence on parameters
         InfluenceOnParameters(passage);
 
-        //показ параметров
+        // parameter display
         if (!passage.ignoreDemonstration)
             ParameterDemonstration(passage);
 
-        if (player.gameOver) return;
+        if (Player.gameOver) return;
 
-        passage.visitCounter++;       
+        passage.visitCounter++;
 
-        Location location = player.quest.FindLocationWith(player.locationID);
+        Location location = Player.quest.FindLocationWith(Player.locationID);
 
-        //если переход без описания, то покахываем сразу локацию
-        if (passage.description == null || passage.description == "" || location.locationType == LocationType.Empty)
+        // if passage has no description, show location immediately
+        if (string.IsNullOrEmpty(passage.description) || location.locationType == LocationType.Empty)
         {
-            //работа с пустой локацией
-            if (location.locationType == LocationType.Empty && passage.description != null && passage.description != "")                           
+            // handling empty location
+            if (location.locationType == LocationType.Empty && !string.IsNullOrEmpty(passage.description))
                 location.descriptions[0] = passage.description;
-            
+
             ShowCurrentLocation();
         }
-        else // показ описания перехода и кнопку "далее"
+        else // show passage description and "Next" button
         {
             GutMainText(ParseText(passage.description));
 
@@ -476,19 +485,19 @@ public class GamePanel : MonoBehaviour
             Passage next = new Passage
             {
                 to = passage.to,
-                question = "Далее",
+                question = "Next",
                 ignoreDemonstration = true
             };
 
-            singlePassage = next;            
-        }       
+            singlePassage = next;
+        }
     }
 
     private void InfluenceWithFormula(string formula, Parameter parameter)
     {
         if (string.IsNullOrEmpty(formula))
         {
-            Director.Instance.WarningWithText($"Пустая формула влияния! Параметр: p{parameter.index}");
+            Director.Instance.WarningWithText($"Empty influence formula! Parameter: p{parameter.index}");
             return;
         }
 
@@ -513,22 +522,22 @@ public class GamePanel : MonoBehaviour
                 parameter.value = Mathf.Max(Mathf.Min(value, parameter.maxValue), parameter.minValue);
             }     
         }
-        catch { Director.Instance.WarningWithText($"Неправильная формула влияния! Параметр: p{parameter.index}"); }
+        catch { Director.Instance.WarningWithText($"Invalid influence formula! Parameter: p{parameter.index}"); }
     }
 
     private Dictionary<string, object> FillFormulaDict()
     {
         Dictionary<string, object> paramsDict = new Dictionary<string, object>();
-        foreach (Parameter p in player.quest.parameters)
+        foreach (Parameter p in Player.quest.parameters)
             paramsDict.Add("p" + p.index, p.value);
         return paramsDict;
     }
      
     public void ParameterDemonstration(Unit unit)
     {       
-        for (int j = 0; j < player.quest.parameters.Count; j++)
+        for (int j = 0; j < Player.quest.parameters.Count; j++)
         {
-            Parameter parameter = player.quest.parameters[j];
+            Parameter parameter = Player.quest.parameters[j];
             ParamsAction action = unit.paramsActions[j];
             switch (action)
             {
@@ -542,7 +551,7 @@ public class GamePanel : MonoBehaviour
 
         List<Parameter> visibleParams = new List<Parameter>();
        
-        foreach (Parameter parameter in player.quest.parameters)
+        foreach (Parameter parameter in Player.quest.parameters)
         {
             if (parameter.isActive && !parameter.isHidden)
             {              
@@ -568,15 +577,15 @@ public class GamePanel : MonoBehaviour
                 output = output.Replace("<>", parameter.value.ToString());
                 output = ParseText(output, ignoreColor: true);
 
-                for (int i = 0; i < player.quest.parameters.Count; i++)
+                for (int i = 0; i < Player.quest.parameters.Count; i++)
                 {
-                    Parameter p = player.quest.parameters[i];
+                    Parameter p = Player.quest.parameters[i];
                     string key = $"p{i + 1}";
                     output = output.Replace(key, p.value.ToString());
                 }
 
-                float Y = -(visibleParams.Count - 1) * interval / 2 + interval * m; //центровка
-                
+                float Y = -(visibleParams.Count - 1) * interval / 2 + interval * m; //centering
+
                 GameObject cell = Instantiate(parameterTextPref, paramsContent);
                 cell.GetComponent<RectTransform>().anchoredPosition = new Vector2(20, Y);
                 cell.GetComponent<TMP_Text>().text = output;
@@ -592,7 +601,7 @@ public class GamePanel : MonoBehaviour
     {
         for (int j = 0; j < unit.influences.Count; j++)
         {
-            Parameter parameter = player.quest.parameters[j];
+            Parameter parameter = Player.quest.parameters[j];
 
             if (parameter.isActive)
             {
@@ -611,14 +620,12 @@ public class GamePanel : MonoBehaviour
                     case InfluenceType.Formula:
                         InfluenceWithFormula(influence.formula, parameter);
                         break;
-                }
-
-                //print("parameter: " + parameter);
+                }               
 
                 if (parameter.paramType != ParamType.Usual &&
                     ((parameter.isCriticMax && parameter.value >= parameter.maxValue) || (!parameter.isCriticMax && parameter.value <= parameter.minValue)))
-                {                  
-                    player.gameOver = true;
+                {
+                    Player.gameOver = true;
                     GutMainText(ParseText(parameter.criticText));
 
                      foreach (Transform tr in questionsContent)
@@ -637,7 +644,7 @@ public class GamePanel : MonoBehaviour
     private void FinalWithText(string text)
     {
         Director.Instance.WarningWithText(text);
-        player.gameOver = true;
+        Player.gameOver = true;
         foreach (Transform tr in questionsContent)
             Destroy(tr.gameObject);
     }
@@ -661,7 +668,7 @@ public class GamePanel : MonoBehaviour
                 else
                     t = t.Replace(str, "<color=#6BBEFF>" + val.ToString() + "</color>");
             }
-            catch { Director.Instance.WarningWithText("Неправильная формула подстановки!"); }
+            catch { Director.Instance.WarningWithText("Invalid substitution formula!"); }
         }
         return t;
     }
@@ -684,10 +691,10 @@ public class GamePanel : MonoBehaviour
 
     public void ActionFinal(bool victory)
     {
-        if(victory)        
-            Director.Instance.WarningWithText("Квест пройден!");        
-        else        
-            Director.Instance.WarningWithText("Квест провален!");
+        if (victory)
+            Director.Instance.WarningWithText("Quest completed!");
+        else
+            Director.Instance.WarningWithText("Quest failed!");
 
         victoryCell.SetActive(false);
         defeatCell.SetActive(false);
@@ -714,8 +721,8 @@ public class GamePanel : MonoBehaviour
     {
         if(singlePassage != null)
         {
-            player.locationID = singlePassage.to;
-            player.passageID = singlePassage.id;
+            Player.locationID = singlePassage.to;
+            Player.passageID = singlePassage.id;
             ShowPassage(singlePassage);
         }      
     }

@@ -5,20 +5,20 @@ using TMPro;
 [RequireComponent(typeof(TMP_Text))]
 public class AliveText : MonoBehaviour
 {
-    [HideInInspector]
-    public TMP_Text aliveText;
+    TMP_Text text;
+    public TMP_Text Text => text;
 
     string startText;
 
     private void Awake()
     {
-        aliveText = GetComponent<TMP_Text>();
-        startText = aliveText.text;
+        text = GetComponent<TMP_Text>();
+        startText = text.text;
     } 
 
     private void OnEnable()
-    {       
-        aliveText.text = startText;
+    {
+        text.text = startText;
     }
 
     public void SetText(string str)
@@ -48,7 +48,7 @@ public class AliveText : MonoBehaviour
             }
 
             string sub = str.Substring(0, length);
-            aliveText.text = sub;
+            text.text = sub;
         }        
     }
 }
