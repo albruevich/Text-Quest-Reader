@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 
-[System.Serializable]
 public class PlayerSaveData
 {
     public int locationID;
