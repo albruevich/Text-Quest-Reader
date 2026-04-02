@@ -3,13 +3,13 @@ using Z.Expressions;
 
 public class LocationDescriptionResolver
 {
-    private readonly GamePanel gamePanel;
+    private readonly TextParser textParser;
 
     public int LastDescriptionIndex { get; private set; }
 
-    public LocationDescriptionResolver(GamePanel gamePanel)
-    {
-        this.gamePanel = gamePanel;
+    public LocationDescriptionResolver(TextParser textParser)
+    {       
+        this.textParser = textParser;
     }
 
     public string Resolve(Location location)
@@ -41,7 +41,7 @@ public class LocationDescriptionResolver
         {
             try
             {
-                index = Eval.Execute<int>(location.formula, FillFormulaDict());
+                index = Eval.Execute<int>(location.formula, textParser.FillFormulaDict());
             }
             catch
             {
@@ -62,15 +62,5 @@ public class LocationDescriptionResolver
     {
         LastDescriptionIndex = location.visitCounter % location.descriptions.Count;
         return location.descriptions[LastDescriptionIndex];
-    }
-
-    private System.Collections.Generic.Dictionary<string, object> FillFormulaDict()
-    {
-        var parameters = new System.Collections.Generic.Dictionary<string, object>();
-
-        foreach (Parameter parameter in gamePanel.Player.quest.parameters)
-            parameters.Add("p" + parameter.index, parameter.value);
-
-        return parameters;
-    }
+    }  
 }

@@ -41,7 +41,7 @@ public class GamePanel : MonoBehaviour
         Instance = this;
 
         textParser = new TextParser(this);
-        locationDescriptionResolver = new LocationDescriptionResolver(this);
+        locationDescriptionResolver = new LocationDescriptionResolver(textParser);
         passageResolver = new PassageResolver(this, textParser);
 
         parameterService = new ParameterService(this, textParser, paramsContent, parameterTextPref,

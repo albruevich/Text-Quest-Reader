@@ -117,8 +117,9 @@ public class PassageResolver
                         passages.Remove(passageToDelete);
                 }
             }
-            catch
+            catch (System.Exception ex)
             {
+                Debug.LogError(ex);
             }
         }
 

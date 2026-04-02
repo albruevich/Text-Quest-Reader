@@ -83,5 +83,5 @@ public class TextParser
             parameters.Add("p" + parameter.index, parameter.value);
 
         return parameters;
-    }
+    }  
 }
