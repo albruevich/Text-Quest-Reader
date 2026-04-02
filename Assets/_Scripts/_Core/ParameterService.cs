@@ -111,11 +111,8 @@ public class ParameterService
                 string key = $"p{i + 1}";
                 output = output.Replace(key, p.value.ToString());
             }
-
-            float y = -(visibleParameters.Count - 1) * interval / 2f + interval * index;
-
-            GameObject cell = UnityEngine.Object.Instantiate(parameterTextPref, paramsContent);
-            cell.GetComponent<RectTransform>().anchoredPosition = new Vector2(20, y);
+       
+            GameObject cell = UnityEngine.Object.Instantiate(parameterTextPref, paramsContent);            
             cell.GetComponent<TMP_Text>().text = output;
 
             index++;

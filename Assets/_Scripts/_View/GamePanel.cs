@@ -55,9 +55,9 @@ public class GamePanel : MonoBehaviour
     private void Start()
     {
         mainPictureRect.sizeDelta = new Vector2(mainPictureRect.rect.height, mainPictureRect.sizeDelta.y);
-        paramsRect.sizeDelta = new Vector2(paramsRect.rect.height, paramsRect.sizeDelta.y);       
+        paramsRect.sizeDelta = new Vector2(mainPictureRect.rect.height, paramsRect.sizeDelta.y);       
         mainTextRect.sizeDelta = new Vector2(canvas.rect.width - mainPictureRect.sizeDelta.x, mainTextRect.sizeDelta.y);
-        questionsRect.sizeDelta = new Vector2(canvas.rect.width - questionsRect.sizeDelta.x, questionsRect.sizeDelta.y);
+        questionsRect.sizeDelta = new Vector2(canvas.rect.width - mainPictureRect.sizeDelta.x, questionsRect.sizeDelta.y);
 
         if (SaveLoadManager.Instance.LoadedPlayer == null)
             RestartQuest();
