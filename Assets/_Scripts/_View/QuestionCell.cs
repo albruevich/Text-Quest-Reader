@@ -8,6 +8,7 @@ public class QuestionCell : MonoBehaviour
     [SerializeField] private GameObject selectedImage;
     [SerializeField] private GameObject circle;
     [SerializeField] private Button button;
+
     [SerializeField] private GamePanel gamePanel; // can be assigned in inspector or via StartWith()
 
     private Passage passage;
