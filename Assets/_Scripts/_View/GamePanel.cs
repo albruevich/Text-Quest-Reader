@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Collections;
 using UnityEngine;
 
 public class GamePanel : MonoBehaviour
@@ -9,10 +8,8 @@ public class GamePanel : MonoBehaviour
     [SerializeField] private RectTransform paramsContent;
     [SerializeField] private RectTransform mainTextRect;
     [SerializeField] private RectTransform questionsRect;
-    [SerializeField] private RectTransform questionsContent;   
-  
-    [SerializeField] private RectTransform canvas;
-  
+    [SerializeField] private RectTransform questionsContent;     
+    [SerializeField] private RectTransform canvas;  
 
     [SerializeField] private GameObject parameterTextPref;
     [SerializeField] private GameObject victoryCell;
@@ -23,7 +20,6 @@ public class GamePanel : MonoBehaviour
     [SerializeField] private SettingsPanel settingsPref;
     [SerializeField] private QuestionCell questionCellPref;
     [SerializeField] private AliveText mainText;
-    //[SerializeField] private AutoCanvasScaler autoCanvasScaler;
     [SerializeField] private PictureNode pictureNode;
 
     public Player Player { get; set; }
