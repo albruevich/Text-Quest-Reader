@@ -8,17 +8,17 @@ public class AutoCanvasScaler : MonoBehaviour
 
     private void Awake()
     {
-        DoScale();
+        //DoScale();
     }  
 
     public void DoScale()
     {
         float devider = 2270f;
 
-        if (ReaderUtils.IsPad())
-            devider = 1700f;
-        if (ReaderUtils.IsPhoneX() || ReaderUtils.IsAndroidTall())
-            devider = 2622f;
+        //if (ReaderUtils.IsPad())
+        //    devider = 1700f;
+        //if (ReaderUtils.IsPhoneX() || ReaderUtils.IsAndroidTall())
+        //    devider = 2622f;
 
         scaleFactor = Screen.height / devider;
         GetComponent<CanvasScaler>().scaleFactor = scaleFactor;              

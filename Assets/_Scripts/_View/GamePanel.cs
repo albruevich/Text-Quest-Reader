@@ -1,14 +1,18 @@
 ﻿using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 
 public class GamePanel : MonoBehaviour
 {
-    [SerializeField] private RectTransform questionsContent;
-    [SerializeField] private RectTransform paramsContent;
-    [SerializeField] private RectTransform questionsRect;
-    [SerializeField] private RectTransform paramsRect;
-    [SerializeField] private RectTransform canvas;
     [SerializeField] private RectTransform mainPictureRect;
+    [SerializeField] private RectTransform paramsRect;
+    [SerializeField] private RectTransform paramsContent;
+    [SerializeField] private RectTransform mainTextRect;
+    [SerializeField] private RectTransform questionsRect;
+    [SerializeField] private RectTransform questionsContent;   
+  
+    [SerializeField] private RectTransform canvas;
+  
 
     [SerializeField] private GameObject parameterTextPref;
     [SerializeField] private GameObject victoryCell;
@@ -19,7 +23,7 @@ public class GamePanel : MonoBehaviour
     [SerializeField] private SettingsPanel settingsPref;
     [SerializeField] private QuestionCell questionCellPref;
     [SerializeField] private AliveText mainText;
-    [SerializeField] private AutoCanvasScaler autoCanvasScaler;
+    //[SerializeField] private AutoCanvasScaler autoCanvasScaler;
     [SerializeField] private PictureNode pictureNode;
 
     public Player Player { get; set; }
@@ -50,12 +54,10 @@ public class GamePanel : MonoBehaviour
 
     private void Start()
     {
-        mainPictureRect.sizeDelta = new Vector2(mainPictureRect.sizeDelta.x, mainPictureRect.rect.width / autoCanvasScaler.scaleFactor);
-        paramsRect.sizeDelta = new Vector2(paramsRect.sizeDelta.x, paramsRect.rect.width / 3f / autoCanvasScaler.scaleFactor);
-
-        float questionHeight = (Screen.safeArea.height - paramsRect.sizeDelta.y * autoCanvasScaler.scaleFactor -
-                                mainPictureRect.sizeDelta.y * autoCanvasScaler.scaleFactor) / autoCanvasScaler.scaleFactor;
-        questionsRect.sizeDelta = new Vector2(questionsRect.sizeDelta.x, questionHeight);
+        mainPictureRect.sizeDelta = new Vector2(mainPictureRect.rect.height, mainPictureRect.sizeDelta.y);
+        paramsRect.sizeDelta = new Vector2(paramsRect.rect.height, paramsRect.sizeDelta.y);       
+        mainTextRect.sizeDelta = new Vector2(canvas.rect.width - mainPictureRect.sizeDelta.x, mainTextRect.sizeDelta.y);
+        questionsRect.sizeDelta = new Vector2(canvas.rect.width - questionsRect.sizeDelta.x, questionsRect.sizeDelta.y);
 
         if (SaveLoadManager.Instance.LoadedPlayer == null)
             RestartQuest();
@@ -73,7 +75,7 @@ public class GamePanel : MonoBehaviour
         {
             startButton.SetActive(false);
             ShowCurrentLocation();
-        }
+        }      
     }
 
     #endregion
