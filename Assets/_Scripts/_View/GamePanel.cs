@@ -185,49 +185,12 @@ public class GamePanel : MonoBehaviour
 
         Location location = Player.quest.FindLocationWith(Player.locationID);
 
-        parameterService.ApplyInfluences(location, ShowMainText);
-        parameterService.Demonstrate(location);
+        ShowLocationContent(location);
 
         if (Player.gameOver)
             return;
 
-        string description = locationDescriptionResolver.Resolve(location);
-        ShowMainText(textParser.Parse(description));
-
-        ClearQuestions();
-
-        List<PassageInfo> visiblePassages = passageResolver.ResolveVisiblePassages(location);
-
-        singlePassage = null;
-        nextNode.SetActive(visiblePassages.Count == 1);
-
-        if (visiblePassages.Count > 1)
-        {
-            const float interval = 120f;
-            int index = 0;
-
-            foreach (PassageInfo info in visiblePassages)
-            {
-                QuestionCell cell = Instantiate(questionCellPref, questionsContent);
-                cell.StartWith(this, info.pass, index * 0.15f);
-
-                RectTransform cellRect = cell.GetComponent<RectTransform>();
-                float y = (visiblePassages.Count - 1) * interval / 2f - interval * index;
-                cellRect.anchoredPosition = new Vector2(60f, y);
-
-                if (!info.isAllConditions && info.pass.alwaysShow)
-                    cell.DisableButton();
-
-                index++;
-            }
-
-            RectTransform viewPort = (RectTransform)questionsContent.parent;
-            questionsContent.sizeDelta = new Vector2(questionsContent.sizeDelta.x, Mathf.Max(viewPort.rect.height, index * interval));
-        }
-        else if (visiblePassages.Count == 1)
-        {
-            singlePassage = visiblePassages[0].pass;
-        }
+        List<PassageInfo> visiblePassages = ShowLocationPassages(location);
 
         if (location.locationType == LocationType.Victory)
         {
@@ -240,9 +203,55 @@ public class GamePanel : MonoBehaviour
             Final();
         }
         else if (visiblePassages.Count == 0)
+        {
             Debug.LogWarning("Error: no available transitions!");
+        }
 
         location.visitCounter++;
+    }
+
+    private void ShowLocationContent(Location location)
+    {
+        parameterService.ApplyInfluences(location, ShowMainText);
+        parameterService.Demonstrate(location);
+
+        if (Player.gameOver)
+            return;
+
+        string description = locationDescriptionResolver.Resolve(location);
+        ShowMainText(textParser.Parse(description));
+
+        ClearQuestions();
+    }
+
+    private List<PassageInfo> ShowLocationPassages(Location location)
+    {
+        List<PassageInfo> visiblePassages = passageResolver.ResolveVisiblePassages(location);
+
+        singlePassage = null;
+        nextNode.SetActive(false);
+
+        const float interval = 120f;
+
+        for (int index = 0; index < visiblePassages.Count; index++)
+        {
+            PassageInfo info = visiblePassages[index];
+
+            QuestionCell cell = Instantiate(questionCellPref, questionsContent);
+            cell.StartWith(this, info.pass, index * 0.15f);
+
+            RectTransform cellRect = cell.GetComponent<RectTransform>();
+            float y = (visiblePassages.Count - 1) * interval / 2f - interval * index;
+            cellRect.anchoredPosition = new Vector2(60f, y);
+
+            if (!info.isAllConditions && info.pass.alwaysShow)
+                cell.DisableButton();
+        }
+
+        RectTransform viewPort = (RectTransform)questionsContent.parent;
+        questionsContent.sizeDelta = new Vector2(questionsContent.sizeDelta.x, Mathf.Max(viewPort.rect.height, visiblePassages.Count * interval));
+
+        return visiblePassages;
     }
 
     private void ShowMainText(string text)
