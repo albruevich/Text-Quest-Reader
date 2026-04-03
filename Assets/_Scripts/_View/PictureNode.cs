@@ -37,7 +37,8 @@ public class PictureNode : MonoBehaviour
         else        
             Debug.LogWarning($"Sprite not found: {pictureName}");        
 
-        animator.Play("FadePictures");
+        if(animator)
+            animator.Play("FadePictures");
     }
 
     public void Callback()

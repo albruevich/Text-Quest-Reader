@@ -12,4 +12,13 @@ public class SettingsPanel : MonoBehaviour
         GamePanel.Instance.RestartQuest();
         Destroy(gameObject);
     }
+
+    public void ActionQuit()
+    {
+        Application.Quit();
+
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
+    }
 }

@@ -36,7 +36,7 @@ public class QuestionCell : MonoBehaviour
     private IEnumerator ShowWithDelay()
     {
         yield return new WaitForSeconds(delay);
-
+       
         circle.SetActive(true);
         questionText.SetText(text);
     }
