@@ -73,15 +73,18 @@ public class TextParser
         }
 
         return result;
-    }
+    }   
 
     public Dictionary<string, object> FillFormulaDict()
     {
-        Dictionary<string, object> parameters = new Dictionary<string, object>();
+        Dictionary<string, object> paramsDict = new Dictionary<string, object>();
 
-        foreach (Parameter parameter in gamePanel.Player.quest.parameters)
-            parameters.Add("p" + parameter.index, parameter.value);
+        foreach (Parameter p in gamePanel.Player.quest.parameters)
+            paramsDict.Add("p" + p.index, p.value);
 
-        return parameters;
-    }  
+        // писать в поле Expression типо: p9 - rnd(1, 3)
+        paramsDict.Add("rnd", new System.Func<int, int, int>((min, max) => Random.Range(min, max + 1)));
+
+        return paramsDict;
+    }
 }

@@ -89,7 +89,6 @@ public class ParameterService
 
         List<Parameter> visibleParameters = GetVisibleParameters();
 
-        const float interval = 70f;
         int index = 0;
 
         foreach (Parameter parameter in visibleParameters)
@@ -117,11 +116,6 @@ public class ParameterService
 
             index++;
         }
-
-        RectTransform viewPort = (RectTransform)paramsContent.parent;
-        paramsContent.sizeDelta = new Vector2(
-            paramsContent.sizeDelta.x,
-            Mathf.Max(viewPort.rect.height, index * interval));
     }
 
     private void ApplyFormulaInfluence(string formula, Parameter parameter)
@@ -134,30 +128,8 @@ public class ParameterService
 
         try
         {
-            if (formula.Contains("rnd"))
-            {
-                List<string> list = textParser.GetBetween(formula, "(", ")");
-
-                foreach (string str in list)
-                {
-                    formula = str.Replace("(", "");
-                    formula = formula.Replace(")", "");
-                }
-
-                string[] ints = formula.Split(',');
-
-                if (ints.Length > 1 &&
-                    int.TryParse(ints[0], out int minValue) &&
-                    int.TryParse(ints[1], out int maxValue))
-                {
-                    parameter.value = Random.Range(minValue, maxValue);
-                }
-            }
-            else
-            {
-                int value = Eval.Execute<int>(formula, textParser.FillFormulaDict());
-                parameter.value = Clamp(value, parameter);
-            }
+            int value = Eval.Execute<int>(formula, textParser.FillFormulaDict());
+            parameter.value = Clamp(value, parameter);
         }
         catch
         {

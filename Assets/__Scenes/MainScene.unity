@@ -942,8 +942,12 @@ PrefabInstance:
       value: 4290242273
       objectReference: {fileID: 0}
     - target: {fileID: 5079660865577044725, guid: 1455bd659a10443bb832b1e1c4f02ad3, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: -150.53595
+      objectReference: {fileID: 0}
+    - target: {fileID: 5079660865577044725, guid: 1455bd659a10443bb832b1e1c4f02ad3, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 24.464111
+      value: 34.732025
       objectReference: {fileID: 0}
     - target: {fileID: 8471604944719199673, guid: 1455bd659a10443bb832b1e1c4f02ad3, type: 3}
       propertyPath: gamePanel
@@ -1776,8 +1780,12 @@ PrefabInstance:
       value: GamePanel, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 5079660865577044725, guid: 1455bd659a10443bb832b1e1c4f02ad3, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: -150.53595
+      objectReference: {fileID: 0}
+    - target: {fileID: 5079660865577044725, guid: 1455bd659a10443bb832b1e1c4f02ad3, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 24.464111
+      value: 34.732025
       objectReference: {fileID: 0}
     - target: {fileID: 8471604944719199673, guid: 1455bd659a10443bb832b1e1c4f02ad3, type: 3}
       propertyPath: gamePanel
@@ -3462,8 +3470,12 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5079660865577044725, guid: 1455bd659a10443bb832b1e1c4f02ad3, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: -150.53595
+      objectReference: {fileID: 0}
+    - target: {fileID: 5079660865577044725, guid: 1455bd659a10443bb832b1e1c4f02ad3, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 24.464111
+      value: 34.732025
       objectReference: {fileID: 0}
     - target: {fileID: 8471604944719199673, guid: 1455bd659a10443bb832b1e1c4f02ad3, type: 3}
       propertyPath: gamePanel
