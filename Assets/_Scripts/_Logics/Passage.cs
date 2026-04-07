@@ -37,15 +37,10 @@ public class Passage : Unit, ICloneable, IComparable
 
     public virtual int CompareTo(object otherObject)
     {
-        var other = (Passage)otherObject;
-
-        if (displayOrder < other.displayOrder)
-            return -1;
-
-        if (displayOrder > other.displayOrder)
-            return 1;
-
-        return 0;
+        Passage other = (Passage)otherObject;
+        if (displayOrder < other.displayOrder) return -1;
+        if (displayOrder > other.displayOrder) return 1;
+        return UnityEngine.Random.Range(-1, 2);
     }
 
     public static void RecountAllPassages()

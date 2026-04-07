@@ -4,10 +4,13 @@ using UnityEngine;
 
 public class SaveLoadManager
 {
+    // Put your quest folder in Assets/Resources/Quests
+    // Name your quest here 
+    public const string QuestFolderName = "Dream"; 
+
     private const string SavesFolderName = "Saves";
     private const string SaveFileName = "save.txt";
-    private const string QuestsResourcesPath = "_Quests";
-
+   
     private static SaveLoadManager instance;
 
     private readonly JsonSerializerSettings serializerSettings;
@@ -149,11 +152,11 @@ public class SaveLoadManager
 
     private void LoadQuestFromResources()
     {
-        TextAsset[] allQuests = Resources.LoadAll<TextAsset>(QuestsResourcesPath);
-        if (allQuests.Length == 0)
-            return;
+        TextAsset questAsset = Resources.Load<TextAsset>("Quests/" + QuestFolderName + "/quest");       
 
-        TextAsset questAsset = allQuests[0];
+        if (questAsset == null)
+            return;
+      
         Quest.Instance = JsonConvert.DeserializeObject<Quest>(questAsset.text, serializerSettings);
     }
 
