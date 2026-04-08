@@ -43,6 +43,8 @@ public class QuestionCell : MonoBehaviour
 
     public void ActionSelect()
     {
+        AudioManager.Instance.PlaySfx(SoundType.Click);
+
         if (passage != null)
         {
             var player = gamePanel.Player;

@@ -58,69 +58,54 @@ public class PassageResolver
         foreach (Passage passage in toDeleteByProbability)
             passages.Remove(passage);
 
+        HashSet<int> excludedIds = new HashSet<int>();
+
         for (int n = passages.Count - 1; n >= 0; n--)
         {
-            try
+            Passage passage = passages[n];
+
+            if (excludedIds.Contains(passage.id))
+                continue;
+
+            if (workPassages.Contains(passage))
+                continue;
+
+            if (passage.controversials.Count == 0 && passage.priority >= 1)
             {
-                Passage passage = passages[n];
+                workPassages.Add(passage);
+                continue;
+            }
 
-                if (workPassages.Contains(passage))
-                    continue;
+            List<Passage> allControversials = new List<Passage>(passage.controversials);
+            allControversials.Add(passage);
 
-                if (passage.controversials.Count == 0 && passage.priority >= 1)
+            List<Vector2> segments = new List<Vector2>();
+
+            int last = 0;
+            foreach (Passage controversialPassage in allControversials)
+            {
+                Vector2 segment = new Vector2(last, last + (int)controversialPassage.priority - 1);
+                last += (int)controversialPassage.priority;
+                segments.Add(segment);
+            }
+
+            int randomValue = Random.Range(0, last);
+
+            int selectedIndex = 0;
+            for (int i = 0; i < segments.Count; i++)
+            {
+                Vector2 segment = segments[i];
+                if (randomValue >= segment.x && randomValue <= segment.y)
                 {
-                    workPassages.Add(passage);
-                }
-                else
-                {
-                    List<Passage> allControversials = new List<Passage>(passage.controversials);
-                    allControversials.Add(passage);
-
-                    List<Vector2> segments = new List<Vector2>();
-
-                    int last = 0;
-                    foreach (Passage controversialPassage in allControversials)
-                    {
-                        Vector2 segment = new Vector2(last, last + (int)controversialPassage.priority - 1);
-                        last += (int)controversialPassage.priority;
-                        segments.Add(segment);
-                    }
-
-                    int randomValue = Random.Range(0, last);
-
-                    int selectedIndex = 0;
-                    foreach (Vector2 segment in segments)
-                    {
-                        if (randomValue >= segment.x && randomValue <= segment.y)
-                        {
-                            selectedIndex = segments.IndexOf(segment);
-                            break;
-                        }
-                    }
-
-                    workPassages.Add(allControversials[selectedIndex]);
-
-                    List<Passage> toDelete = new List<Passage>();
-                    foreach (Passage controversialPassage in allControversials)
-                    {
-                        foreach (Passage candidate in passages)
-                        {
-                            if (candidate.id == controversialPassage.id)
-                            {
-                                toDelete.Add(candidate);
-                                break;
-                            }
-                        }
-                    }
-
-                    foreach (Passage passageToDelete in toDelete)
-                        passages.Remove(passageToDelete);
+                    selectedIndex = i;
+                    break;
                 }
             }
-            catch (System.Exception ex)
-            {
-                Debug.LogError(ex);
-            }
+
+            workPassages.Add(allControversials[selectedIndex]);
+
+            foreach (Passage controversialPassage in allControversials)
+                excludedIds.Add(controversialPassage.id);
         }
 
         return workPassages;

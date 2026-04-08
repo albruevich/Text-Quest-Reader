@@ -30,6 +30,8 @@ public class GamePanel : MonoBehaviour
     private TextParser textParser;
     public TextParser TextParser => textParser;
 
+    public PictureNode PictureNode => pictureNode;
+
     private LocationDescriptionResolver locationDescriptionResolver;
     private PassageResolver passageResolver;
     private ParameterService parameterService;
@@ -80,6 +82,8 @@ public class GamePanel : MonoBehaviour
 
     public void ActionStart()
     {
+        AudioManager.Instance.PlaySfx(SoundType.Click);
+
         Player.gameOver = false;
         startButton.SetActive(false);
 
@@ -91,6 +95,8 @@ public class GamePanel : MonoBehaviour
         if (singlePassage == null)
             return;
 
+        AudioManager.Instance.PlaySfx(SoundType.Click);
+
         Player.locationID = singlePassage.to;
         Player.passageID = singlePassage.id;
 
@@ -99,6 +105,8 @@ public class GamePanel : MonoBehaviour
 
     public void ActionSettings()
     {
+        AudioManager.Instance.PlaySfx(SoundType.Click);
+
         Instantiate(settingsPref, canvas);
     }
 
@@ -256,20 +264,18 @@ public class GamePanel : MonoBehaviour
 
     private void ShowMainText(string text)
     {
-        List<string> imageTags = textParser.GetBetween(text, "<im", "im>");
-        string imageName = "";
+        string imageName = textParser.ExtractLastTagValue(ref text, "im");
+        string musicName = textParser.ExtractLastTagValue(ref text, "mu");
+        string soundName = textParser.ExtractLastTagValue(ref text, "so");
 
-        foreach (string tag in imageTags)
-        {
-            text = text.Replace(tag, "");
-            imageName = tag.Replace("<im", "");
-            imageName = imageName.Replace("im>", "");
-            imageName = imageName.Replace(" ", "");
-        }
+        if (!string.IsNullOrEmpty(imageName))
+            pictureNode.SetNewPicture(imageName);        
 
-        pictureNode.SetNewPicture(imageName);
+        AudioManager.Instance.PlayMusic(musicName);
+        AudioManager.Instance.PlaySfx(soundName);
+
         mainText.SetText(text);
-    }
+    }  
 
     private void Final()
     {

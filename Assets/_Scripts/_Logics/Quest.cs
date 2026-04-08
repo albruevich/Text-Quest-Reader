@@ -18,6 +18,9 @@ public class Quest : ICloneable
     }
 
     public string questName;
+    public string displayName;
+    public string startMucis;
+    public string startImage;
     public int locationCount;
     public int passageCount;
 
@@ -78,6 +81,10 @@ public class Quest : ICloneable
         clone.parameters = new List<Parameter>();
         clone.locations = new List<Location>();
         clone.passages = new List<Passage>();
+
+        clone.displayName = displayName;
+        clone.startImage = startImage;
+        clone.startMucis = startMucis;
 
         foreach (var parameter in parameters)
             clone.parameters.Add((Parameter)parameter.Clone());

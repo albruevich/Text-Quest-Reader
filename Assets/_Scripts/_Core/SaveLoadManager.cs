@@ -6,7 +6,7 @@ public class SaveLoadManager
 {
     // Put your quest folder in Assets/Resources/Quests
     // Name your quest here 
-    public const string QuestFolderName = "Dream"; 
+    public const string QuestFolderName = "SpaceStation"; 
 
     private const string SavesFolderName = "Saves";
     private const string SaveFileName = "save.txt";
@@ -59,7 +59,7 @@ public class SaveLoadManager
     {
         string playerSavePath = GetPlayerSavePath();
 
-        Debug.Log(playerSavePath);
+        //Debug.Log(playerSavePath);
 
         if (!File.Exists(playerSavePath))
             return;
@@ -77,8 +77,11 @@ public class SaveLoadManager
             locationID = saveData.locationID,
             passageID = saveData.passageID,
             gameOver = saveData.gameOver,
-            quest = questClone
+            quest = questClone           
         };
+
+        if (!string.IsNullOrEmpty(saveData.lastPlayedMusic))
+            AudioManager.Instance.PlayMusic(saveData.lastPlayedMusic);
 
         RestoreParameters(questClone, saveData);
         RestoreLocations(questClone, saveData);
@@ -93,7 +96,8 @@ public class SaveLoadManager
         {
             locationID = player.locationID,
             passageID = player.passageID,
-            gameOver = player.gameOver
+            gameOver = player.gameOver,
+            lastPlayedMusic = AudioManager.Instance.CurrentMusicName
         };
 
         foreach (Parameter parameter in player.quest.parameters)

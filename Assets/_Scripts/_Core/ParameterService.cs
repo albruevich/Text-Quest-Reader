@@ -78,6 +78,17 @@ public class ParameterService
                         defeatCell.SetActive(true);
                         break;
                 }
+
+                if (!string.IsNullOrEmpty(parameter.critResources))
+                {
+                    string imageName = textParser.ExtractLastTagValue(ref parameter.critResources, "im");
+                    string soundName = textParser.ExtractLastTagValue(ref parameter.critResources, "so");
+
+                    if (!string.IsNullOrEmpty(imageName))
+                        gamePanel.PictureNode.SetNewPicture(imageName);                  
+
+                    AudioManager.Instance.PlaySfx(soundName);
+                }
             }
         }
     }

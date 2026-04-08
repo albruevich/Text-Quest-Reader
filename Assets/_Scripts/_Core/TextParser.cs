@@ -87,4 +87,18 @@ public class TextParser
 
         return paramsDict;
     }
+
+    public string ExtractLastTagValue(ref string text, string tag)
+    {
+        List<string> tags = GetBetween(text, "<" + tag, tag + ">");
+        string value = "";
+
+        foreach (string fullTag in tags)
+        {
+            text = text.Replace(fullTag, "");
+            value = fullTag.Replace("<" + tag, "").Replace(tag + ">", "").Replace(" ", "");
+        }
+
+        return value;
+    }
 }

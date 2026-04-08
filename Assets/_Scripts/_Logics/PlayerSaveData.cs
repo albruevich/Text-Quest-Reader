@@ -5,6 +5,7 @@ public class PlayerSaveData
     public int locationID;
     public int passageID;
     public bool gameOver;
+    public string lastPlayedMusic;
 
     public List<int> parameterValues = new List<int>();
     public List<bool> parameterHidden = new List<bool>();

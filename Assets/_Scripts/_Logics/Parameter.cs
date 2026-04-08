@@ -18,6 +18,7 @@ public class Parameter : ICloneable
     public bool isHidden;
 
     public string criticText;
+    public string critResources;
 
     public List<ParamsRange> paramsRanges;
 

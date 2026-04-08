@@ -10,7 +10,10 @@ public class AliveText : MonoBehaviour
 
     private string startText;
 
-    private const float CharDelay = 0.004f;
+    private const float minCharsPerSecond = 80f;
+    private const float maxCharsPerSecond = 700f;
+    private const int shortTextLength = 40;
+    private const int longTextLength = 500;
 
     private void Awake()
     {
@@ -26,40 +29,45 @@ public class AliveText : MonoBehaviour
     public void SetText(string value)
     {
         StopAllCoroutines();
-        StartCoroutine(AnimateText(value));
+        StartCoroutine(ShowText(value));
     }
 
-    private IEnumerator AnimateText(string value)
+    private IEnumerator ShowText(string value)
     {
-        if (string.IsNullOrEmpty(value))
-            yield break;
+        if (string.IsNullOrEmpty(value))                    
+            yield break;        
 
-        int length = 0;
+        text.text = value;
+        text.maxVisibleCharacters = 0;
+
+        float charsPerSecond = GetCharsPerSecond(value.Length);
+
         float timer = 0f;
+        int charIndex = 0;
 
-        while (length < value.Length)
+        while (charIndex < value.Length)
         {
             timer += Time.deltaTime;
 
-            if (timer >= CharDelay)
+            int charsToShow = Mathf.FloorToInt(timer * charsPerSecond);
+
+            if (charsToShow > 0)
             {
-                timer = 0f;
+                timer -= charsToShow / charsPerSecond;
 
-                length++;
+                charIndex += charsToShow;
+                charIndex = Mathf.Min(charIndex, value.Length);
 
-                // skip rich text tags <...>
-                if (value[length - 1] == '<')
-                {
-                    length++;
-
-                    while (value[length - 1] != '>')
-                        length++;
-                }
-
-                text.text = value.Substring(0, length);
+                text.maxVisibleCharacters = charIndex;
             }
 
             yield return null;
         }
+    }
+
+    private float GetCharsPerSecond(int textLength)
+    {
+        float t = Mathf.InverseLerp(shortTextLength, longTextLength, textLength);
+        return Mathf.Lerp(minCharsPerSecond, maxCharsPerSecond, t);
     }
 }
