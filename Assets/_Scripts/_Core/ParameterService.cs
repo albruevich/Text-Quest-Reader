@@ -13,10 +13,11 @@ public class ParameterService
     private readonly GameObject parameterTextPref;
     private readonly GameObject victoryCell;
     private readonly GameObject defeatCell;
+    private readonly GameObject nextNode;
     private readonly Transform questionsContent;
 
     public ParameterService(GamePanel gamePanel, TextParser textParser, RectTransform paramsContent, GameObject parameterTextPref,
-                            GameObject victoryCell, GameObject defeatCell, Transform questionsContent)
+                            GameObject victoryCell, GameObject defeatCell, GameObject nextNode, Transform questionsContent)
     {
         this.gamePanel = gamePanel;
         this.textParser = textParser;
@@ -24,6 +25,7 @@ public class ParameterService
         this.parameterTextPref = parameterTextPref;
         this.victoryCell = victoryCell;
         this.defeatCell = defeatCell;
+        this.nextNode = nextNode;
         this.questionsContent = questionsContent;
     }
 
@@ -78,6 +80,8 @@ public class ParameterService
                         defeatCell.SetActive(true);
                         break;
                 }
+
+                nextNode.SetActive(false);
 
                 if (!string.IsNullOrEmpty(parameter.critResources))
                 {

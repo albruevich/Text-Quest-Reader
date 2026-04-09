@@ -47,7 +47,7 @@ public class GamePanel : MonoBehaviour
         passageResolver = new PassageResolver(this, textParser);
 
         parameterService = new ParameterService(this, textParser, paramsContent, parameterTextPref,
-                                                victoryCell, defeatCell, questionsContent);
+                                                victoryCell, defeatCell, nextNode, questionsContent);
     }
 
     private void Start()

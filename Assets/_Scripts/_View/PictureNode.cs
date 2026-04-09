@@ -21,6 +21,7 @@ public class PictureNode : MonoBehaviour
         outerPicture.color = Color.white;
         innerPicture.color = Color.white;
 
+        //todo
         //outerPicture.sprite = startSprite;
         //innerPicture.sprite = startSprite;   
     }
