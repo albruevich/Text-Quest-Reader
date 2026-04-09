@@ -43,7 +43,7 @@ public class GamePanel : MonoBehaviour
     private PassageResolver passageResolver;
     private ParameterService parameterService;
 
-    Quest selectedQuest = null;
+    private Quest selectedQuest = null;
 
     #region Inits
 
@@ -96,12 +96,13 @@ public class GamePanel : MonoBehaviour
 
     public void ActionStart()
     {
+        AudioManager.Instance.PlaySfx(SoundType.Click);
+
         if (selectedQuest == null)
             return;
 
         CreatePlayer(selectedQuest);
-
-        AudioManager.Instance.PlaySfx(SoundType.Click);       
+            
         startButton.SetActive(false);
 
         ShowCurrentLocation();
@@ -285,8 +286,6 @@ public class GamePanel : MonoBehaviour
 
     private void Final()
     {
-        Debug.Log("Final");
-
         player.gameOver = true;
         ClearQuestions();
     }

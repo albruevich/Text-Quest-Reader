@@ -5,7 +5,7 @@ using UnityEngine;
 public class TextParser
 {
     private readonly GamePanel gamePanel;
-    private const string replacementColor = "<color=#6BBEFF>";
+    private const string replacementColor = "<color=#D6A85E>";
 
     public TextParser(GamePanel gamePanel)
     {
@@ -81,8 +81,7 @@ public class TextParser
 
         foreach (Parameter p in gamePanel.Player.quest.parameters)
             paramsDict.Add("p" + p.index, p.value);
-
-        // писать в поле Expression типо: p9 - rnd(1, 3)
+       
         paramsDict.Add("rnd", new System.Func<int, int, int>((min, max) => Random.Range(min, max + 1)));
 
         return paramsDict;
