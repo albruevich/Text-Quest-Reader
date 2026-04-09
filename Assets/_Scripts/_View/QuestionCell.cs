@@ -27,6 +27,8 @@ public class QuestionCell : MonoBehaviour
         selectedImage.SetActive(false);
     }
 
+    public void SetText(string textString) => text = textString;    
+
     private void OnEnable()
     {
         circle.SetActive(false);

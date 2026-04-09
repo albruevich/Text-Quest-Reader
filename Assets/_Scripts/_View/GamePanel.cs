@@ -11,14 +11,15 @@ public class GamePanel : MonoBehaviour
     [SerializeField] private RectTransform questionsContent;     
     [SerializeField] private RectTransform canvas;  
 
-    [SerializeField] private GameObject parameterTextPref;
-    [SerializeField] private GameObject victoryCell;
-    [SerializeField] private GameObject defeatCell;
-    [SerializeField] private GameObject nextNode;
+    [SerializeField] private GameObject parameterTextPref;  
     [SerializeField] private GameObject startButton;
 
-    [SerializeField] private SettingsPanel settingsPref;
+    [SerializeField] private QuestionCell victoryCell;
+    [SerializeField] private QuestionCell defeatCell;
+    [SerializeField] private QuestionCell nextCell;
     [SerializeField] private QuestionCell questionCellPref;
+
+    [SerializeField] private SettingsPanel settingsPref;    
     [SerializeField] private AliveText mainText;
     [SerializeField] private PictureNode pictureNode;
 
@@ -47,7 +48,7 @@ public class GamePanel : MonoBehaviour
         passageResolver = new PassageResolver(this, textParser);
 
         parameterService = new ParameterService(this, textParser, paramsContent, parameterTextPref,
-                                                victoryCell, defeatCell, nextNode, questionsContent);
+                                                victoryCell, defeatCell, nextCell, questionsContent);
     }
 
     private void Start()
@@ -67,13 +68,22 @@ public class GamePanel : MonoBehaviour
             mainText.SetText($"Quest: '{Player.quest.questName}'");
 
             startButton.SetActive(true);
-            nextNode.SetActive(false);
+            nextCell.gameObject.SetActive(false);
         }
         else
         {
             startButton.SetActive(false);
             ShowCurrentLocation();
-        }      
+        }
+
+        InitQuestCells();
+    }
+
+    private void InitQuestCells()
+    {
+        nextCell.SetText(Localization.Get(LocKeys.Next));
+        victoryCell.SetText(Localization.Get(LocKeys.YouWin));
+        defeatCell.SetText(Localization.Get(LocKeys.YouLose));
     }
 
     #endregion
@@ -116,10 +126,10 @@ public class GamePanel : MonoBehaviour
 
         pictureNode.InitializePictures();
 
-        nextNode.SetActive(false);
+        gameObject.gameObject.SetActive(false);
         startButton.SetActive(true);
-        victoryCell.SetActive(false);
-        defeatCell.SetActive(false);
+        victoryCell.gameObject.SetActive(false);
+        defeatCell.gameObject.SetActive(false);
 
         Player = new Player
         {
@@ -146,7 +156,7 @@ public class GamePanel : MonoBehaviour
     public void ShowPassage(Passage passage)
     {
         singlePassage = null;
-        nextNode.SetActive(true);
+        nextCell.gameObject.SetActive(true);
 
         parameterService.ApplyInfluences(passage, ShowMainText);
 
@@ -189,7 +199,7 @@ public class GamePanel : MonoBehaviour
 
     private void ShowCurrentLocation()
     {
-        nextNode.SetActive(false);
+        nextCell.gameObject.SetActive(false);
 
         Location location = Player.quest.FindLocationWith(Player.locationID);
 
@@ -202,12 +212,12 @@ public class GamePanel : MonoBehaviour
 
         if (location.locationType == LocationType.Victory)
         {
-            victoryCell.SetActive(true);
+            victoryCell.gameObject.SetActive(true);
             Final();
         }
         else if (location.locationType == LocationType.Fail)
         {
-            defeatCell.SetActive(true);
+            defeatCell.gameObject.SetActive(true);
             Final();
         }
         else if (visiblePassages.Count == 0)
@@ -237,7 +247,7 @@ public class GamePanel : MonoBehaviour
         List<PassageInfo> visiblePassages = passageResolver.ResolveVisiblePassages(location);
 
         singlePassage = null;
-        nextNode.SetActive(false);
+        nextCell.gameObject.SetActive(false);
 
         const float interval = 120f;
 

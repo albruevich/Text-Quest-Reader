@@ -1,7 +1,19 @@
 using UnityEngine;
+using TMPro;
 
 public class SettingsPanel : MonoBehaviour
 {
+    [SerializeField] private TMP_Text titleText;
+    [SerializeField] private TMP_Text resetText;
+    [SerializeField] private TMP_Text quitText;
+
+    private void Start()
+    {
+        titleText.text = Localization.Get(LocKeys.Settings);
+        resetText.text = Localization.Get(LocKeys.ResetGame);
+        quitText.text = Localization.Get(LocKeys.Quit);
+    }
+
     public void ActionClose()
     {
         AudioManager.Instance.PlaySfx(SoundType.Click);
