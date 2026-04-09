@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class GamePanel : MonoBehaviour
 {
@@ -22,8 +23,13 @@ public class GamePanel : MonoBehaviour
     [SerializeField] private SettingsPanel settingsPref;    
     [SerializeField] private AliveText mainText;
     [SerializeField] private PictureNode pictureNode;
+    [SerializeField] private TMP_Text startQuestText;
+    [SerializeField] private QuestFoldersList questFoldersList;
+    [SerializeField] private QuestCell questCellPref;
 
-    public Player Player { get; set; }
+    private Player player;
+    public Player Player => player;
+
     public static GamePanel Instance { get; private set; }
 
     private Passage singlePassage;
@@ -36,6 +42,8 @@ public class GamePanel : MonoBehaviour
     private LocationDescriptionResolver locationDescriptionResolver;
     private PassageResolver passageResolver;
     private ParameterService parameterService;
+
+    Quest selectedQuest = null;
 
     #region Inits
 
@@ -52,35 +60,31 @@ public class GamePanel : MonoBehaviour
     }
 
     private void Start()
-    {
+    {       
         mainPictureRect.sizeDelta = new Vector2(mainPictureRect.rect.height, mainPictureRect.sizeDelta.y);
         paramsRect.sizeDelta = new Vector2(mainPictureRect.rect.height, paramsRect.sizeDelta.y);       
         mainTextRect.sizeDelta = new Vector2(canvas.rect.width - mainPictureRect.sizeDelta.x, mainTextRect.sizeDelta.y);
         questionsRect.sizeDelta = new Vector2(canvas.rect.width - mainPictureRect.sizeDelta.x, questionsRect.sizeDelta.y);
 
-        if (SaveLoadManager.Instance.LoadedPlayer == null)
-            RestartQuest();
+        InitLocalisations();
+
+        Player loadedPlayer = SaveLoadManager.Instance.LoadPlayer();         
+
+        if (loadedPlayer == null)
+            ShowAllQuestsOnStart();        
         else
-            Player = SaveLoadManager.Instance.LoadedPlayer;
+            player = loadedPlayer;       
 
-        if (Player.gameOver)
-        {
-            mainText.SetText($"Quest: '{Player.quest.questName}'");
+        if (player == null)
+            return;
 
-            startButton.SetActive(true);
-            nextCell.gameObject.SetActive(false);
-        }
-        else
-        {
-            startButton.SetActive(false);
-            ShowCurrentLocation();
-        }
+        startButton.SetActive(false);
+        ShowCurrentLocation();          
+    }   
 
-        InitQuestCells();
-    }
-
-    private void InitQuestCells()
+    private void InitLocalisations()
     {
+        startQuestText.text = Localization.Get(LocKeys.StartQuest);
         nextCell.SetText(Localization.Get(LocKeys.Next));
         victoryCell.SetText(Localization.Get(LocKeys.YouWin));
         defeatCell.SetText(Localization.Get(LocKeys.YouLose));
@@ -88,13 +92,16 @@ public class GamePanel : MonoBehaviour
 
     #endregion
 
-    #region Publics
+    #region Publics   
 
     public void ActionStart()
     {
-        AudioManager.Instance.PlaySfx(SoundType.Click);
+        if (selectedQuest == null)
+            return;
 
-        Player.gameOver = false;
+        CreatePlayer(selectedQuest);
+
+        AudioManager.Instance.PlaySfx(SoundType.Click);       
         startButton.SetActive(false);
 
         ShowCurrentLocation();
@@ -107,8 +114,8 @@ public class GamePanel : MonoBehaviour
 
         AudioManager.Instance.PlaySfx(SoundType.Click);
 
-        Player.locationID = singlePassage.to;
-        Player.passageID = singlePassage.id;
+        player.locationID = singlePassage.to;
+        player.passageID = singlePassage.id;
 
         ShowPassage(singlePassage);
     }
@@ -120,55 +127,40 @@ public class GamePanel : MonoBehaviour
         Instantiate(settingsPref, canvas);
     }
 
-    public void RestartQuest()
+    public void AbandonQuest()
     {
         ClearQuestions();
-
-        pictureNode.InitializePictures();
-
-        gameObject.gameObject.SetActive(false);
+        parameterService.ClearParams();
+        pictureNode.ClearPicturesColor();
+       
         startButton.SetActive(true);
+        nextCell.gameObject.SetActive(false);
         victoryCell.gameObject.SetActive(false);
         defeatCell.gameObject.SetActive(false);
 
-        Player = new Player
-        {
-            locationID = Quest.Instance.FindStartLocation().id,
-            quest = (Quest)Quest.Instance.Clone(),
-            gameOver = true
-        };
+        player = null;
 
-        mainText.SetText($"Quest: '{Player.quest.questName}'");
+        ShowAllQuestsOnStart();       
 
-        foreach (Location location in Player.quest.locations)
-            location.visitCounter = 0;
-
-        foreach (Passage passage in Player.quest.passages)
-        {
-            passage.visitCounter = 0;
-            passage.FindControversials();
-        }
-
-        foreach (Parameter parameter in Player.quest.parameters)
-            parameter.value = parameter.startValue;
+        SaveLoadManager.Instance.ClearPlayerSaveData();
     }
 
     public void ShowPassage(Passage passage)
     {
+        if (player == null || player.gameOver)
+            return;
+
         singlePassage = null;
         nextCell.gameObject.SetActive(true);
 
         parameterService.ApplyInfluences(passage, ShowMainText);
 
         if (!passage.ignoreDemonstration)
-            parameterService.Demonstrate(passage);
-
-        if (Player.gameOver)
-            return;
+            parameterService.Demonstrate(passage);       
 
         passage.visitCounter++;
 
-        Location location = Player.quest.FindLocationWith(Player.locationID);
+        Location location = player.quest.FindLocationWith(player.locationID);
 
         if (string.IsNullOrEmpty(passage.description) || location.locationType == LocationType.Empty)
         {
@@ -186,29 +178,91 @@ public class GamePanel : MonoBehaviour
             {
                 to = passage.to,
                 question = "Next",
-                ignoreDemonstration = true
+                ignoreDemonstration = true               
             };
 
             singlePassage = next;
         }
+    }   
+
+    public void DiselectAllQuestCells()
+    {
+        foreach(Transform cell in questionsContent)        
+            if(cell.TryGetComponent(out QuestCell questCell))            
+                questCell.Diselect();              
     }
 
     #endregion
 
     #region Privates
 
+    private void CreatePlayer(Quest quest)
+    {
+        Quest questClone = (Quest)quest.Clone();
+
+        player = new Player
+        {
+            locationID = quest.FindStartLocation().id,
+            quest = questClone           
+        };      
+
+        foreach (Location location in questClone.locations)
+            location.visitCounter = 0;
+
+        foreach (Passage passage in questClone.passages)
+        {
+            passage.visitCounter = 0;
+            passage.FindControversials(questClone);
+        }
+
+        foreach (Parameter parameter in questClone.parameters)
+            parameter.value = parameter.startValue;
+    }
+
+    private void ShowAllQuestsOnStart()
+    {       
+        ClearQuestions();
+
+        Quest firstQuest = null;
+
+        int i = 0;
+        foreach (var folder in questFoldersList.questFolders)
+        {
+            Quest quest = SaveLoadManager.Instance.LoadQuestFromFrolder(folder);
+
+            QuestCell cell = Instantiate(questCellPref, questionsContent);
+            cell.StartWith(this, quest, i == 0);
+
+            if (i == 0)
+                firstQuest = quest;
+
+            i++;
+        }       
+
+        pictureNode.InitImages(firstQuest.startImage, firstQuest.questName);
+
+        SelectQuest(firstQuest);       
+    }
+
+    public void SelectQuest(Quest quest)
+    {
+        if (quest == null)
+            return;
+
+        selectedQuest = quest;
+
+        mainText.SetText($"<b>{quest.displayName}</b>\n\n{quest.descrition}");
+        pictureNode.SetNewPicture(quest.startImage, quest.questName);
+        AudioManager.Instance.PlayMusic(quest.startMusic, quest.questName, stoppable: true);
+    }
+
     private void ShowCurrentLocation()
     {
         nextCell.gameObject.SetActive(false);
 
-        Location location = Player.quest.FindLocationWith(Player.locationID);
+        Location location = player.quest.FindLocationWith(player.locationID);
 
         ShowLocationContent(location);
-
-        if (Player.gameOver)
-            return;
-
-        List<PassageInfo> visiblePassages = ShowLocationPassages(location);
 
         if (location.locationType == LocationType.Victory)
         {
@@ -220,21 +274,27 @@ public class GamePanel : MonoBehaviour
             defeatCell.gameObject.SetActive(true);
             Final();
         }
-        else if (visiblePassages.Count == 0)
-        {
-            Debug.LogWarning("Error: no available transitions!");
-        }
+
+        List<PassageInfo> visiblePassages = ShowLocationPassages(location);       
+
+        if (visiblePassages != null && visiblePassages.Count == 0)        
+            Debug.LogWarning("Error: no available transitions!");        
 
         location.visitCounter++;
+    }
+
+    private void Final()
+    {
+        Debug.Log("Final");
+
+        player.gameOver = true;
+        ClearQuestions();
     }
 
     private void ShowLocationContent(Location location)
     {
         parameterService.ApplyInfluences(location, ShowMainText);
-        parameterService.Demonstrate(location);
-
-        if (Player.gameOver)
-            return;
+        parameterService.Demonstrate(location);       
 
         string description = locationDescriptionResolver.Resolve(location);
         ShowMainText(textParser.Parse(description));
@@ -244,6 +304,9 @@ public class GamePanel : MonoBehaviour
 
     private List<PassageInfo> ShowLocationPassages(Location location)
     {
+        if (player == null || player.gameOver)
+            return null;      
+
         List<PassageInfo> visiblePassages = passageResolver.ResolveVisiblePassages(location);
 
         singlePassage = null;
@@ -256,11 +319,7 @@ public class GamePanel : MonoBehaviour
             PassageInfo info = visiblePassages[index];
 
             QuestionCell cell = Instantiate(questionCellPref, questionsContent);
-            cell.StartWith(this, info.pass, index * 0.15f);
-
-            RectTransform cellRect = cell.GetComponent<RectTransform>();
-            float y = (visiblePassages.Count - 1) * interval / 2f - interval * index;
-            cellRect.anchoredPosition = new Vector2(60f, y);
+            cell.StartWith(this, info.pass, index * 0.15f);        
 
             if (!info.isAllConditions && info.pass.alwaysShow)
                 cell.DisableButton();
@@ -279,24 +338,18 @@ public class GamePanel : MonoBehaviour
         string soundName = textParser.ExtractLastTagValue(ref text, "so");
 
         if (!string.IsNullOrEmpty(imageName))
-            pictureNode.SetNewPicture(imageName);        
+            pictureNode.SetNewPicture(imageName, player.quest.questName);        
 
-        AudioManager.Instance.PlayMusic(musicName);
-        AudioManager.Instance.PlaySfx(soundName);
+        AudioManager.Instance.PlayMusic(musicName, player.quest.questName, stoppable: false);
+        AudioManager.Instance.PlaySfx(soundName, player.quest.questName);
 
         mainText.SetText(text);
-    }  
-
-    private void Final()
-    {
-        Player.gameOver = true;
-        ClearQuestions();
-    }
+    }       
 
     private void ClearQuestions()
-    {
+    {      
         foreach (Transform tr in questionsContent)
-            Destroy(tr.gameObject);
+            Destroy(tr.gameObject);       
     }
 
     #endregion

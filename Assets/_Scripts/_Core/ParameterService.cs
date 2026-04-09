@@ -89,9 +89,9 @@ public class ParameterService
                     string soundName = textParser.ExtractLastTagValue(ref parameter.critResources, "so");
 
                     if (!string.IsNullOrEmpty(imageName))
-                        gamePanel.PictureNode.SetNewPicture(imageName);                  
+                        gamePanel.PictureNode.SetNewPicture(imageName, gamePanel.Player.quest.questName);                  
 
-                    AudioManager.Instance.PlaySfx(soundName);
+                    AudioManager.Instance.PlaySfx(soundName, gamePanel.Player.quest.questName);
                 }
             }
         }
@@ -131,6 +131,12 @@ public class ParameterService
 
             index++;
         }
+    }
+
+    public void ClearParams()
+    {
+        foreach (Transform tr in paramsContent)
+            GameObject.Destroy(tr.gameObject);
     }
 
     private void ApplyFormulaInfluence(string formula, Parameter parameter)

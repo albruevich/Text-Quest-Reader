@@ -40,10 +40,15 @@ public class AudioManager : MonoBehaviour
         musicSourceB.volume = 0f;
     }
 
-    public void PlayMusic(string musicName)
+    public void PlayMusic(string musicName, string questName, bool stoppable)
     {
         if (string.IsNullOrEmpty(musicName))
+        {
+            if(stoppable)
+                StopMusic();
+
             return;
+        }
 
         if (activeMusicSource.isPlaying && currentMusicName == musicName)
             return;      
@@ -51,12 +56,12 @@ public class AudioManager : MonoBehaviour
         if (musicCoroutine != null)
             StopCoroutine(musicCoroutine);
 
-        musicCoroutine = StartCoroutine(CrossfadeToMusic(musicName));
+        musicCoroutine = StartCoroutine(CrossfadeToMusic(musicName, questName));
     }
 
-    private IEnumerator CrossfadeToMusic(string musicName)
+    private IEnumerator CrossfadeToMusic(string musicName, string questName)
     {
-        AudioClip newClip = LoadMusicClip(musicName);
+        AudioClip newClip = LoadMusicClip(musicName, questName);
 
         if (newClip == null)
         {
@@ -155,12 +160,12 @@ public class AudioManager : MonoBehaviour
         inactiveMusicSource = temp;
     }
 
-    public void PlaySfx(string sfxName)
+    public void PlaySfx(string sfxName, string questName)
     {
         if (string.IsNullOrEmpty(sfxName))
             return;
 
-        AudioClip clip = LoadSfxClip(sfxName);
+        AudioClip clip = LoadSfxClip(sfxName, questName);
 
         if (clip == null)
             return;
@@ -182,9 +187,9 @@ public class AudioManager : MonoBehaviour
         sfxSource.Stop();
     }
 
-    private AudioClip LoadMusicClip(string musicName)
+    private AudioClip LoadMusicClip(string musicName, string questName)
     {
-        string basePath = $"Quests/{Quest.Instance.questName}/Musics/{musicName}";
+        string basePath = $"Quests/{questName}/Musics/{musicName}";
         AudioClip clip = Resources.Load<AudioClip>(basePath);
 
         if (clip == null)
@@ -193,9 +198,9 @@ public class AudioManager : MonoBehaviour
         return clip;
     }
 
-    private AudioClip LoadSfxClip(string sfxName)
+    private AudioClip LoadSfxClip(string sfxName, string questName)
     {
-        string basePath = $"Quests/{Quest.Instance.questName}/Sounds/{sfxName}";
+        string basePath = $"Quests/{questName}/Sounds/{sfxName}";
         AudioClip clip = Resources.Load<AudioClip>(basePath);
 
         if (clip == null)

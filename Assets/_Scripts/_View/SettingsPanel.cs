@@ -10,7 +10,7 @@ public class SettingsPanel : MonoBehaviour
     private void Start()
     {
         titleText.text = Localization.Get(LocKeys.Settings);
-        resetText.text = Localization.Get(LocKeys.ResetGame);
+        resetText.text = Localization.Get(LocKeys.AbandonQuest);
         quitText.text = Localization.Get(LocKeys.Quit);
     }
 
@@ -23,7 +23,7 @@ public class SettingsPanel : MonoBehaviour
     public void ActionRestart()
     {
         AudioManager.Instance.PlaySfx(SoundType.Click);
-        GamePanel.Instance.RestartQuest();
+        GamePanel.Instance.AbandonQuest();
         Destroy(gameObject);
     }
 

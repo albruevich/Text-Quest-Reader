@@ -4,19 +4,13 @@ using UnityEngine;
 
 public class SaveLoadManager
 {
-    // Put your quest folder in Assets/Resources/Quests
-    // Name your quest here 
-    public const string QuestFolderName = "SpaceStation"; 
-
     private const string SavesFolderName = "Saves";
     private const string SaveFileName = "save.txt";
    
     private static SaveLoadManager instance;
 
     private readonly JsonSerializerSettings serializerSettings;
-    private readonly string saveFolderPath;
-
-    public Player LoadedPlayer { get; private set; }
+    private readonly string saveFolderPath;   
 
     public static SaveLoadManager Instance
     {
@@ -35,10 +29,7 @@ public class SaveLoadManager
         saveFolderPath = Path.Combine(Application.persistentDataPath, SavesFolderName);
         EnsureSaveFolderExists();
 
-        serializerSettings = CreateSerializerSettings();
-
-        LoadQuestFromResources();
-        LoadPlayer();
+        serializerSettings = CreateSerializerSettings();  
     }
 
     public void SavePlayer()
@@ -49,45 +40,45 @@ public class SaveLoadManager
 
         PlayerSaveData saveData = CreateSaveData(player);
 
-        string json = JsonConvert.SerializeObject(saveData, serializerSettings);
-        string playerSavePath = GetPlayerSavePath();
-
-        File.WriteAllText(playerSavePath, json);
+        string json = JsonConvert.SerializeObject(saveData, serializerSettings);     
+        File.WriteAllText(GetPlayerSavePath(), json);
     }
 
-    public void LoadPlayer()
-    {
-        string playerSavePath = GetPlayerSavePath();
+    public void ClearPlayerSaveData() => File.Delete(GetPlayerSavePath());    
 
-        //Debug.Log(playerSavePath);
+    public Player LoadPlayer()
+    {      
+        string playerSavePath = GetPlayerSavePath();        
 
         if (!File.Exists(playerSavePath))
-            return;
+            return null;
 
         string json = File.ReadAllText(playerSavePath);
-        PlayerSaveData saveData = JsonConvert.DeserializeObject<PlayerSaveData>(json, serializerSettings);
+        PlayerSaveData saveData = JsonConvert.DeserializeObject<PlayerSaveData>(json, serializerSettings);       
 
         if (saveData == null)
-            return;
+            return null;
 
-        Quest questClone = (Quest)Quest.Instance.Clone();
+        Quest quest = LoadQuestFromFrolder(saveData.questName);
+
+        Quest questClone = (Quest)quest.Clone();
 
         Player player = new Player
         {
             locationID = saveData.locationID,
-            passageID = saveData.passageID,
-            gameOver = saveData.gameOver,
-            quest = questClone           
+            passageID = saveData.passageID,          
+            quest = questClone,
+            gameOver = saveData.gameOver
         };
 
         if (!string.IsNullOrEmpty(saveData.lastPlayedMusic))
-            AudioManager.Instance.PlayMusic(saveData.lastPlayedMusic);
+            AudioManager.Instance.PlayMusic(saveData.lastPlayedMusic, quest.questName, stoppable:false);
 
         RestoreParameters(questClone, saveData);
         RestoreLocations(questClone, saveData);
         RestorePassages(questClone, saveData);
 
-        LoadedPlayer = player;
+        return player;
     }
 
     private PlayerSaveData CreateSaveData(Player player)
@@ -95,9 +86,10 @@ public class SaveLoadManager
         PlayerSaveData saveData = new PlayerSaveData
         {
             locationID = player.locationID,
-            passageID = player.passageID,
-            gameOver = player.gameOver,
-            lastPlayedMusic = AudioManager.Instance.CurrentMusicName
+            passageID = player.passageID,   
+            lastPlayedMusic = AudioManager.Instance.CurrentMusicName,
+            questName = player.quest.questName,
+            gameOver = player.gameOver
         };
 
         foreach (Parameter parameter in player.quest.parameters)
@@ -150,19 +142,20 @@ public class SaveLoadManager
             if (saveData.passageVisitCounters.TryGetValue(passage.id, out int counter))
                 passage.visitCounter = counter;
 
-            passage.FindControversials();
+            passage.FindControversials(quest);
         }
     }
 
-    private void LoadQuestFromResources()
+    public Quest LoadQuestFromFrolder(string folderName)
     {
-        TextAsset questAsset = Resources.Load<TextAsset>("Quests/" + QuestFolderName + "/quest");       
+        TextAsset questAsset = Resources.Load<TextAsset>("Quests/" + folderName + "/quest");
 
         if (questAsset == null)
-            return;
-      
-        Quest.Instance = JsonConvert.DeserializeObject<Quest>(questAsset.text, serializerSettings);
-    }
+            return null;
+
+        Quest quest = JsonConvert.DeserializeObject<Quest>(questAsset.text, serializerSettings);
+        return quest;
+    }   
 
     private void EnsureSaveFolderExists()
     {
@@ -170,10 +163,7 @@ public class SaveLoadManager
             Directory.CreateDirectory(saveFolderPath);
     }
 
-    private string GetPlayerSavePath()
-    {
-        return Path.Combine(saveFolderPath, $"{Quest.Instance.questName}_{SaveFileName}");
-    }
+    private string GetPlayerSavePath() => Path.Combine(saveFolderPath, SaveFileName);    
 
     private static JsonSerializerSettings CreateSerializerSettings()
     {

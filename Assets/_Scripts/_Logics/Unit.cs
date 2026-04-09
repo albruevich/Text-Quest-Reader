@@ -4,7 +4,7 @@ public class Unit
 {
     public int id;
     public int passability;
-    public int visitCounter;
+    public int visitCounter;   
 
     public List<Influence> influences = new List<Influence>();
     public List<ParamsAction> paramsActions = new List<ParamsAction>();

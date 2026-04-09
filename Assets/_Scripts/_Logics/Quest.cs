@@ -3,23 +3,10 @@ using System.Collections.Generic;
 
 public class Quest : ICloneable
 {
-    private static Quest instance;
-
-    public static Quest Instance
-    {
-        get
-        {
-            if (instance == null)
-                instance = new Quest();
-
-            return instance;
-        }
-        set => instance = value;
-    }
-
     public string questName;
     public string displayName;
-    public string startMucis;
+    public string descrition;
+    public string startMusic;
     public string startImage;
     public int locationCount;
     public int passageCount;
@@ -84,7 +71,8 @@ public class Quest : ICloneable
 
         clone.displayName = displayName;
         clone.startImage = startImage;
-        clone.startMucis = startMucis;
+        clone.startMusic = startMusic;
+        clone.descrition = descrition;
 
         foreach (var parameter in parameters)
             clone.parameters.Add((Parameter)parameter.Clone());

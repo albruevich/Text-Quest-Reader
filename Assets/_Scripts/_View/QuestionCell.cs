@@ -47,19 +47,17 @@ public class QuestionCell : MonoBehaviour
     {
         AudioManager.Instance.PlaySfx(SoundType.Click);
 
-        if (passage != null)
-        {
-            var player = gamePanel.Player;
+        var player = gamePanel.Player;
 
+        if (passage != null)
+        {          
             player.locationID = passage.to;
             player.passageID = passage.id;
 
             gamePanel.ShowPassage(passage);
         }
-        else
-        {
-            gamePanel.RestartQuest();
-        }
+        else        
+            gamePanel.AbandonQuest();        
     }
 
     public void DisableButton()

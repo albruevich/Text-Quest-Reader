@@ -2,10 +2,11 @@ using System.Collections.Generic;
 
 public class PlayerSaveData
 {
+    public string questName;
     public int locationID;
-    public int passageID;
-    public bool gameOver;
+    public int passageID;  
     public string lastPlayedMusic;
+    public bool gameOver;
 
     public List<int> parameterValues = new List<int>();
     public List<bool> parameterHidden = new List<bool>();

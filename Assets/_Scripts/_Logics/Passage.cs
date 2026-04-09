@@ -20,7 +20,7 @@ public class Passage : Unit, ICloneable, IComparable
     public List<MultipleValues> multipleValues = new List<MultipleValues>();
 
     [NonSerialized]
-    public List<Passage> controversials = new List<Passage>();
+    public List<Passage> controversials = new List<Passage>();    
 
     public object Clone()
     {
@@ -43,33 +43,11 @@ public class Passage : Unit, ICloneable, IComparable
         return UnityEngine.Random.Range(-1, 2);
     }
 
-    public static void RecountAllPassages()
+    public void FindControversials(Quest quest)
     {
-        var copy = new List<Passage>();
+        controversials.Clear();     
 
-        foreach (var passage in Quest.Instance.passages)
-        {
-            int same = 0;
-
-            foreach (var existingPassage in copy)
-            {
-                if ((existingPassage.from == passage.from && existingPassage.to == passage.to) ||
-                    (existingPassage.from == passage.to && existingPassage.to == passage.from))
-                {
-                    same++;
-                }
-            }
-
-            passage.same = same;
-            copy.Add(passage);
-        }
-    }
-
-    public void FindControversials()
-    {
-        controversials.Clear();
-
-        foreach (var passage in Quest.Instance.passages)
+        foreach (var passage in quest.passages)
         {
             if (passage.from == from && passage.id != id && passage.question == question)
                 controversials.Add(passage);

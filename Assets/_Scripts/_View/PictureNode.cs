@@ -5,43 +5,56 @@ using UnityEngine.UI;
 public class PictureNode : MonoBehaviour
 {
     [SerializeField] private Image outerPicture;
-    [SerializeField] private Image innerPicture;
-    //[SerializeField] private Sprite startSprite;
+    [SerializeField] private Image innerPicture;  
 
     private Animator animator;
+
+    string lastPictureName;
 
     private void Awake()
     {
         animator = GetComponent<Animator>();
-        InitializePictures();
+        ClearPicturesColor();
     }
 
-    public void InitializePictures()
+    public void InitImages(string pictureName, string questName)
+    {
+        Sprite sprite = null;
+
+        if (!string.IsNullOrEmpty(pictureName))
+        {
+            string path = $"Quests/{questName}/Images/{pictureName}";
+            sprite = Resources.Load<Sprite>(path);
+        }
+     
+        innerPicture.sprite = outerPicture.sprite = sprite;
+    }
+
+    public void ClearPicturesColor()
     {
         outerPicture.color = Color.white;
-        innerPicture.color = Color.white;
-
-        //todo
-        //outerPicture.sprite = startSprite;
-        //innerPicture.sprite = startSprite;   
+        innerPicture.color = Color.white;        
     }
 
-    public void SetNewPicture(string pictureName)
+    public void SetNewPicture(string pictureName, string questName)
     {
-        if (innerPicture.sprite != null && innerPicture.sprite.name == pictureName)
+        if (lastPictureName == pictureName)           
             return;
+        
+        Sprite sprite = null;
 
-        string path = $"Quests/{SaveLoadManager.QuestFolderName}/Images/{pictureName}";
+        if (!string.IsNullOrEmpty(pictureName))
+        {
+            string path = $"Quests/{questName}/Images/{pictureName}";
+            sprite = Resources.Load<Sprite>(path);
+        }
 
-        var sprite = Resources.Load<Sprite>(path);
+        innerPicture.sprite = sprite;
 
-        if (sprite != null)        
-            innerPicture.sprite = sprite;                  
-        else
-            Debug.LogWarning($"Sprite not found: {path}");        
+        if (animator)       
+            animator.Play("FadePictures");        
 
-        if(animator)
-            animator.Play("FadePictures");
+        lastPictureName = pictureName;
     }
 
     public void Callback()

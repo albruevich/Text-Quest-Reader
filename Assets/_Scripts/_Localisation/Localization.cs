@@ -20,9 +20,9 @@ public static class Localization
             LocKeys.YouWin,
             new Dictionary<Lang, string>
             {
-                { Lang.en, "You win! Play again" },
-                { Lang.ua, "Ви перемогли! Грати ще" },
-                { Lang.ru, "Вы победили! Играть еще раз" }
+                { Lang.en, "You win!" },
+                { Lang.ua, "Ви перемогли!" },
+                { Lang.ru, "Вы победили!" }
             }
         },
 
@@ -30,9 +30,9 @@ public static class Localization
             LocKeys.YouLose,
             new Dictionary<Lang, string>
             {
-                { Lang.en, "You lose! Play again" },
-                { Lang.ua, "Ви програли! Грати ще" },
-                { Lang.ru, "Вы проиграли! Играть еще раз" }
+                { Lang.en, "You lose!" },
+                { Lang.ua, "Ви програли!" },
+                { Lang.ru, "Вы проиграли!" }
             }
         },
 
@@ -47,12 +47,12 @@ public static class Localization
         },
 
         {
-            LocKeys.ResetGame,
+            LocKeys.AbandonQuest,
             new Dictionary<Lang, string>
             {
-                { Lang.en, "Reset Game" },
-                { Lang.ua, "Скинути Гру" },
-                { Lang.ru, "Сбросить Игру" }
+                { Lang.en, "Abandon Quest" },
+                { Lang.ua, "Покинути Квест" },
+                { Lang.ru, "Бросить Квест" }
             }
         },
 
@@ -63,6 +63,16 @@ public static class Localization
                 { Lang.en, "Quit" },
                 { Lang.ua, "Покинути" },
                 { Lang.ru, "Выйти" }
+            }
+        },
+
+        {
+            LocKeys.StartQuest,
+            new Dictionary<Lang, string>
+            {
+                { Lang.en, "Start Selected Quest" },
+                { Lang.ua, "Почати Обраний Квест" },
+                { Lang.ru, "Начать Выбранный Квест" }
             }
         },
 
