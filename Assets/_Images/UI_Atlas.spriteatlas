@@ -1,0 +1,80 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: UI_Atlas
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings: []
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 0
+      enableTightPacking: 0
+      enableAlphaDilation: 0
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 2800000, guid: 6a9ca087a31594a48a7f55bd773bec3b, type: 3}
+    - {fileID: 2800000, guid: acf994ea826c444edad90bc7023c3765, type: 3}
+    - {fileID: 2800000, guid: e3a577f49fd9c463289f561b51db778f, type: 3}
+    - {fileID: 2800000, guid: 070dcd6b3f5e44b058e08383e13d3f43, type: 3}
+    - {fileID: 2800000, guid: 5ef0c22c4a4c6412d897faa20ef29174, type: 3}
+    - {fileID: 2800000, guid: d00a64488f3b44d379440d351efc0b3c, type: 3}
+    - {fileID: 2800000, guid: e2a282120739c407a9abc3580bcd7496, type: 3}
+    - {fileID: 2800000, guid: fe8db6e7d7df24bf7b489f0b27187375, type: 3}
+    - {fileID: 2800000, guid: be9792241a98b455fbf0b01df9c22203, type: 3}
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+    packedSpriteRenderDataKeys:
+    - e2a282120739c407a9abc3580bcd7496: 21300000
+    - be9792241a98b455fbf0b01df9c22203: -5665182045310598614
+    - e3a577f49fd9c463289f561b51db778f: 21300000
+    - 6a9ca087a31594a48a7f55bd773bec3b: 5826906083657999773
+    - fe8db6e7d7df24bf7b489f0b27187375: 233243779386506010
+    - d00a64488f3b44d379440d351efc0b3c: 21300000
+    - acf994ea826c444edad90bc7023c3765: 21300000
+    - 070dcd6b3f5e44b058e08383e13d3f43: 21300000
+    - 5ef0c22c4a4c6412d897faa20ef29174: 21300000
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: e2a282120739c407a9abc3580bcd7496, type: 3}
+  - {fileID: -5665182045310598614, guid: be9792241a98b455fbf0b01df9c22203, type: 3}
+  - {fileID: 21300000, guid: e3a577f49fd9c463289f561b51db778f, type: 3}
+  - {fileID: 5826906083657999773, guid: 6a9ca087a31594a48a7f55bd773bec3b, type: 3}
+  - {fileID: 233243779386506010, guid: fe8db6e7d7df24bf7b489f0b27187375, type: 3}
+  - {fileID: 21300000, guid: d00a64488f3b44d379440d351efc0b3c, type: 3}
+  - {fileID: 21300000, guid: acf994ea826c444edad90bc7023c3765, type: 3}
+  - {fileID: 21300000, guid: 070dcd6b3f5e44b058e08383e13d3f43, type: 3}
+  - {fileID: 21300000, guid: 5ef0c22c4a4c6412d897faa20ef29174, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - settings_btn
+  - text_bg_top_0
+  - frame_coner
+  - bg_texture_0
+  - text_bg_bottom_0
+  - question_mark
+  - close
+  - frame_tile_h
+  - frame_tile_v
+  m_RenderDataMap: {}
+  m_Tag: UI_Atlas
+  m_IsVariant: 0
