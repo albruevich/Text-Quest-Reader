@@ -1,8 +1,11 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 public static class Localization
 {
-    public static Lang CurrentLang = Lang.ru;
+    public const string LANGUAGE_KEY = "language";
+
+    public static Lang CurrentLang = Lang.en;
 
     private static readonly Dictionary<string, Dictionary<Lang, string>> data = new Dictionary<string, Dictionary<Lang, string>>
     {
@@ -11,7 +14,7 @@ public static class Localization
             new Dictionary<Lang, string>
             {
                 { Lang.en, "Next" },
-                { Lang.ua, "Далі" },
+                { Lang.uk, "Далі" },
                 { Lang.ru, "Далее" }
             }
         },
@@ -21,7 +24,7 @@ public static class Localization
             new Dictionary<Lang, string>
             {
                 { Lang.en, "You win!" },
-                { Lang.ua, "Ви перемогли!" },
+                { Lang.uk, "Ви перемогли!" },
                 { Lang.ru, "Вы победили!" }
             }
         },
@@ -31,7 +34,7 @@ public static class Localization
             new Dictionary<Lang, string>
             {
                 { Lang.en, "You lose!" },
-                { Lang.ua, "Ви програли!" },
+                { Lang.uk, "Ви програли!" },
                 { Lang.ru, "Вы проиграли!" }
             }
         },
@@ -41,7 +44,7 @@ public static class Localization
             new Dictionary<Lang, string>
             {
                 { Lang.en, "Settings" },
-                { Lang.ua, "Налаштування" },
+                { Lang.uk, "Налаштування" },
                 { Lang.ru, "Настройки" }
             }
         },
@@ -51,7 +54,7 @@ public static class Localization
             new Dictionary<Lang, string>
             {
                 { Lang.en, "Abandon Quest" },
-                { Lang.ua, "Покинути Квест" },
+                { Lang.uk, "Покинути Квест" },
                 { Lang.ru, "Бросить Квест" }
             }
         },
@@ -61,7 +64,7 @@ public static class Localization
             new Dictionary<Lang, string>
             {
                 { Lang.en, "Quit" },
-                { Lang.ua, "Покинути" },
+                { Lang.uk, "Вийти" },
                 { Lang.ru, "Выйти" }
             }
         },
@@ -71,22 +74,47 @@ public static class Localization
             new Dictionary<Lang, string>
             {
                 { Lang.en, "Start Selected Quest" },
-                { Lang.ua, "Почати Обраний Квест" },
+                { Lang.uk, "Почати Обраний Квест" },
                 { Lang.ru, "Начать Выбранный Квест" }
             }
         },
 
-    };
+    };    
+
+    public static void SetCurrentLanguage(string langCode)
+    {
+        switch(langCode)
+        {
+            case "en": CurrentLang = Lang.en; break;
+            case "uk": CurrentLang = Lang.uk; break;
+            case "ru": CurrentLang = Lang.ru; break;
+            default: CurrentLang = Lang.en; break;
+        }
+    }
 
     public static string Get(string key)
     {
         if (!data.TryGetValue(key, out var langs))
             return key;
 
-        if (!langs.TryGetValue(CurrentLang, out var value))
-            value = langs[Lang.en];
+        if (langs.TryGetValue(CurrentLang, out var value))
+            return value;
 
-        return value;
+        if (langs.TryGetValue(Lang.en, out var fallback))
+            return fallback;
+
+        return key;
+    }
+
+    public static string GetLangCode(SystemLanguage lang)
+    {
+        switch (lang)
+        {
+            case SystemLanguage.English: return "en";
+            case SystemLanguage.Russian: return "ru";
+            case SystemLanguage.Ukrainian: return "uk";
+            default: return "en";
+        }
     }
 }
 

@@ -59,24 +59,33 @@ public class SaveLoadManager
         if (saveData == null)
             return null;
 
-        Quest quest = LoadQuestFromFrolder(saveData.questName);
+        Player player = null;
 
-        Quest questClone = (Quest)quest.Clone();
-
-        Player player = new Player
+        try
         {
-            locationID = saveData.locationID,
-            passageID = saveData.passageID,          
-            quest = questClone,
-            gameOver = saveData.gameOver
-        };
+            Quest quest = LoadQuestFromFrolder(saveData.questName);
 
-        if (!string.IsNullOrEmpty(saveData.lastPlayedMusic))
-            AudioManager.Instance.PlayMusic(saveData.lastPlayedMusic, quest.questName, stoppable:false);
+            Quest questClone = (Quest)quest.Clone();
 
-        RestoreParameters(questClone, saveData);
-        RestoreLocations(questClone, saveData);
-        RestorePassages(questClone, saveData);
+            player = new Player
+            {
+                locationID = saveData.locationID,
+                passageID = saveData.passageID,
+                quest = questClone,
+                gameOver = saveData.gameOver
+            };
+
+            if (!string.IsNullOrEmpty(saveData.lastPlayedMusic))
+                AudioManager.Instance.PlayMusic(saveData.lastPlayedMusic, quest.questName, stoppable: false);
+
+            RestoreParameters(questClone, saveData);
+            RestoreLocations(questClone, saveData);
+            RestorePassages(questClone, saveData);
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning(ex);
+        }      
 
         return player;
     }
@@ -148,14 +157,23 @@ public class SaveLoadManager
 
     public Quest LoadQuestFromFrolder(string folderName)
     {
-        TextAsset questAsset = Resources.Load<TextAsset>("Quests/" + folderName + "/quest");
+        string lang = PlayerPrefs.GetString("language", "en");
+
+        string localizedPath = $"Quests/{folderName}/quest_{lang}";
+        TextAsset questAsset = Resources.Load<TextAsset>(localizedPath);
+
+        if (questAsset == null)
+        {
+            string defaultPath = $"Quests/{folderName}/quest";
+            questAsset = Resources.Load<TextAsset>(defaultPath);
+        }
 
         if (questAsset == null)
             return null;
 
         Quest quest = JsonConvert.DeserializeObject<Quest>(questAsset.text, serializerSettings);
         return quest;
-    }   
+    }
 
     private void EnsureSaveFolderExists()
     {

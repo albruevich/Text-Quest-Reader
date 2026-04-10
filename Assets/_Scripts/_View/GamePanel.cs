@@ -9,10 +9,10 @@ public class GamePanel : MonoBehaviour
     [SerializeField] private RectTransform paramsContent;
     [SerializeField] private RectTransform mainTextRect;
     [SerializeField] private RectTransform questionsRect;
-    [SerializeField] private RectTransform questionsContent;     
-    [SerializeField] private RectTransform canvas;  
+    [SerializeField] private RectTransform questionsContent;
+    [SerializeField] private RectTransform canvas;
 
-    [SerializeField] private GameObject parameterTextPref;  
+    [SerializeField] private GameObject parameterTextPref;
     [SerializeField] private GameObject startButton;
 
     [SerializeField] private QuestionCell victoryCell;
@@ -20,7 +20,7 @@ public class GamePanel : MonoBehaviour
     [SerializeField] private QuestionCell nextCell;
     [SerializeField] private QuestionCell questionCellPref;
 
-    [SerializeField] private SettingsPanel settingsPref;    
+    [SerializeField] private SettingsPanel settingsPref;
     [SerializeField] private AliveText mainText;
     [SerializeField] private PictureNode pictureNode;
     [SerializeField] private TMP_Text startQuestText;
@@ -55,35 +55,51 @@ public class GamePanel : MonoBehaviour
         locationDescriptionResolver = new LocationDescriptionResolver(textParser);
         passageResolver = new PassageResolver(this, textParser);
 
-        parameterService = new ParameterService(this, textParser, paramsContent, parameterTextPref,
-                                                victoryCell, defeatCell, nextCell, questionsContent);
+        parameterService = new ParameterService(
+            this,
+            textParser,
+            paramsContent,
+            parameterTextPref,
+            victoryCell,
+            defeatCell,
+            nextCell,
+            questionsContent
+        );
     }
 
     private void Start()
-    {       
+    {
         mainPictureRect.sizeDelta = new Vector2(mainPictureRect.rect.height, mainPictureRect.sizeDelta.y);
-        paramsRect.sizeDelta = new Vector2(mainPictureRect.rect.height, paramsRect.sizeDelta.y);       
+        paramsRect.sizeDelta = new Vector2(mainPictureRect.rect.height, paramsRect.sizeDelta.y);
         mainTextRect.sizeDelta = new Vector2(canvas.rect.width - mainPictureRect.sizeDelta.x, mainTextRect.sizeDelta.y);
         questionsRect.sizeDelta = new Vector2(canvas.rect.width - mainPictureRect.sizeDelta.x, questionsRect.sizeDelta.y);
 
-        InitLocalisations();
+        HandleLocalizations();
 
-        Player loadedPlayer = SaveLoadManager.Instance.LoadPlayer();         
+        Player loadedPlayer = SaveLoadManager.Instance.LoadPlayer();
 
         if (loadedPlayer == null)
-            ShowAllQuestsOnStart();        
+            ShowAllQuestsOnStart();
         else
-            player = loadedPlayer;       
+            player = loadedPlayer;
 
         if (player == null)
             return;
 
         startButton.SetActive(false);
-        ShowCurrentLocation();          
-    }   
+        ShowCurrentLocation();
+    }
 
-    private void InitLocalisations()
+    public void HandleLocalizations()
     {
+        if (!PlayerPrefs.HasKey(Localization.LANGUAGE_KEY))
+        {
+            string lang = Localization.GetLangCode(Application.systemLanguage);
+            PlayerPrefs.SetString(Localization.LANGUAGE_KEY, lang);
+        }
+
+        Localization.SetCurrentLanguage(PlayerPrefs.GetString(Localization.LANGUAGE_KEY, "en"));
+
         startQuestText.text = Localization.Get(LocKeys.StartQuest);
         nextCell.SetText(Localization.Get(LocKeys.Next));
         victoryCell.SetText(Localization.Get(LocKeys.YouWin));
@@ -92,7 +108,7 @@ public class GamePanel : MonoBehaviour
 
     #endregion
 
-    #region Publics   
+    #region Publics
 
     public void ActionStart()
     {
@@ -102,11 +118,11 @@ public class GamePanel : MonoBehaviour
             return;
 
         CreatePlayer(selectedQuest);
-            
+
         startButton.SetActive(false);
 
         ShowCurrentLocation();
-    }   
+    }
 
     public void ActionNext()
     {
@@ -125,7 +141,8 @@ public class GamePanel : MonoBehaviour
     {
         AudioManager.Instance.PlaySfx(SoundType.Click);
 
-        Instantiate(settingsPref, canvas);
+        SettingsPanel panel = Instantiate(settingsPref, canvas);
+        panel.Init(this);
     }
 
     public void AbandonQuest()
@@ -133,15 +150,16 @@ public class GamePanel : MonoBehaviour
         ClearQuestions();
         parameterService.ClearParams();
         pictureNode.ClearPicturesColor();
-       
+
         startButton.SetActive(true);
         nextCell.gameObject.SetActive(false);
         victoryCell.gameObject.SetActive(false);
         defeatCell.gameObject.SetActive(false);
 
         player = null;
+        singlePassage = null;
 
-        ShowAllQuestsOnStart();       
+        ShowAllQuestsOnStart();
 
         SaveLoadManager.Instance.ClearPlayerSaveData();
     }
@@ -157,7 +175,7 @@ public class GamePanel : MonoBehaviour
         parameterService.ApplyInfluences(passage, ShowMainText);
 
         if (!passage.ignoreDemonstration)
-            parameterService.Demonstrate(passage);       
+            parameterService.Demonstrate(passage);
 
         passage.visitCounter++;
 
@@ -178,19 +196,48 @@ public class GamePanel : MonoBehaviour
             Passage next = new Passage
             {
                 to = passage.to,
-                question = "Next",
-                ignoreDemonstration = true               
+                question = Localization.Get(LocKeys.Next),
+                ignoreDemonstration = true
             };
 
             singlePassage = next;
         }
-    }   
+    }
 
     public void DiselectAllQuestCells()
     {
-        foreach(Transform cell in questionsContent)        
-            if(cell.TryGetComponent(out QuestCell questCell))            
-                questCell.Diselect();              
+        foreach (Transform cell in questionsContent)
+        {
+            if (cell.TryGetComponent(out QuestCell questCell))
+                questCell.Diselect();
+        }
+    }
+
+    public void SelectQuest(Quest quest)
+    {
+        if (quest == null)
+            return;
+
+        selectedQuest = quest;
+
+        mainText.SetText($"<b>{quest.displayName}</b>\n\n{quest.descrition}");
+        pictureNode.SetNewPicture(quest.startImage, quest.questName);
+        AudioManager.Instance.PlayMusic(quest.startMusic, quest.questName, stoppable: true);
+    }
+
+    public void ApplyLanguageChangeToQuestView()
+    {
+        HandleLocalizations();
+
+        if (player == null)
+        {
+            string selectedQuestName = selectedQuest != null ? selectedQuest.questName : null;
+            ShowAllQuestsOnStart(selectedQuestName);
+            return;
+        }
+
+        player.quest = CreateLocalizedQuestWithProgress(player.quest);
+        ShowCurrentLocation();
     }
 
     #endregion
@@ -204,8 +251,8 @@ public class GamePanel : MonoBehaviour
         player = new Player
         {
             locationID = quest.FindStartLocation().id,
-            quest = questClone           
-        };      
+            quest = questClone
+        };
 
         foreach (Location location in questClone.locations)
             location.visitCounter = 0;
@@ -218,43 +265,72 @@ public class GamePanel : MonoBehaviour
 
         foreach (Parameter parameter in questClone.parameters)
             parameter.value = parameter.startValue;
+
+        singlePassage = null;
     }
 
-    private void ShowAllQuestsOnStart()
-    {       
+    private Quest CreateLocalizedQuestWithProgress(Quest oldQuest)
+    {
+        Quest loadedQuest = SaveLoadManager.Instance.LoadQuestFromFrolder(oldQuest.questName);
+        Quest newQuest = (Quest)loadedQuest.Clone();
+
+        for (int i = 0; i < newQuest.parameters.Count && i < oldQuest.parameters.Count; i++)
+        {
+            newQuest.parameters[i].value = oldQuest.parameters[i].value;
+            newQuest.parameters[i].isActive = oldQuest.parameters[i].isActive;
+        }
+
+        for (int i = 0; i < newQuest.locations.Count && i < oldQuest.locations.Count; i++)
+            newQuest.locations[i].visitCounter = oldQuest.locations[i].visitCounter;
+
+        for (int i = 0; i < newQuest.passages.Count && i < oldQuest.passages.Count; i++)
+            newQuest.passages[i].visitCounter = oldQuest.passages[i].visitCounter;
+
+        foreach (Passage passage in newQuest.passages)
+            passage.FindControversials(newQuest);
+
+        return newQuest;
+    }
+
+    private void ShowAllQuestsOnStart(string questNameToSelect = null)
+    {
         ClearQuestions();
 
         Quest firstQuest = null;
+        Quest questToSelect = null;
 
         int i = 0;
         foreach (var folder in questFoldersList.questFolders)
         {
             Quest quest = SaveLoadManager.Instance.LoadQuestFromFrolder(folder);
 
+            bool isSelected = false;
+
+            if (!string.IsNullOrEmpty(questNameToSelect))
+                isSelected = quest.questName == questNameToSelect;
+            else
+                isSelected = i == 0;
+
             QuestCell cell = Instantiate(questCellPref, questionsContent);
-            cell.StartWith(this, quest, i == 0);
+            cell.StartWith(this, quest, isSelected);
 
             if (i == 0)
                 firstQuest = quest;
 
+            if (isSelected)
+                questToSelect = quest;
+
             i++;
-        }       
+        }
 
-        pictureNode.InitImages(firstQuest.startImage, firstQuest.questName);
+        if (questToSelect == null)
+            questToSelect = firstQuest;
 
-        SelectQuest(firstQuest);       
-    }
-
-    public void SelectQuest(Quest quest)
-    {
-        if (quest == null)
+        if (questToSelect == null)
             return;
 
-        selectedQuest = quest;
-
-        mainText.SetText($"<b>{quest.displayName}</b>\n\n{quest.descrition}");
-        pictureNode.SetNewPicture(quest.startImage, quest.questName);
-        AudioManager.Instance.PlayMusic(quest.startMusic, quest.questName, stoppable: true);
+        pictureNode.InitImages(questToSelect.startImage, questToSelect.questName);
+        SelectQuest(questToSelect);
     }
 
     private void ShowCurrentLocation()
@@ -276,10 +352,10 @@ public class GamePanel : MonoBehaviour
             Final();
         }
 
-        List<PassageInfo> visiblePassages = ShowLocationPassages(location);       
+        List<PassageInfo> visiblePassages = ShowLocationPassages(location);
 
-        if (visiblePassages != null && visiblePassages.Count == 0)        
-            Debug.LogWarning("Error: no available transitions!");        
+        if (visiblePassages != null && visiblePassages.Count == 0)
+            Debug.LogWarning("Error: no available transitions!");
 
         location.visitCounter++;
     }
@@ -293,7 +369,7 @@ public class GamePanel : MonoBehaviour
     private void ShowLocationContent(Location location)
     {
         parameterService.ApplyInfluences(location, ShowMainText);
-        parameterService.Demonstrate(location);       
+        parameterService.Demonstrate(location);
 
         string description = locationDescriptionResolver.Resolve(location);
         ShowMainText(textParser.Parse(description));
@@ -304,7 +380,7 @@ public class GamePanel : MonoBehaviour
     private List<PassageInfo> ShowLocationPassages(Location location)
     {
         if (player == null || player.gameOver)
-            return null;      
+            return null;
 
         List<PassageInfo> visiblePassages = passageResolver.ResolveVisiblePassages(location);
 
@@ -318,14 +394,17 @@ public class GamePanel : MonoBehaviour
             PassageInfo info = visiblePassages[index];
 
             QuestionCell cell = Instantiate(questionCellPref, questionsContent);
-            cell.StartWith(this, info.pass, index * 0.15f);        
+            cell.StartWith(this, info.pass, index * 0.15f);
 
             if (!info.isAllConditions && info.pass.alwaysShow)
                 cell.DisableButton();
         }
 
         RectTransform viewPort = (RectTransform)questionsContent.parent;
-        questionsContent.sizeDelta = new Vector2(questionsContent.sizeDelta.x, Mathf.Max(viewPort.rect.height, visiblePassages.Count * interval));
+        questionsContent.sizeDelta = new Vector2(
+            questionsContent.sizeDelta.x,
+            Mathf.Max(viewPort.rect.height, visiblePassages.Count * interval)
+        );
 
         return visiblePassages;
     }
@@ -337,18 +416,18 @@ public class GamePanel : MonoBehaviour
         string soundName = textParser.ExtractLastTagValue(ref text, "so");
 
         if (!string.IsNullOrEmpty(imageName))
-            pictureNode.SetNewPicture(imageName, player.quest.questName);        
+            pictureNode.SetNewPicture(imageName, player.quest.questName);
 
         AudioManager.Instance.PlayMusic(musicName, player.quest.questName, stoppable: false);
         AudioManager.Instance.PlaySfx(soundName, player.quest.questName);
 
         mainText.SetText(text);
-    }       
+    }
 
     private void ClearQuestions()
-    {      
+    {
         foreach (Transform tr in questionsContent)
-            Destroy(tr.gameObject);       
+            Destroy(tr.gameObject);
     }
 
     #endregion
