@@ -88,7 +88,7 @@ public class ParameterService
                     string soundName = textParser.ExtractLastTagValue(ref parameter.critResources, "so");
 
                     if (!string.IsNullOrEmpty(imageName))
-                        gamePanel.PictureNode.SetNewPicture(imageName, gamePanel.Player.quest.questName);                  
+                        gamePanel.PictureNode.SetNewPicture(imageName, gamePanel.Player.quest.questName, mayBeSame: false);                  
 
                     AudioManager.Instance.PlaySfx(soundName, gamePanel.Player.quest.questName);
                 }

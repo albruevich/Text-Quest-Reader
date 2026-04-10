@@ -36,9 +36,9 @@ public class PictureNode : MonoBehaviour
         innerPicture.color = Color.white;        
     }
 
-    public void SetNewPicture(string pictureName, string questName)
+    public void SetNewPicture(string pictureName, string questName, bool mayBeSame)
     {
-        if (lastPictureName == pictureName)           
+        if (lastPictureName == pictureName && !mayBeSame)           
             return;
         
         Sprite sprite = null;

@@ -221,7 +221,7 @@ public class GamePanel : MonoBehaviour
         selectedQuest = quest;
 
         mainText.SetText($"<b>{quest.displayName}</b>\n\n{quest.descrition}");
-        pictureNode.SetNewPicture(quest.startImage, quest.questName);
+        pictureNode.SetNewPicture(quest.startImage, quest.questName, mayBeSame: true);
         AudioManager.Instance.PlayMusic(quest.startMusic, quest.questName, stoppable: true);
     }
 
@@ -416,7 +416,7 @@ public class GamePanel : MonoBehaviour
         string soundName = textParser.ExtractLastTagValue(ref text, "so");
 
         if (!string.IsNullOrEmpty(imageName))
-            pictureNode.SetNewPicture(imageName, player.quest.questName);
+            pictureNode.SetNewPicture(imageName, player.quest.questName, mayBeSame: false);
 
         AudioManager.Instance.PlayMusic(musicName, player.quest.questName, stoppable: false);
         AudioManager.Instance.PlaySfx(soundName, player.quest.questName);
