@@ -10,6 +10,8 @@ A text quest reader for running branching narrative quests, inspired by the mech
 
 Together with the [Quest Editor](https://github.com/albruevich/QuestEditor_Builds) tool, it forms a system for creating and running custom text quests.
 
+Unlike the original editor, which was tied to a specific game, this system allows you to create and use custom quests in your own projects.
+
 Supports location logic, transitions, parameters, as well as images and sounds.
 
 ---
