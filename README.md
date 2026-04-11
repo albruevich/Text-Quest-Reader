@@ -33,14 +33,28 @@ It is open source and can be used:
 
 ## Quest Structure
 
-Each quest is stored as a separate folder with the following structure:
+Each quest is stored as a separate folder inside:
+
+Assets/Resources/Quests/
+
+Inside this folder, each quest has its own directory:
+
+YourQuest/
+
+The structure looks like this:
 
 <img src="docs/quest_structure.png" width="350">
 
-- `quest.json` — main quest file (JSON)
-- `Images/`, `Sounds/`, `Musics/` — resource folders (optional)
+### Contents
 
-These folders can be empty — in this case, the quest will contain only text and logic.
+- `quest.json` — main quest file (contains all logic and data)
+- `Images/` — images used in the quest (optional)
+- `Sounds/` — sound effects (optional)
+- `Musics/` — background music (optional)
+
+All resource folders are optional.
+
+If they are empty or missing, the quest will still work with text and logic only.
 
 ---
 
