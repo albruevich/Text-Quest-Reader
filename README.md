@@ -16,7 +16,8 @@ Supports location logic, transitions, parameters, as well as images and sounds.
 
 ## Demo
 
-<!-- Add screenshots or GIFs here -->
+<img src="docs/screen_1.png" width="600">
+<img src="docs/screen_2.png" width="600">
 
 ---
 
