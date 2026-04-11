@@ -44,7 +44,7 @@ YourQuest/
 
 The structure looks like this:
 
-<img src="docs/quest_structure.png" width="300">
+<img src="docs/quest_structure.png" width="240">
 
 ### Contents
 
