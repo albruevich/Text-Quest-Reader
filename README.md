@@ -1,37 +1,39 @@
+[English](README.md) | [Українська](README.ua.md) | [Русский](README.ru.md)
+
 # Text Quest Reader
 
 ![Unity](https://img.shields.io/badge/engine-Unity-000000?logo=unity&logoColor=white)
 ![Language](https://img.shields.io/badge/language-C%23-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-Ридер текстовых квестов, вдохновлённый механиками из игры «Космические Рейнджеры».
+A text quest reader inspired by the mechanics of the game "Space Rangers".
 
-Вместе с инструментом Quest Editor образует систему для создания и запуска собственных текстовых квестов.
+Together with the Quest Editor tool, it forms a system for creating and running custom text quests.
 
-Поддерживает логику локаций, переходов и параметров, а также работу с изображениями и звуками.
+Supports location logic, transitions, parameters, as well as images and sounds.
 
 ---
 
 ## Demo
 
-<!-- Добавьте сюда скриншоты или GIF -->
+<!-- Add screenshots or GIFs here -->
 
 ---
 
-## О проекте
+## About the Project
 
-Проект написан на C# с использованием Unity.
+The project is written in C# using Unity.
 
-Является open source и может быть использован:
-- для прохождения готового квеста "Asteroid Station"
-- для изучения структуры и архитектуры проекта
-- как основа для создания собственного ридера текстовых квестов с кастомным UI
+It is open source and can be used:
+- to play the included quest "Asteroid Station"
+- to study the project structure and architecture
+- as a base for creating your own text quest reader with a custom UI
 
 ---
 
-## Структура квеста
+## Quest Structure
 
-Каждый квест представляет собой отдельную папку со следующей структурой:
+Each quest is stored as a separate folder with the following structure:
 
 Assets/Resources/Quests/YourQuest/
     Images/
@@ -39,59 +41,59 @@ Assets/Resources/Quests/YourQuest/
     Musics/
     quest.json
 
-- `quest.json` — основной файл квеста (JSON)
-- `Images/`, `Sounds/`, `Musics/` — папки ресурсов (необязательно)
+- `quest.json` — main quest file (JSON)
+- `Images/`, `Sounds/`, `Musics/` — resource folders (optional)
 
-Папки могут быть пустыми — в этом случае квест будет содержать только текст и логику.
+These folders can be empty — in this case, the quest will contain only text and logic.
 
 ---
 
-## Важно
+## Important
 
-Название квеста внутри `quest.json`:
+The quest name inside `quest.json`:
 
 ```json
 "questName": "YourQuest"
 ```
 
-должно совпадать с названием папки квеста.
+must match the name of the quest folder.
 
 ---
 
-## Как запустить
+## How to Run
 
-- Откройте проект в Unity
-- Запустите основную сцену
+- Open the project in Unity
+- Run the main scene
 
 ---
 
 ## Builds
 
-Готовые билды для запуска находятся в папке `_Builds`.
+Ready-to-use builds are located in the `_Builds` folder.
 
 ---
 
-## Создание квестов
+## Creating Quests
 
-Квесты создаются с помощью отдельного инструмента — Quest Editor.
+Quests are created using a separate tool — Quest Editor.
 
-👉 Репозиторий редактора: [ссылка]
+👉 Editor repository: [link]
 
-Редактор позволяет визуально создавать параметры, локации, переходы и структуру квеста, после чего экспортировать квест в формат, совместимый с этим ридером.
+The editor allows you to visually create parameters, locations, transitions, and quest structure, and then export it to a format compatible with this reader.
 
 ---
 
-## Локализация
+## Localization
 
-Ридер поддерживает несколько языков.
+The reader supports multiple languages.
 
-Можно добавить файлы вида:
+You can add files like:
 - `quest_en.json`
 - `quest_uk.json`
 
-Если локализованный файл отсутствует — используется `quest.json`.
+If a localized file is missing — `quest.json` will be used.
 
-Дополнительно см. файлы `Localization.cs` и `LocKeys.cs`.
+See also `Localization.cs` and `LocKeys.cs`.
 
 ---
 
