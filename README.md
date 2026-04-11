@@ -145,6 +145,15 @@ Unity 6.2
 
 ---
 
+## Assets
+
+Some images in this project were generated using AI tools.
+
+Sound effects and music are sourced from Pixabay:
+https://pixabay.com/
+
+---
+
 ## License
 
 MIT
