@@ -118,7 +118,7 @@ Quests are created using a separate tool — [Quest Editor](https://github.com/a
 
 👉 The editor repository contains full documentation on how to create and export quests.
 
-The editor allows you to visually create parameters, locations, transitions, and quest structure, and then export it to a format compatible with this reader.
+The editor allows you to visually create parameters, locations, transitions, and quest structure, and then export the quest as a folder compatible with this reader.
 
 ---
 
