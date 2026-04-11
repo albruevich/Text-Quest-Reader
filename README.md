@@ -8,7 +8,7 @@
 
 A text quest reader inspired by the mechanics of the game "Space Rangers".
 
-Together with the Quest Editor tool, it forms a system for creating and running custom text quests.
+Together with the [Quest Editor](https://github.com/albruevich/QuestEditor_Builds) tool, it forms a system for creating and running custom text quests.
 
 Supports location logic, transitions, parameters, as well as images and sounds.
 
@@ -88,8 +88,22 @@ must match the name of the quest folder.
 
 ## How to Run
 
-- Open the project in Unity
-- Run the main scene
+1. Open the project in Unity (version 6.2 recommended)
+2. Open the main scene:
+
+Assets/Scenes/Main.unity
+
+3. Press Play
+
+---
+
+## Quick Test
+
+After starting the game:
+- select a quest (e.g. "Asteroid Station")
+- press "Start Selected Quest"
+
+If everything works — the quest will start.
 
 ---
 
@@ -119,7 +133,7 @@ You can add files like:
 
 If a localized file is missing — `quest.json` will be used.
 
-See also `Localization.cs` and `LocKeys.cs`.
+See and edit `Localization.cs`, `LocKeys.cs`, SettingsPanel.prefab
 
 ---
 
