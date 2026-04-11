@@ -132,7 +132,7 @@ You can add files like:
 
 If a localized file is missing — `quest.json` will be used.
 
-See and edit `Localization.cs`, `LocKeys.cs`, `SettingsPanel.prefab`
+See and edit `Localization.cs`, `LocKeys.cs`, `SettingsPanel.prefab`, `SettingsPanel.cs`
 
 ---
 
