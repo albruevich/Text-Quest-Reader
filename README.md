@@ -90,7 +90,7 @@ must match the name of the quest folder.
 
 2. Open the main scene:
 
-Assets/Scenes/Main.unity
+Assets/_Scenes/Main.unity
 
 3. Press Play
 
