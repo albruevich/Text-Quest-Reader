@@ -16,8 +16,8 @@ Supports location logic, transitions, parameters, as well as images and sounds.
 
 ## Demo
 
-<img src="docs/screen_1.png" width="600">
-<img src="docs/screen_2.png" width="600">
+<img src="docs/screen_1.webp" width="600">
+<img src="docs/screen_2.webp" width="600">
 
 ---
 
