@@ -87,7 +87,7 @@ Ready-to-use builds are located in the `_Builds` folder.
 
 Quests are created using a separate tool — Quest Editor.
 
-👉 Editor repository: [link]
+👉 Editor repository: https://github.com/albruevich/QuestEditor_Builds
 
 The editor allows you to visually create parameters, locations, transitions, and quest structure, and then export it to a format compatible with this reader.
 
