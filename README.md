@@ -35,11 +35,7 @@ It is open source and can be used:
 
 Each quest is stored as a separate folder with the following structure:
 
-Assets/Resources/Quests/YourQuest/
-    Images/
-    Sounds/
-    Musics/
-    quest.json
+<img src="docs/quest_structure.png" width="650">
 
 - `quest.json` — main quest file (JSON)
 - `Images/`, `Sounds/`, `Musics/` — resource folders (optional)
