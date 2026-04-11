@@ -88,7 +88,9 @@ must match the name of the quest folder.
 
 ## How to Run
 
-1. Open the project in Unity (version 6.2 recommended)
+1. Open the project folder in Unity Hub  
+   (the folder that contains `Assets`, `Packages`, and `ProjectSettings`)
+
 2. Open the main scene:
 
 Assets/Scenes/Main.unity
