@@ -5,7 +5,7 @@ using UnityEngine;
 public class SaveLoadManager
 {
     private const string SavesFolderName = "Saves";
-    private const string SaveFileName = "save.txt";
+    private const string SaveFileName = "save.json";
    
     private static SaveLoadManager instance;
 
