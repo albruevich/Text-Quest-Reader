@@ -141,7 +141,11 @@ See and edit `Localization.cs`, `LocKeys.cs`, `SettingsPanel.prefab`, `SettingsP
 
 ## Requirements
 
-Unity 6.2
+### Run from source (Unity project)
+- Unity 6.2
+
+### Run prebuilt builds (Releases)
+- No installation required
 
 ---
 

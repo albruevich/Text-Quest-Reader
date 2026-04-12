@@ -142,7 +142,11 @@ Localization.cs, LocKeys.cs, SettingsPanel.prefab, SettingsPanel.cs
 
 ## Требования
 
-Unity 6.2
+### Запуск из исходников (проект Unity)
+- Unity 6.2
+
+### Запуск готовых сборок (Releases)
+- Дополнительная установка не требуется
 
 ---
 
