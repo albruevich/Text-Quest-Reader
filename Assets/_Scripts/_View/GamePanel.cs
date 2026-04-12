@@ -401,10 +401,7 @@ public class GamePanel : MonoBehaviour
         }
 
         RectTransform viewPort = (RectTransform)questionsContent.parent;
-        questionsContent.sizeDelta = new Vector2(
-            questionsContent.sizeDelta.x,
-            Mathf.Max(viewPort.rect.height, visiblePassages.Count * interval)
-        );
+        questionsContent.sizeDelta = new Vector2(questionsContent.sizeDelta.x, Mathf.Max(viewPort.rect.height, visiblePassages.Count * interval));
 
         return visiblePassages;
     }
