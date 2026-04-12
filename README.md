@@ -102,9 +102,16 @@ If everything works — the quest will start.
 
 ---
 
-## Builds
+## Downloads
 
-Ready-to-use builds are located in the [_Builds](https://github.com/albruevich/QuestReader/tree/main/_builds) folder.
+Ready-to-use builds are available on the [Releases](https://github.com/albruevich/QuestReader/releases) page.
+
+### How to download and run
+
+1. Open the Releases page  
+2. Download the archive for your platform  
+3. Extract it  
+4. Run the executable file
 
 ---
 

@@ -102,9 +102,16 @@ Assets/_Scenes/MainScene.unity
 
 ---
 
-## Білди
+## Завантаження
 
-Готові білди знаходяться в папці [_Builds](https://github.com/albruevich/QuestReader/tree/main/_builds).
+Готові збірки доступні на сторінці [Releases](https://github.com/albruevich/QuestReader/releases).
+
+### Як завантажити та запустити
+
+1. Відкрийте сторінку Releases  
+2. Завантажте архів для вашої платформи  
+3. Розпакуйте його  
+4. Запустіть виконуваний файл
 
 ---
 

@@ -102,9 +102,16 @@ Assets/_Scenes/MainScene.unity
 
 ---
 
-## Сборки
+## Загрузка
 
-Готовые сборки находятся в папке [_Builds](https://github.com/albruevich/QuestReader/tree/main/_builds).
+Готовые сборки доступны на странице [Releases](https://github.com/albruevich/QuestReader/releases).
+
+### Как скачать и запустить
+
+1. Откройте страницу Releases  
+2. Скачайте архив для вашей платформы  
+3. Распакуйте его  
+4. Запустите исполняемый файл
 
 ---
 
