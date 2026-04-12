@@ -44,10 +44,6 @@ Assets/Resources/Quests/
 
 YourQuest/
 
-Структура виглядає так:
-
-<img src="docs/quest_structure.png" width="240">
-
 ### Вміст
 
 - `quest.json` — основний файл квесту (містить усю логіку та дані, обов’язковий)
@@ -60,14 +56,15 @@ YourQuest/
 ⚠️ Ця структура автоматично створюється в Quest Editor.  
 Її не потрібно створювати вручну.
 
-Щоб використати квест, просто помістіть його папку в:
+Щоб використати квест:
+1. Помістіть його папку в `Assets/Resources/Quests/`
+2. Додайте назву папки квесту до `_Settings/Quest Folders List`
 
-Assets/Resources/Quests/
+Після цього рідер знайде та завантажить квест.
 
-Рідер автоматично його знайде.
+Структура виглядає так:
 
-💡 Приклад:  
-Assets/Resources/Quests/AsteroidStation/
+<img src="docs/quest_structure.webp" width="240">
 
 ---
 
