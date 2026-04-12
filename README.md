@@ -104,7 +104,7 @@ If everything works — the quest will start.
 
 ## Builds
 
-Ready-to-use builds are located in the `_Builds` folder.
+Ready-to-use builds are located in the [_Builds](https://github.com/albruevich/QuestReader/tree/main/_builds) folder.
 
 ---
 
