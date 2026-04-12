@@ -96,7 +96,7 @@ Assets/_Scenes/MainScene.unity
 
 Після запуску:
 - оберіть квест (наприклад, "Asteroid Station")
-- натисніть "Start Selected Quest"
+- натисніть "Почати Обраний Квест"
 
 Якщо все працює — квест запуститься.
 
