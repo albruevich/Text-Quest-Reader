@@ -159,4 +159,11 @@ Sound effects and music are sourced from [Pixabay](https://pixabay.com/).
 
 ## License
 
-MIT
+MIT License
+
+## Attribution
+
+If you use this project in your own work, please provide credit to the original author (albruevich).
+
+A link to the repository is appreciated:
+https://github.com/albruevich/QuestReader

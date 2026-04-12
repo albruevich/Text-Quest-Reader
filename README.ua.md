@@ -160,4 +160,11 @@ Localization.cs, LocKeys.cs, SettingsPanel.prefab, SettingsPanel.cs
 
 ## Ліцензія
 
-MIT
+MIT License
+
+## Attribution
+
+Якщо ви використовуєте цей проєкт у своїй роботі, будь ласка, вкажіть автора (albruevich).
+
+Буде добре, якщо ви додасте посилання на репозиторій:
+https://github.com/albruevich/QuestReader
