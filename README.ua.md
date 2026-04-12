@@ -104,7 +104,7 @@ Assets/_Scenes/MainScene.unity
 
 ## Білди
 
-Готові білди знаходяться в папці `_Builds`.
+Готові білди знаходяться в папці [_Builds](https://github.com/albruevich/QuestReader/tree/main/_builds).
 
 ---
 

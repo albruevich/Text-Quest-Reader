@@ -104,7 +104,7 @@ Assets/_Scenes/MainScene.unity
 
 ## Сборки
 
-Готовые сборки находятся в папке `_Builds`.
+Готовые сборки находятся в папке [_Builds](https://github.com/albruevich/QuestReader/tree/main/_builds).
 
 ---
 
