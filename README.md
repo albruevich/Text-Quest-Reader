@@ -4,6 +4,7 @@
 
 ![Unity](https://img.shields.io/badge/engine-Unity-000000?logo=unity&logoColor=white)
 ![Language](https://img.shields.io/badge/language-C%23-blue)
+![Format](https://img.shields.io/badge/data-JSON-orange)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 A text quest reader for running branching narrative quests, inspired by the mechanics of the game "Space Rangers".
