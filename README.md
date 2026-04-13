@@ -167,4 +167,4 @@ MIT License
 If you use this project in your own work, please provide credit to the original author (albruevich).
 
 A link to the repository is appreciated:
-https://github.com/albruevich/QuestReader
+https://github.com/albruevich/Text-Quest-Reader

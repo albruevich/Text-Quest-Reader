@@ -167,4 +167,4 @@ MIT License
 Якщо ви використовуєте цей проєкт у своїй роботі, будь ласка, вкажіть автора (albruevich).
 
 Буде добре, якщо ви додасте посилання на репозиторій:
-https://github.com/albruevich/QuestReader
+https://github.com/albruevich/Text-Quest-Reader
