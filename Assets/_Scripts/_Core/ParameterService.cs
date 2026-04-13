@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using Z.Expressions;
+using QuestFormula;
 
 public class ParameterService
 {
@@ -148,7 +148,7 @@ public class ParameterService
 
         try
         {
-            int value = Eval.Execute<int>(formula, textParser.FillFormulaDict());
+            int value = FormulaEvaluator.Evaluate(formula, textParser.FillFormulaDict());
             parameter.value = Clamp(value, parameter);
         }
         catch

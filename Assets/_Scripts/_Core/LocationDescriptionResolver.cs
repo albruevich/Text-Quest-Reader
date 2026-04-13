@@ -1,5 +1,5 @@
 using UnityEngine;
-using Z.Expressions;
+using QuestFormula;
 
 public class LocationDescriptionResolver
 {
@@ -41,7 +41,7 @@ public class LocationDescriptionResolver
         {
             try
             {
-                index = Eval.Execute<int>(location.formula, textParser.FillFormulaDict());
+                index = FormulaEvaluator.Evaluate(location.formula, textParser.FillFormulaDict());
             }
             catch
             {

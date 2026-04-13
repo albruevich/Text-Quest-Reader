@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Z.Expressions;
+using QuestFormula;
 using UnityEngine;
 
 public class TextParser
@@ -25,7 +25,7 @@ public class TextParser
         {
             try
             {
-                int value = Eval.Execute<int>(expression.Replace("{", "").Replace("}", ""), FillFormulaDict());
+                int value = FormulaEvaluator.Evaluate(expression.Replace("{", "").Replace("}", ""), FillFormulaDict());
                 string replacement = ignoreColor ? value.ToString() : replacementColor + value + "</color>";
 
                 result = result.Replace(expression, replacement);
@@ -73,16 +73,14 @@ public class TextParser
         }
 
         return result;
-    }   
+    }      
 
-    public Dictionary<string, object> FillFormulaDict()
+    public Dictionary<string, int> FillFormulaDict()
     {
-        Dictionary<string, object> paramsDict = new Dictionary<string, object>();
+        Dictionary<string, int> paramsDict = new Dictionary<string, int>(gamePanel.Player.quest.parameters.Count);
 
-        foreach (Parameter p in gamePanel.Player.quest.parameters)
-            paramsDict.Add("p" + p.index, p.value);
-       
-        paramsDict.Add("rnd", new System.Func<int, int, int>((min, max) => Random.Range(min, max + 1)));
+        foreach (Parameter parameter in gamePanel.Player.quest.parameters)
+            paramsDict["p" + parameter.index] = parameter.value;
 
         return paramsDict;
     }

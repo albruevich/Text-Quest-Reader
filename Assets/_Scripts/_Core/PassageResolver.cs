@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-using Z.Expressions;
+using QuestFormula;
 
 public class PassageResolver
 {
@@ -128,7 +128,7 @@ public class PassageResolver
         {
             try
             {
-                logicalCondition = Eval.Execute<bool>(passage.logicalCondition, textParser.FillFormulaDict());
+                logicalCondition = FormulaEvaluator.EvaluateBool(passage.logicalCondition, textParser.FillFormulaDict());
             }
             catch
             {
@@ -152,7 +152,7 @@ public class PassageResolver
             {
                 try
                 {
-                    int value = Eval.Execute<int>(takenValues.formula, textParser.FillFormulaDict());
+                    int value = FormulaEvaluator.Evaluate(takenValues.formula, textParser.FillFormulaDict());
 
                     if (takenValues.nonTaken)
                         takesOrNotValues = parameter.value != value;
@@ -170,7 +170,7 @@ public class PassageResolver
             {
                 try
                 {
-                    int value = Eval.Execute<int>(multipleValues.formula, textParser.FillFormulaDict());
+                    int value = FormulaEvaluator.Evaluate(multipleValues.formula, textParser.FillFormulaDict());
 
                     if (multipleValues.nonMultiple)
                         multipleOrNotValues = parameter.value % value != 0;
