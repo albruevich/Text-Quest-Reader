@@ -3354,7 +3354,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 25, y: -25.000488}
+  m_AnchoredPosition: {x: 25, y: -25.001953}
   m_SizeDelta: {x: -50, y: -50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &6834262479329014341
@@ -3427,6 +3427,7 @@ MonoBehaviour:
   sfxSource: {fileID: 8577557445468198319}
   musicFadeDuration: 0.5
   clickClip: {fileID: 8300000, guid: a79cd808f4858481893b818a5d89b4f2, type: 3}
+  hoverClip: {fileID: 8300000, guid: b60bd7f8d316747ddbed471506b3ad0a, type: 3}
 --- !u!1 &7164046719801185433
 GameObject:
   m_ObjectHideFlags: 0

@@ -16,6 +16,8 @@ public class QuestionCell : MonoBehaviour
     private string text;
     private float delay;
 
+    private bool ignoreFirstHover;
+
     public void StartWith(GamePanel gamePanel, Passage passage, float delay = 0f)
     {
         this.gamePanel = gamePanel;
@@ -31,8 +33,17 @@ public class QuestionCell : MonoBehaviour
 
     private void OnEnable()
     {
+        ignoreFirstHover = true;
+
         circle.SetActive(false);
         StartCoroutine(ShowWithDelay());
+
+        StartCoroutine(TurnOffIgnor());
+        IEnumerator TurnOffIgnor()
+        {
+            yield return null;
+            ignoreFirstHover = false;
+        }        
     }
 
     private IEnumerator ShowWithDelay()
@@ -69,7 +80,14 @@ public class QuestionCell : MonoBehaviour
     public void OnPointerEnter()
     {
         if (button != null && button.enabled)
+        {
             selectedImage.SetActive(true);
+
+            if (ignoreFirstHover)
+                return;
+
+            AudioManager.Instance.PlaySfx(SoundType.Hover);
+        }
     }
 
     public void OnPointerExit()

@@ -7,12 +7,15 @@ public class SettingsPanel : MonoBehaviour
     [SerializeField] private TMP_Text resetText;
     [SerializeField] private TMP_Text quitText;
     [SerializeField] private TMP_Dropdown langDropdown;
+    [SerializeField] private TMP_Text versionText;
 
     private GamePanel gamePanel;
 
     public void Init(GamePanel gamePanel)
     {
         this.gamePanel = gamePanel;
+
+        versionText.text = $"v{Application.version}";
     }
 
     private void Start()

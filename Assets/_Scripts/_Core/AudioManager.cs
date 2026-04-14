@@ -8,6 +8,7 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioSource sfxSource;
     [SerializeField] private float musicFadeDuration = 0.5f;
     [SerializeField] private AudioClip clickClip;
+    [SerializeField] private AudioClip hoverClip;
 
     public static AudioManager Instance;
 
@@ -178,6 +179,7 @@ public class AudioManager : MonoBehaviour
         switch(soundType)
         {
             case SoundType.Click: sfxSource.PlayOneShot(clickClip); break;
+            case SoundType.Hover: sfxSource.PlayOneShot(hoverClip); break;
             default: break;
         }
     }
@@ -235,5 +237,6 @@ public class AudioManager : MonoBehaviour
 public enum SoundType
 {
     None,
-    Click
+    Click,
+    Hover
 }
