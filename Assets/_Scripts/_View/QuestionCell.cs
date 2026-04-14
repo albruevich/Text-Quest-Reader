@@ -18,11 +18,14 @@ public class QuestionCell : MonoBehaviour
 
     private bool ignoreFirstHover;
 
+    private Vector2 hoverSize = new Vector2(1.01f, 1.01f);
+    private Vector2 normalSize = new Vector2(1f, 1f);
+
     public void StartWith(GamePanel gamePanel, Passage passage, float delay = 0f)
     {
         this.gamePanel = gamePanel;
         this.passage = passage;
-        this.delay = delay;
+        this.delay = delay;     
 
         text = gamePanel.TextParser.Parse(passage.question);
 
@@ -83,10 +86,12 @@ public class QuestionCell : MonoBehaviour
         {
             selectedImage.SetActive(true);
 
+            transform.localScale = hoverSize;
+
             if (ignoreFirstHover)
                 return;
 
-            AudioManager.Instance.PlaySfx(SoundType.Hover);
+            AudioManager.Instance.PlaySfx(SoundType.Hover);            
         }
     }
 
@@ -94,5 +99,7 @@ public class QuestionCell : MonoBehaviour
     {
         if (button != null && button.enabled)
             selectedImage.SetActive(false);
+
+        transform.localScale = normalSize;
     }
 }
