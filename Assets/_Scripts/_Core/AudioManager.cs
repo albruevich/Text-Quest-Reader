@@ -280,12 +280,28 @@ public class AudioManager : MonoBehaviour
 
     private string FindAudioPath(string folderName, string audioNameWithoutExtensionOrWithIt, string questName)
     {
-        string baseFolder = Path.Combine(
+        string persistentFolder = Path.Combine(
+            Application.persistentDataPath,
+            "Quests",
+            questName,
+            folderName);
+
+        string streamingFolder = Path.Combine(
             Application.streamingAssetsPath,
             "Quests",
             questName,
             folderName);
 
+        string path = FindAudioPathInFolder(persistentFolder, audioNameWithoutExtensionOrWithIt);
+
+        if (!string.IsNullOrEmpty(path))
+            return path;
+
+        return FindAudioPathInFolder(streamingFolder, audioNameWithoutExtensionOrWithIt);
+    }
+
+    private string FindAudioPathInFolder(string baseFolder, string audioNameWithoutExtensionOrWithIt)
+    {
         if (!Directory.Exists(baseFolder))
             return null;
 

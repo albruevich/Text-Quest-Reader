@@ -2,6 +2,7 @@
 using System.IO;
 using Newtonsoft.Json;
 using UnityEngine;
+using System.Diagnostics;
 
 public class SaveLoadManager
 {
@@ -14,6 +15,7 @@ public class SaveLoadManager
     private readonly JsonSerializerSettings serializerSettings;
     private readonly string saveFolderPath;
     private readonly string questsFolderPath;
+    private readonly string questsOuterFolderPath;
 
     public static SaveLoadManager Instance
     {
@@ -30,9 +32,11 @@ public class SaveLoadManager
     public SaveLoadManager()
     {
         saveFolderPath = Path.Combine(Application.persistentDataPath, SavesFolderName);
+        questsOuterFolderPath = Path.Combine(Application.persistentDataPath, QuestsFolderName);
         questsFolderPath = Path.Combine(Application.streamingAssetsPath, QuestsFolderName);
 
         EnsureSaveFolderExists();
+        EnsureQuestOuterFolderExists();
         serializerSettings = CreateSerializerSettings();
     }
 
@@ -96,7 +100,7 @@ public class SaveLoadManager
         }
         catch (Exception ex)
         {
-            Debug.LogWarning(ex);
+            UnityEngine.Debug.LogWarning(ex);
         }
 
         return player;
@@ -169,21 +173,19 @@ public class SaveLoadManager
 
     public Quest LoadQuestFromFolder(string folderName)
     {
-        string lang = PlayerPrefs.GetString("language", "en");
+        string lang = PlayerPrefs.GetString("language", "en");     
 
-        string localizedPath = Path.Combine(questsFolderPath, folderName, $"quest_{lang}.json");
-        string defaultPath = Path.Combine(questsFolderPath, folderName, "quest.json");
+        string persistentQuestFolder = Path.Combine(questsOuterFolderPath, folderName);
+        string streamingQuestFolder = Path.Combine(questsFolderPath, folderName);
 
-        string pathToLoad = null;
+        string pathToLoad = TryGetQuestPath(persistentQuestFolder, lang);
 
-        if (File.Exists(localizedPath))
-            pathToLoad = localizedPath;
-        else if (File.Exists(defaultPath))
-            pathToLoad = defaultPath;
+        if (string.IsNullOrEmpty(pathToLoad))
+            pathToLoad = TryGetQuestPath(streamingQuestFolder, lang);
 
         if (string.IsNullOrEmpty(pathToLoad))
         {
-            Debug.LogWarning($"Quest file not found. Folder: {folderName}");
+            UnityEngine.Debug.LogWarning($"Quest file not found. Folder: {folderName}");
             return null;
         }
 
@@ -195,9 +197,49 @@ public class SaveLoadManager
         }
         catch (Exception ex)
         {
-            Debug.LogWarning($"Failed to load quest from folder '{folderName}'. Path: {pathToLoad}\n{ex}");
+            UnityEngine.Debug.LogWarning($"Failed to load quest from folder '{folderName}'. Path: {pathToLoad}\n{ex}");
             return null;
         }
+    }
+
+    private string TryGetQuestPath(string questFolderPath, string lang)
+    {
+        string localizedPath = Path.Combine(questFolderPath, $"quest_{lang}.json");
+        string defaultPath = Path.Combine(questFolderPath, "quest.json");
+
+        if (File.Exists(localizedPath))
+            return localizedPath;
+
+        if (File.Exists(defaultPath))
+            return defaultPath;
+
+        return null;
+    }
+
+    public void OpenQuestsOuterFolder()
+    {
+#if UNITY_STANDALONE_WIN
+
+        Process.Start(new ProcessStartInfo
+        {
+            FileName = "explorer.exe",
+            Arguments = $"/select,\"{questsOuterFolderPath}\"",
+            UseShellExecute = true
+        });
+
+#elif UNITY_STANDALONE_OSX
+
+        Process.Start("open", $"\"{questsOuterFolderPath}\"");
+
+#elif UNITY_STANDALONE_LINUX
+
+        Process.Start("xdg-open", $"\"{questsOuterFolderPath}\"");
+
+#else
+
+        Application.OpenURL("file://" + questsOuterFolderPath);
+
+#endif
     }
 
     private void EnsureSaveFolderExists()
@@ -206,10 +248,16 @@ public class SaveLoadManager
             Directory.CreateDirectory(saveFolderPath);
     }
 
+    private void EnsureQuestOuterFolderExists()
+    {
+        if (!Directory.Exists(questsOuterFolderPath))
+            Directory.CreateDirectory(questsOuterFolderPath);
+    }
+
     private string GetPlayerSavePath()
     {
         return Path.Combine(saveFolderPath, SaveFileName);
-    }
+    }   
 
     private static JsonSerializerSettings CreateSerializerSettings()
     {

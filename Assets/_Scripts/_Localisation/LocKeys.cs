@@ -7,6 +7,8 @@ public static class LocKeys
     public const string AbandonQuest = "Abandon Quest";
     public const string Quit = "Quit";
     public const string StartQuest = "StartQuest";
+    public const string AddQuests = "AddQuests";
+    public const string Refresh = "Refresh";
 }
 
 public enum Lang

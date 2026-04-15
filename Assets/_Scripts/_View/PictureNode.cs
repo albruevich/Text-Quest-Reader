@@ -22,7 +22,7 @@ public class PictureNode : MonoBehaviour
     {
         ".png",
         ".jpg",
-        ".jpeg"      
+        ".jpeg"
     };
 
     private void Awake()
@@ -43,8 +43,8 @@ public class PictureNode : MonoBehaviour
     {
         Sprite sprite = null;
 
-        if (!string.IsNullOrEmpty(pictureName))        
-            yield return StartCoroutine(LoadSprite(pictureName, questName, loadedSprite => sprite = loadedSprite));        
+        if (!string.IsNullOrEmpty(pictureName))
+            yield return StartCoroutine(LoadSprite(pictureName, questName, loadedSprite => sprite = loadedSprite));
 
         innerPicture.sprite = sprite;
         outerPicture.sprite = sprite;
@@ -73,8 +73,8 @@ public class PictureNode : MonoBehaviour
     {
         Sprite sprite = null;
 
-        if (!string.IsNullOrEmpty(pictureName))        
-            yield return StartCoroutine(LoadSprite(pictureName, questName, loadedSprite => sprite = loadedSprite));        
+        if (!string.IsNullOrEmpty(pictureName))
+            yield return StartCoroutine(LoadSprite(pictureName, questName, loadedSprite => sprite = loadedSprite));
 
         innerPicture.sprite = sprite;
 
@@ -132,7 +132,10 @@ public class PictureNode : MonoBehaviour
 
         texture.name = Path.GetFileNameWithoutExtension(resolvedPath);
 
-        Sprite sprite = Sprite.Create(texture, new Rect(0f, 0f, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+        Sprite sprite = Sprite.Create(
+            texture,
+            new Rect(0f, 0f, texture.width, texture.height),
+            new Vector2(0.5f, 0.5f));
 
         sprite.name = texture.name;
         spriteCache[cacheKey] = sprite;
@@ -142,8 +145,19 @@ public class PictureNode : MonoBehaviour
 
     private string FindImagePath(string pictureNameWithoutExtensionOrWithIt, string questName)
     {
-        string baseFolder = Path.Combine(Application.streamingAssetsPath, "Quests", questName, "Images");
+        string persistentFolder = Path.Combine(Application.persistentDataPath, "Quests", questName, "Images");
+        string streamingFolder = Path.Combine(Application.streamingAssetsPath, "Quests", questName, "Images");
 
+        string path = FindImagePathInFolder(persistentFolder, pictureNameWithoutExtensionOrWithIt);
+
+        if (!string.IsNullOrEmpty(path))
+            return path;
+
+        return FindImagePathInFolder(streamingFolder, pictureNameWithoutExtensionOrWithIt);
+    }
+
+    private string FindImagePathInFolder(string baseFolder, string pictureNameWithoutExtensionOrWithIt)
+    {
         if (!Directory.Exists(baseFolder))
             return null;
 
@@ -185,9 +199,11 @@ public class PictureNode : MonoBehaviour
         foreach (var pair in spriteCache)
         {
             string normalized = pair.Key.Replace("\\", "/");
-            string questPart = "/Quests/" + questName + "/";
+            string persistentQuestPart = "/Quests/" + questName + "/";
+            string streamingQuestPart = "/Quests/" + questName + "/";
 
-            if (normalized.Contains(questPart, StringComparison.OrdinalIgnoreCase))
+            if (normalized.Contains(persistentQuestPart, StringComparison.OrdinalIgnoreCase) ||
+                normalized.Contains(streamingQuestPart, StringComparison.OrdinalIgnoreCase))
             {
                 if (pair.Value != null)
                 {

@@ -79,6 +79,25 @@ public static class Localization
             }
         },
 
+        {
+            LocKeys.AddQuests,
+            new Dictionary<Lang, string>
+            {
+                { Lang.en, "Add Quests\n<size=52>Copy quest folders here" },
+                { Lang.uk, "Добавити Квести\n<size=52>Скопіюйте папки квестів сюди" },
+                { Lang.ru, "Добавить Квесты\n<size=52>Скопируйте сюда папки квестов" }
+            }
+        },
+
+        {
+            LocKeys.Refresh,
+            new Dictionary<Lang, string>
+            {
+                { Lang.en, "Refresh" },
+                { Lang.uk, "Оновити" },
+                { Lang.ru, "Обновить" }
+            }
+        },
     };    
 
     public static void SetCurrentLanguage(string langCode)

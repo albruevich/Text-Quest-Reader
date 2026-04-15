@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using System;
 
 public class GamePanel : MonoBehaviour
 {
@@ -14,6 +15,8 @@ public class GamePanel : MonoBehaviour
 
     [SerializeField] private GameObject parameterTextPref;
     [SerializeField] private GameObject startButton;
+    [SerializeField] private GameObject addQuestButton;
+    [SerializeField] private GameObject refreshButton;
 
     [SerializeField] private QuestionCell victoryCell;
     [SerializeField] private QuestionCell defeatCell;
@@ -23,7 +26,9 @@ public class GamePanel : MonoBehaviour
     [SerializeField] private SettingsPanel settingsPref;
     [SerializeField] private AliveText mainText;
     [SerializeField] private PictureNode pictureNode;
-    [SerializeField] private TMP_Text startQuestText; 
+    [SerializeField] private TMP_Text startQuestText;
+    [SerializeField] private TMP_Text addQuestText;
+    [SerializeField] private TMP_Text refreshText;
     [SerializeField] private QuestCell questCellPref;
 
     private Player player;
@@ -73,6 +78,8 @@ public class GamePanel : MonoBehaviour
         mainTextRect.sizeDelta = new Vector2(canvas.rect.width - mainPictureRect.sizeDelta.x, mainTextRect.sizeDelta.y);
         questionsRect.sizeDelta = new Vector2(canvas.rect.width - mainPictureRect.sizeDelta.x, questionsRect.sizeDelta.y);
 
+        refreshButton.SetActive(false);
+
         HandleLocalizations();
 
         Player loadedPlayer = SaveLoadManager.Instance.LoadPlayer();
@@ -86,6 +93,8 @@ public class GamePanel : MonoBehaviour
             return;
 
         startButton.SetActive(false);
+        addQuestButton.SetActive(false);
+
         ShowCurrentLocation();
     }
 
@@ -100,6 +109,8 @@ public class GamePanel : MonoBehaviour
         Localization.SetCurrentLanguage(PlayerPrefs.GetString(Localization.LANGUAGE_KEY, "en"));
 
         startQuestText.text = Localization.Get(LocKeys.StartQuest);
+        addQuestText.text = Localization.Get(LocKeys.AddQuests);
+        refreshText.text = Localization.Get(LocKeys.Refresh);
         nextCell.SetText(Localization.Get(LocKeys.Next));
         victoryCell.SetText(Localization.Get(LocKeys.YouWin));
         defeatCell.SetText(Localization.Get(LocKeys.YouLose));
@@ -119,8 +130,18 @@ public class GamePanel : MonoBehaviour
         CreatePlayer(selectedQuest);
 
         startButton.SetActive(false);
+        addQuestButton.SetActive(false);
+        refreshButton.SetActive(false);
 
         ShowCurrentLocation();
+    }
+
+    public void ActionAddQuest()
+    {
+        AudioManager.Instance.PlaySfx(SoundType.Click);
+        SaveLoadManager.Instance.OpenQuestsOuterFolder();
+
+        refreshButton.SetActive(true);
     }
 
     public void ActionNext()
@@ -144,6 +165,14 @@ public class GamePanel : MonoBehaviour
         panel.Init(this);
     }
 
+    public void ActionRefresh()
+    {
+        AudioManager.Instance.PlaySfx(SoundType.Click);
+        ShowAllQuestsOnStart();
+
+        refreshButton.SetActive(false);
+    }
+
     public void AbandonQuest()
     {
         ClearQuestions();
@@ -151,6 +180,7 @@ public class GamePanel : MonoBehaviour
         pictureNode.ClearPicturesColor();
 
         startButton.SetActive(true);
+        addQuestButton.SetActive(true);
         nextCell.gameObject.SetActive(false);
         victoryCell.gameObject.SetActive(false);
         defeatCell.gameObject.SetActive(false);
@@ -293,13 +323,24 @@ public class GamePanel : MonoBehaviour
 
     private void ShowAllQuestsOnStart(string questNameToSelect = null)
     {
-        ClearQuestions();
+        ClearQuestions(); 
 
-        var questFolders = QuestHelper.GetAllQuestFolders();
+        var builtInQuestFolders = QuestHelper.GetAllQuestFolders();
+        var userQuestFolders = QuestHelper.GetUserQuestFolders();
+
+        List<string> allQuestFolders = new List<string>();
+    
+        allQuestFolders.AddRange(userQuestFolders);
+      
+        foreach (string folder in builtInQuestFolders)
+        {
+            if (!allQuestFolders.Contains(folder))
+                allQuestFolders.Add(folder);
+        }
 
         List<Quest> quests = new List<Quest>();
 
-        foreach (var folder in questFolders)
+        foreach (string folder in allQuestFolders)
         {
             Quest quest = SaveLoadManager.Instance.LoadQuestFromFolder(folder);
 
@@ -308,8 +349,16 @@ public class GamePanel : MonoBehaviour
 
             quests.Add(quest);
         }
-       
-        quests.Sort((a, b) => a.order.CompareTo(b.order));
+
+        quests.Sort((a, b) =>
+        {
+            int orderCompare = a.order.CompareTo(b.order);
+
+            if (orderCompare != 0)
+                return orderCompare;
+
+            return string.Compare(a.questName, b.questName, StringComparison.Ordinal);
+        });
 
         Quest firstQuest = null;
         Quest questToSelect = null;
@@ -318,7 +367,7 @@ public class GamePanel : MonoBehaviour
         {
             Quest quest = quests[i];
 
-            bool isSelected = false;
+            bool isSelected;
 
             if (!string.IsNullOrEmpty(questNameToSelect))
                 isSelected = quest.questName == questNameToSelect;
