@@ -39,7 +39,7 @@ It is open source and can be used:
 
 Each quest is stored as a separate folder inside:
 
-Assets/Resources/Quests/
+Assets/StreamingAssets/Quests/
 
 Inside this folder, each quest has its own directory:
 
@@ -58,11 +58,22 @@ If the optional folders are empty, the quest will still work with text and logic
 
 To use a quest, place its folder into `Assets/StreamingAssets/Quests/`.
 
-After that, the reader will automatically detect and load the quest.
+The reader will automatically detect and load the quest.
 
 The structure looks like this:
 
 <img src="docs/quest_structure.webp" width="280">
+
+---
+
+## Adding Quests
+
+You can also add quests directly from the application:
+
+- **Add Quests** — opens the quest folder, where you can place new quests  
+- **Refresh** — reloads the quest list and applies any changes  
+
+This allows you to add or update quests without restarting the application.
 
 ---
 
