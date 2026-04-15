@@ -56,15 +56,13 @@ YourQuest/
 
 ⚠️ Эта структура автоматически создаётся в Text Quest Editor. Её не нужно создавать вручную.
 
-Чтобы использовать квест:
-1. Поместите его папку в `Assets/Resources/Quests/`
-2. Добавьте имя папки квеста в `_Settings/Quest Folders List`
+Чтобы использовать квест, поместите его папку в `Assets/StreamingAssets/Quests/`.
 
-После этого ридер обнаружит и загрузит квест.
+После этого ридер автоматически обнаружит и загрузит квест.
 
 Структура выглядит следующим образом:
 
-<img src="docs/quest_structure.webp" width="600">
+<img src="docs/quest_structure.webp" width="500">
 
 ---
 
