@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Newtonsoft.Json;
 using UnityEngine;
 
@@ -6,11 +7,13 @@ public class SaveLoadManager
 {
     private const string SavesFolderName = "Saves";
     private const string SaveFileName = "save.json";
-   
+    private const string QuestsFolderName = "Quests";
+
     private static SaveLoadManager instance;
 
     private readonly JsonSerializerSettings serializerSettings;
-    private readonly string saveFolderPath;   
+    private readonly string saveFolderPath;
+    private readonly string questsFolderPath;
 
     public static SaveLoadManager Instance
     {
@@ -27,9 +30,10 @@ public class SaveLoadManager
     public SaveLoadManager()
     {
         saveFolderPath = Path.Combine(Application.persistentDataPath, SavesFolderName);
-        EnsureSaveFolderExists();
+        questsFolderPath = Path.Combine(Application.streamingAssetsPath, QuestsFolderName);
 
-        serializerSettings = CreateSerializerSettings();  
+        EnsureSaveFolderExists();
+        serializerSettings = CreateSerializerSettings();
     }
 
     public void SavePlayer()
@@ -39,22 +43,28 @@ public class SaveLoadManager
             return;
 
         PlayerSaveData saveData = CreateSaveData(player);
+        string json = JsonConvert.SerializeObject(saveData, serializerSettings);
 
-        string json = JsonConvert.SerializeObject(saveData, serializerSettings);     
         File.WriteAllText(GetPlayerSavePath(), json);
     }
 
-    public void ClearPlayerSaveData() => File.Delete(GetPlayerSavePath());    
+    public void ClearPlayerSaveData()
+    {
+        string path = GetPlayerSavePath();
+
+        if (File.Exists(path))
+            File.Delete(path);
+    }
 
     public Player LoadPlayer()
-    {      
-        string playerSavePath = GetPlayerSavePath();        
+    {
+        string playerSavePath = GetPlayerSavePath();
 
         if (!File.Exists(playerSavePath))
             return null;
 
         string json = File.ReadAllText(playerSavePath);
-        PlayerSaveData saveData = JsonConvert.DeserializeObject<PlayerSaveData>(json, serializerSettings);       
+        PlayerSaveData saveData = JsonConvert.DeserializeObject<PlayerSaveData>(json, serializerSettings);
 
         if (saveData == null)
             return null;
@@ -63,7 +73,9 @@ public class SaveLoadManager
 
         try
         {
-            Quest quest = LoadQuestFromFrolder(saveData.questName);
+            Quest quest = LoadQuestFromFolder(saveData.questName);
+            if (quest == null)
+                return null;
 
             Quest questClone = (Quest)quest.Clone();
 
@@ -82,10 +94,10 @@ public class SaveLoadManager
             RestoreLocations(questClone, saveData);
             RestorePassages(questClone, saveData);
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             Debug.LogWarning(ex);
-        }      
+        }
 
         return player;
     }
@@ -95,7 +107,7 @@ public class SaveLoadManager
         PlayerSaveData saveData = new PlayerSaveData
         {
             locationID = player.locationID,
-            passageID = player.passageID,   
+            passageID = player.passageID,
             lastPlayedMusic = AudioManager.Instance.CurrentMusicName,
             questName = player.quest.questName,
             gameOver = player.gameOver
@@ -155,24 +167,37 @@ public class SaveLoadManager
         }
     }
 
-    public Quest LoadQuestFromFrolder(string folderName)
+    public Quest LoadQuestFromFolder(string folderName)
     {
         string lang = PlayerPrefs.GetString("language", "en");
 
-        string localizedPath = $"Quests/{folderName}/quest_{lang}";
-        TextAsset questAsset = Resources.Load<TextAsset>(localizedPath);
+        string localizedPath = Path.Combine(questsFolderPath, folderName, $"quest_{lang}.json");
+        string defaultPath = Path.Combine(questsFolderPath, folderName, "quest.json");
 
-        if (questAsset == null)
+        string pathToLoad = null;
+
+        if (File.Exists(localizedPath))
+            pathToLoad = localizedPath;
+        else if (File.Exists(defaultPath))
+            pathToLoad = defaultPath;
+
+        if (string.IsNullOrEmpty(pathToLoad))
         {
-            string defaultPath = $"Quests/{folderName}/quest";
-            questAsset = Resources.Load<TextAsset>(defaultPath);
+            Debug.LogWarning($"Quest file not found. Folder: {folderName}");
+            return null;
         }
 
-        if (questAsset == null)
+        try
+        {
+            string json = File.ReadAllText(pathToLoad);
+            Quest quest = JsonConvert.DeserializeObject<Quest>(json, serializerSettings);
+            return quest;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"Failed to load quest from folder '{folderName}'. Path: {pathToLoad}\n{ex}");
             return null;
-
-        Quest quest = JsonConvert.DeserializeObject<Quest>(questAsset.text, serializerSettings);
-        return quest;
+        }
     }
 
     private void EnsureSaveFolderExists()
@@ -181,7 +206,10 @@ public class SaveLoadManager
             Directory.CreateDirectory(saveFolderPath);
     }
 
-    private string GetPlayerSavePath() => Path.Combine(saveFolderPath, SaveFileName);    
+    private string GetPlayerSavePath()
+    {
+        return Path.Combine(saveFolderPath, SaveFileName);
+    }
 
     private static JsonSerializerSettings CreateSerializerSettings()
     {

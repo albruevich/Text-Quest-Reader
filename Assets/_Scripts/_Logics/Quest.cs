@@ -10,6 +10,7 @@ public class Quest : ICloneable
     public string startImage;
     public int locationCount;
     public int passageCount;
+    public int order;
 
     public List<Parameter> parameters = new List<Parameter>();
     public List<Location> locations = new List<Location>();

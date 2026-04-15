@@ -23,8 +23,7 @@ public class GamePanel : MonoBehaviour
     [SerializeField] private SettingsPanel settingsPref;
     [SerializeField] private AliveText mainText;
     [SerializeField] private PictureNode pictureNode;
-    [SerializeField] private TMP_Text startQuestText;
-    [SerializeField] private QuestFoldersList questFoldersList;
+    [SerializeField] private TMP_Text startQuestText; 
     [SerializeField] private QuestCell questCellPref;
 
     private Player player;
@@ -271,7 +270,7 @@ public class GamePanel : MonoBehaviour
 
     private Quest CreateLocalizedQuestWithProgress(Quest oldQuest)
     {
-        Quest loadedQuest = SaveLoadManager.Instance.LoadQuestFromFrolder(oldQuest.questName);
+        Quest loadedQuest = SaveLoadManager.Instance.LoadQuestFromFolder(oldQuest.questName);
         Quest newQuest = (Quest)loadedQuest.Clone();
 
         for (int i = 0; i < newQuest.parameters.Count && i < oldQuest.parameters.Count; i++)
@@ -296,13 +295,28 @@ public class GamePanel : MonoBehaviour
     {
         ClearQuestions();
 
+        var questFolders = QuestHelper.GetAllQuestFolders();
+
+        List<Quest> quests = new List<Quest>();
+
+        foreach (var folder in questFolders)
+        {
+            Quest quest = SaveLoadManager.Instance.LoadQuestFromFolder(folder);
+
+            if (quest == null)
+                continue;
+
+            quests.Add(quest);
+        }
+       
+        quests.Sort((a, b) => a.order.CompareTo(b.order));
+
         Quest firstQuest = null;
         Quest questToSelect = null;
 
-        int i = 0;
-        foreach (var folder in questFoldersList.questFolders)
+        for (int i = 0; i < quests.Count; i++)
         {
-            Quest quest = SaveLoadManager.Instance.LoadQuestFromFrolder(folder);
+            Quest quest = quests[i];
 
             bool isSelected = false;
 
@@ -319,8 +333,6 @@ public class GamePanel : MonoBehaviour
 
             if (isSelected)
                 questToSelect = quest;
-
-            i++;
         }
 
         if (questToSelect == null)
