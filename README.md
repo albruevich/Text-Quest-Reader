@@ -62,7 +62,7 @@ After that, the reader will automatically detect and load the quest.
 
 The structure looks like this:
 
-<img src="docs/quest_structure.webp" width="380">
+<img src="docs/quest_structure.webp" width="280">
 
 ---
 
