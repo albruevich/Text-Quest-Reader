@@ -62,7 +62,7 @@ YourQuest/
 
 Структура выглядит следующим образом:
 
-<img src="docs/quest_structure.webp" width="500">
+<img src="docs/quest_structure.webp" width="380">
 
 ---
 
