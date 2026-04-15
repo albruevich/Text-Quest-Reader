@@ -70,7 +70,7 @@ The structure looks like this:
 
 You can also add quests directly from the application:
 
-- **Add Quests** — opens the quest folder, where you can place new quests  
+- **Add Quests** — opens the quest folder, where you can place quests created in the [Text Quest Editor](https://github.com/albruevich/Text-Quest-Editor)  
 - **Refresh** — reloads the quest list and applies any changes  
 
 This allows you to add or update quests without restarting the application.
