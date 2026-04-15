@@ -75,6 +75,8 @@ You can also add quests directly from the application:
 
 This allows you to add or update quests without restarting the application.
 
+<img src="docs/add_quests.webp" width="400">
+
 ---
 
 ## Important
