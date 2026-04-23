@@ -1,0 +1,7 @@
+﻿<Solution>
+  <Project Path="UnityUIExtensions.csproj" />
+  <Project Path="UnityUIExtensions.editor.csproj" />
+  <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="AssetUsageDetector.Editor.csproj" />
+  <Project Path="Assembly-CSharp-Editor.csproj" />
+</Solution>

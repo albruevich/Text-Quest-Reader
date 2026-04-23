@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 public class Quest : ICloneable
 {
+    public int id;
     public string questName;
     public string displayName;
     public string descrition;
