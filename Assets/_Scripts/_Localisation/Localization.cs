@@ -98,11 +98,41 @@ public static class Localization
                 { Lang.ru, "Обновить" }
             }
         },
-    };    
+
+        {
+            LocKeys.Source,
+            new Dictionary<Lang, string>
+            {
+                { Lang.en, "Source:" },
+                { Lang.uk, "Джерело:" },
+                { Lang.ru, "Источник:" }
+            }
+        },
+
+        {
+            LocKeys.Local,
+            new Dictionary<Lang, string>
+            {
+                { Lang.en, "Local" },
+                { Lang.uk, "Локал" },
+                { Lang.ru, "Локал" }
+            }
+        },
+
+        {
+            LocKeys.Remote,
+            new Dictionary<Lang, string>
+            {
+                { Lang.en, "Local" },
+                { Lang.uk, "Мережа" },
+                { Lang.ru, "Сеть" }
+            }
+        },
+    };
 
     public static void SetCurrentLanguage(string langCode)
     {
-        switch(langCode)
+        switch (langCode)
         {
             case "en": CurrentLang = Lang.en; break;
             case "uk": CurrentLang = Lang.uk; break;
@@ -137,4 +167,3 @@ public static class Localization
     }
 }
 
-    

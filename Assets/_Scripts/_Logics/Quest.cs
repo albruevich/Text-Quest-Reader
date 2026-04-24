@@ -3,10 +3,11 @@ using System.Collections.Generic;
 
 public class Quest : ICloneable
 {
+    public int ownerUserId;
     public int id;
     public string questName;
     public string displayName;
-    public string descrition;
+    public string description;
     public string startMusic;
     public string startImage;
     public int locationCount;
@@ -74,7 +75,7 @@ public class Quest : ICloneable
         clone.displayName = displayName;
         clone.startImage = startImage;
         clone.startMusic = startMusic;
-        clone.descrition = descrition;
+        clone.description = description;
 
         foreach (var parameter in parameters)
             clone.parameters.Add((Parameter)parameter.Clone());

@@ -10,15 +10,15 @@ public class QuestCell : MonoBehaviour
     [SerializeField] private Button button;
 
     GamePanel gamePanel;
-    Quest quest;
+    QuestShort questShort;
     string nameString;
 
-    public void StartWith(GamePanel gamePanel, Quest quest, bool selected)
+    public void StartWith(GamePanel gamePanel, QuestShort questShort, bool selected)
     {
         this.gamePanel = gamePanel;
-        this.quest = quest;
+        this.questShort = questShort;
 
-        nameString = quest.displayName ?? quest.questName;
+        nameString = questShort.DisplayName ?? questShort.QuestName;
 
         selectedImage.SetActive(selected);
     }
@@ -42,9 +42,9 @@ public class QuestCell : MonoBehaviour
         gamePanel.DiselectAllQuestCells();
 
         AudioManager.Instance.PlaySfx(SoundType.Click);
-        gamePanel.SelectQuest(quest);
+        gamePanel.SelectQuest(questShort);
         selectedImage.SetActive(true);
     }
 
-    public void Diselect() => selectedImage.SetActive(false);   
+    public void Diselect() => selectedImage.SetActive(false);
 }

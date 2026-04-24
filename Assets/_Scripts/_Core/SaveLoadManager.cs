@@ -3,6 +3,7 @@ using System.IO;
 using Newtonsoft.Json;
 using UnityEngine;
 using System.Diagnostics;
+using Newtonsoft.Json.Serialization;
 
 public class SaveLoadManager
 {
@@ -16,6 +17,13 @@ public class SaveLoadManager
     private readonly string saveFolderPath;
     private readonly string questsFolderPath;
     private readonly string questsOuterFolderPath;
+
+    public static JsonSerializerSettings JsonSettings = new JsonSerializerSettings
+    {
+        TypeNameHandling = TypeNameHandling.None,
+        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+        ContractResolver = new CamelCasePropertyNamesContractResolver()
+    };
 
     public static SaveLoadManager Instance
     {
@@ -173,7 +181,7 @@ public class SaveLoadManager
 
     public Quest LoadQuestFromFolder(string folderName)
     {
-        string lang = PlayerPrefs.GetString("language", "en");     
+        string lang = PlayerPrefs.GetString("language", "en");
 
         string persistentQuestFolder = Path.Combine(questsOuterFolderPath, folderName);
         string streamingQuestFolder = Path.Combine(questsFolderPath, folderName);
@@ -198,6 +206,34 @@ public class SaveLoadManager
         catch (Exception ex)
         {
             UnityEngine.Debug.LogWarning($"Failed to load quest from folder '{folderName}'. Path: {pathToLoad}\n{ex}");
+            return null;
+        }
+    }
+
+    public QuestShort LoadQuestShortFromFolder(string folderName)
+    {
+        string lang = PlayerPrefs.GetString("language", "en");
+
+        string persistentQuestFolder = Path.Combine(questsOuterFolderPath, folderName);
+        string streamingQuestFolder = Path.Combine(questsFolderPath, folderName);
+
+        string pathToLoad = TryGetQuestPath(persistentQuestFolder, lang);
+
+        if (string.IsNullOrEmpty(pathToLoad))
+            pathToLoad = TryGetQuestPath(streamingQuestFolder, lang);
+
+        if (string.IsNullOrEmpty(pathToLoad))
+            return null;
+
+        try
+        {
+            string json = File.ReadAllText(pathToLoad);
+
+            return JsonConvert.DeserializeObject<QuestShort>(json, serializerSettings);
+        }
+        catch (Exception ex)
+        {
+            UnityEngine.Debug.LogWarning($"Failed to load quest short: {ex}");
             return null;
         }
     }
@@ -257,7 +293,7 @@ public class SaveLoadManager
     private string GetPlayerSavePath()
     {
         return Path.Combine(saveFolderPath, SaveFileName);
-    }   
+    }
 
     private static JsonSerializerSettings CreateSerializerSettings()
     {

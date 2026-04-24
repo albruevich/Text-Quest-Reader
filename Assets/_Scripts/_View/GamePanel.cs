@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Newtonsoft.Json;
 using UnityEngine;
-using TMPro;
-using System;
 
 public class GamePanel : MonoBehaviour
 {
@@ -14,9 +16,7 @@ public class GamePanel : MonoBehaviour
     [SerializeField] private RectTransform canvas;
 
     [SerializeField] private GameObject parameterTextPref;
-    [SerializeField] private GameObject startButton;
-    [SerializeField] private GameObject addQuestButton;
-    [SerializeField] private GameObject refreshButton;
+    [SerializeField] private GameObject sourcesNode;
 
     [SerializeField] private QuestionCell victoryCell;
     [SerializeField] private QuestionCell defeatCell;
@@ -26,9 +26,6 @@ public class GamePanel : MonoBehaviour
     [SerializeField] private SettingsPanel settingsPref;
     [SerializeField] private AliveText mainText;
     [SerializeField] private PictureNode pictureNode;
-    [SerializeField] private TMP_Text startQuestText;
-    [SerializeField] private TMP_Text addQuestText;
-    [SerializeField] private TMP_Text refreshText;
     [SerializeField] private QuestCell questCellPref;
 
     private Player player;
@@ -47,7 +44,10 @@ public class GamePanel : MonoBehaviour
     private PassageResolver passageResolver;
     private ParameterService parameterService;
 
-    private Quest selectedQuest = null;
+    private QuestShort selectedQuest;
+    private bool selectedQuestIsRemote;
+
+    public event Action HandleLocalizationsEvent;
 
     #region Inits
 
@@ -78,22 +78,19 @@ public class GamePanel : MonoBehaviour
         mainTextRect.sizeDelta = new Vector2(canvas.rect.width - mainPictureRect.sizeDelta.x, mainTextRect.sizeDelta.y);
         questionsRect.sizeDelta = new Vector2(canvas.rect.width - mainPictureRect.sizeDelta.x, questionsRect.sizeDelta.y);
 
-        refreshButton.SetActive(false);
-
         HandleLocalizations();
 
         Player loadedPlayer = SaveLoadManager.Instance.LoadPlayer();
 
         if (loadedPlayer == null)
-            ShowAllQuestsOnStart();
+            UpdateLocalQuests();
         else
             player = loadedPlayer;
 
         if (player == null)
             return;
 
-        startButton.SetActive(false);
-        addQuestButton.SetActive(false);
+        sourcesNode.SetActive(false);
 
         ShowCurrentLocation();
     }
@@ -108,40 +105,28 @@ public class GamePanel : MonoBehaviour
 
         Localization.SetCurrentLanguage(PlayerPrefs.GetString(Localization.LANGUAGE_KEY, "en"));
 
-        startQuestText.text = Localization.Get(LocKeys.StartQuest);
-        addQuestText.text = Localization.Get(LocKeys.AddQuests);
-        refreshText.text = Localization.Get(LocKeys.Refresh);
         nextCell.SetText(Localization.Get(LocKeys.Next));
         victoryCell.SetText(Localization.Get(LocKeys.YouWin));
         defeatCell.SetText(Localization.Get(LocKeys.YouLose));
+
+        HandleLocalizationsEvent?.Invoke();
     }
 
     #endregion
 
     #region Publics
 
-    public void ActionStart()
+    public void StartQuest()
     {
         AudioManager.Instance.PlaySfx(SoundType.Click);
 
         if (selectedQuest == null)
             return;
 
-        CreatePlayer(selectedQuest);
-
-        startButton.SetActive(false);
-        addQuestButton.SetActive(false);
-        refreshButton.SetActive(false);
-
-        ShowCurrentLocation();
-    }
-
-    public void ActionAddQuest()
-    {
-        AudioManager.Instance.PlaySfx(SoundType.Click);
-        SaveLoadManager.Instance.OpenQuestsOuterFolder();
-
-        refreshButton.SetActive(true);
+        if (selectedQuestIsRemote)
+            StartRemoteQuest(selectedQuest.Id);
+        else
+            StartLocalQuest(selectedQuest.QuestName);
     }
 
     public void ActionNext()
@@ -165,22 +150,13 @@ public class GamePanel : MonoBehaviour
         panel.Init(this);
     }
 
-    public void ActionRefresh()
-    {
-        AudioManager.Instance.PlaySfx(SoundType.Click);
-        ShowAllQuestsOnStart();
-
-        refreshButton.SetActive(false);
-    }
-
     public void AbandonQuest()
     {
         ClearQuestions();
         parameterService.ClearParams();
         pictureNode.ClearPicturesColor();
 
-        startButton.SetActive(true);
-        addQuestButton.SetActive(true);
+        sourcesNode.SetActive(true);
         nextCell.gameObject.SetActive(false);
         victoryCell.gameObject.SetActive(false);
         defeatCell.gameObject.SetActive(false);
@@ -188,7 +164,7 @@ public class GamePanel : MonoBehaviour
         player = null;
         singlePassage = null;
 
-        ShowAllQuestsOnStart();
+        UpdateLocalQuests();
 
         SaveLoadManager.Instance.ClearPlayerSaveData();
     }
@@ -242,16 +218,20 @@ public class GamePanel : MonoBehaviour
         }
     }
 
-    public void SelectQuest(Quest quest)
+    public void SelectQuest(QuestShort questShort)
     {
-        if (quest == null)
+        if (questShort == null)
             return;
 
-        selectedQuest = quest;
+        selectedQuest = questShort;
 
-        mainText.SetText($"<b>{quest.displayName}</b>\n\n{quest.descrition}");
-        pictureNode.SetNewPicture(quest.startImage, quest.questName, mayBeSame: true);
-        AudioManager.Instance.PlayMusic(quest.startMusic, quest.questName, stoppable: true);
+        string title = string.IsNullOrEmpty(questShort.DisplayName)
+            ? questShort.QuestName
+            : questShort.DisplayName;
+
+        mainText.SetText($"<b>{title}</b>\n\n{questShort.Description}");
+        pictureNode.SetNewPicture(questShort.StartImage, questShort.QuestName, mayBeSame: true);
+        AudioManager.Instance.PlayMusic(questShort.StartMusic, questShort.QuestName, stoppable: true);
     }
 
     public void ApplyLanguageChangeToQuestView()
@@ -260,8 +240,8 @@ public class GamePanel : MonoBehaviour
 
         if (player == null)
         {
-            string selectedQuestName = selectedQuest != null ? selectedQuest.questName : null;
-            ShowAllQuestsOnStart(selectedQuestName);
+            string selectedQuestName = selectedQuest != null ? selectedQuest.QuestName : null;
+            UpdateLocalQuests(selectedQuestName);
             return;
         }
 
@@ -269,9 +249,205 @@ public class GamePanel : MonoBehaviour
         ShowCurrentLocation();
     }
 
+    public void UpdateLocalQuests(string questNameToSelect = null)
+    {
+        selectedQuestIsRemote = false;
+
+        ClearQuestions();
+
+        var builtInQuestFolders = QuestHelper.GetAllQuestFolders();
+        var userQuestFolders = QuestHelper.GetUserQuestFolders();
+
+        List<string> allQuestFolders = new List<string>();
+
+        allQuestFolders.AddRange(userQuestFolders);
+
+        foreach (string folder in builtInQuestFolders)
+        {
+            if (!allQuestFolders.Contains(folder))
+                allQuestFolders.Add(folder);
+        }
+
+        List<QuestShort> quests = new List<QuestShort>();
+
+        foreach (string folder in allQuestFolders)
+        {
+            QuestShort questShort = SaveLoadManager.Instance.LoadQuestShortFromFolder(folder);
+
+            if (questShort == null)
+                continue;
+
+            quests.Add(questShort);
+        }
+
+        quests = quests
+            .OrderBy(q => q.Order)
+            .ThenBy(q => q.QuestName)
+            .ToList();
+
+        ShowQuestShortList(quests, questNameToSelect);
+    }
+
+    public void UpdateRemoteQuests(List<QuestShort> list)
+    {
+        selectedQuestIsRemote = true;
+
+        ClearQuestions();
+
+        if (list == null || list.Count == 0)
+            return;
+
+        list = list
+            .OrderBy(x => x.Order)
+            .ThenBy(x => x.QuestName)
+            .ToList();
+
+        string selectedQuestName = selectedQuest != null ? selectedQuest.QuestName : null;
+
+        ShowQuestShortList(list, selectedQuestName);
+    }
+
     #endregion
 
-    #region Privates
+    #region Quest Preview
+
+    private void ShowQuestShortList(List<QuestShort> quests, string questNameToSelect)
+    {
+        QuestShort firstQuest = null;
+        QuestShort questToSelect = null;
+
+        for (int i = 0; i < quests.Count; i++)
+        {
+            QuestShort quest = quests[i];
+
+            bool isSelected;
+
+            if (!string.IsNullOrEmpty(questNameToSelect))
+                isSelected = quest.QuestName == questNameToSelect;
+            else
+                isSelected = i == 0;
+
+            QuestCell cell = Instantiate(questCellPref, questionsContent);
+            cell.StartWith(this, quest, isSelected);
+
+            if (i == 0)
+                firstQuest = quest;
+
+            if (isSelected)
+                questToSelect = quest;
+        }
+
+        if (questToSelect == null)
+            questToSelect = firstQuest;
+
+        if (questToSelect == null)
+            return;
+
+        pictureNode.InitImages(questToSelect.StartImage, questToSelect.QuestName);
+        SelectQuest(questToSelect);
+    }
+
+    #endregion
+
+    #region Start Quest
+
+    private void StartLocalQuest(string questName)
+    {
+        Quest quest = SaveLoadManager.Instance.LoadQuestFromFolder(questName);
+
+        if (quest == null)
+        {
+            Debug.LogWarning("Quest not found: " + questName);
+            return;
+        }
+
+        CreatePlayer(quest);
+
+        sourcesNode.SetActive(false);
+
+        ShowCurrentLocation();
+    }
+
+    private void StartRemoteQuest(int questId)
+    {
+        ApiManager.Instance.DownloadQuestPackage(questId, (bytes) =>
+        {
+            string tempRoot = null;
+            string tempZipPath = null;
+
+            try
+            {
+                if (bytes == null || bytes.Length == 0)
+                {
+                    Debug.LogWarning("Downloaded package is empty.");
+                    return;
+                }
+
+                tempRoot = Path.Combine(Application.temporaryCachePath, "RemoteQuestImport");
+                Directory.CreateDirectory(tempRoot);
+
+                tempZipPath = Path.Combine(tempRoot, $"quest_{questId}.zip");
+                string extractFolder = Path.Combine(tempRoot, $"quest_{questId}");
+
+                if (Directory.Exists(extractFolder))
+                    Directory.Delete(extractFolder, true);
+
+                if (File.Exists(tempZipPath))
+                    File.Delete(tempZipPath);
+
+                File.WriteAllBytes(tempZipPath, bytes);
+                System.IO.Compression.ZipFile.ExtractToDirectory(tempZipPath, extractFolder);
+
+                string questJsonPath = Path.Combine(extractFolder, "quest.json");
+
+                if (!File.Exists(questJsonPath))
+                {
+                    Debug.LogWarning("Downloaded package does not contain quest.json.");
+                    return;
+                }
+
+                string json = File.ReadAllText(questJsonPath);
+                Quest quest = JsonConvert.DeserializeObject<Quest>(json, SaveLoadManager.JsonSettings);
+
+                if (quest == null)
+                {
+                    Debug.LogWarning("Quest data is empty.");
+                    return;
+                }
+
+                CreatePlayer(quest);
+
+                sourcesNode.SetActive(false);
+
+                ShowCurrentLocation();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning("Error loading remote quest: " + ex.Message);
+            }
+            finally
+            {
+                try
+                {
+                    if (!string.IsNullOrEmpty(tempZipPath) && File.Exists(tempZipPath))
+                        File.Delete(tempZipPath);
+
+                    string extractFolder = Path.Combine(Application.temporaryCachePath, "RemoteQuestImport", $"quest_{questId}");
+
+                    if (Directory.Exists(extractFolder))
+                        Directory.Delete(extractFolder, true);
+                }
+                catch (Exception cleanupEx)
+                {
+                    Debug.LogWarning("Remote import cleanup warning: " + cleanupEx.Message);
+                }
+            }
+        },
+        (error) =>
+        {
+            Debug.LogWarning("Error downloading quest package: " + error);
+        });
+    }
 
     private void CreatePlayer(Quest quest)
     {
@@ -298,6 +474,10 @@ public class GamePanel : MonoBehaviour
         singlePassage = null;
     }
 
+    #endregion
+
+    #region Privates
+
     private Quest CreateLocalizedQuestWithProgress(Quest oldQuest)
     {
         Quest loadedQuest = SaveLoadManager.Instance.LoadQuestFromFolder(oldQuest.questName);
@@ -319,79 +499,6 @@ public class GamePanel : MonoBehaviour
             passage.FindControversials(newQuest);
 
         return newQuest;
-    }
-
-    private void ShowAllQuestsOnStart(string questNameToSelect = null)
-    {
-        ClearQuestions(); 
-
-        var builtInQuestFolders = QuestHelper.GetAllQuestFolders();
-        var userQuestFolders = QuestHelper.GetUserQuestFolders();
-
-        List<string> allQuestFolders = new List<string>();
-    
-        allQuestFolders.AddRange(userQuestFolders);
-      
-        foreach (string folder in builtInQuestFolders)
-        {
-            if (!allQuestFolders.Contains(folder))
-                allQuestFolders.Add(folder);
-        }
-
-        List<Quest> quests = new List<Quest>();
-
-        foreach (string folder in allQuestFolders)
-        {
-            Quest quest = SaveLoadManager.Instance.LoadQuestFromFolder(folder);
-
-            if (quest == null)
-                continue;
-
-            quests.Add(quest);
-        }
-
-        quests.Sort((a, b) =>
-        {
-            int orderCompare = a.order.CompareTo(b.order);
-
-            if (orderCompare != 0)
-                return orderCompare;
-
-            return string.Compare(a.questName, b.questName, StringComparison.Ordinal);
-        });
-
-        Quest firstQuest = null;
-        Quest questToSelect = null;
-
-        for (int i = 0; i < quests.Count; i++)
-        {
-            Quest quest = quests[i];
-
-            bool isSelected;
-
-            if (!string.IsNullOrEmpty(questNameToSelect))
-                isSelected = quest.questName == questNameToSelect;
-            else
-                isSelected = i == 0;
-
-            QuestCell cell = Instantiate(questCellPref, questionsContent);
-            cell.StartWith(this, quest, isSelected);
-
-            if (i == 0)
-                firstQuest = quest;
-
-            if (isSelected)
-                questToSelect = quest;
-        }
-
-        if (questToSelect == null)
-            questToSelect = firstQuest;
-
-        if (questToSelect == null)
-            return;
-
-        pictureNode.InitImages(questToSelect.startImage, questToSelect.questName);
-        SelectQuest(questToSelect);
     }
 
     private void ShowCurrentLocation()
