@@ -123,7 +123,7 @@ public static class Localization
             LocKeys.Remote,
             new Dictionary<Lang, string>
             {
-                { Lang.en, "Local" },
+                { Lang.en, "Remote" },
                 { Lang.uk, "Мережа" },
                 { Lang.ru, "Сеть" }
             }
