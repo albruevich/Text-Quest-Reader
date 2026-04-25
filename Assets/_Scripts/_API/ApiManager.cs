@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections;
 using UnityEngine.Networking;
+using System.IO;
 
 public class ApiManager : MonoBehaviour
 {
@@ -72,5 +73,89 @@ public class ApiManager : MonoBehaviour
         }
     }
 
+    public void GetQuestPreviewImage(int questId, Action<Sprite> onSuccess, Action<string> onError = null)
+    {
+        StartCoroutine(GetSpriteRequest($"{GetQuestUri}/{questId}/preview-image", onSuccess, onError));
+    }
+
+    public void GetQuestStartMusic(int questId, string musicName, Action<AudioClip> onSuccess, Action<string> onError = null)
+    {
+        AudioType audioType = GetAudioTypeFromExtension(musicName);
+        StartCoroutine(GetAudioRequest($"{GetQuestUri}/{questId}/start-music", audioType, onSuccess, onError));
+    }
+
+    private IEnumerator GetSpriteRequest(string requestUri, Action<Sprite> onSuccess, Action<string> onError)
+    {
+        using UnityWebRequest webRequest = UnityWebRequestTexture.GetTexture(requestUri);
+
+        yield return webRequest.SendWebRequest();
+
+        if (webRequest.result == UnityWebRequest.Result.ConnectionError || webRequest.result == UnityWebRequest.Result.ProtocolError)
+        {
+            onError?.Invoke(GetErrorMessage(webRequest));
+            yield break;
+        }
+
+        Texture2D texture = DownloadHandlerTexture.GetContent(webRequest);
+
+        if (texture == null)
+        {
+            onError?.Invoke("Texture decode failed.");
+            yield break;
+        }
+
+        Sprite sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+        onSuccess?.Invoke(sprite);
+    }
+
+    private IEnumerator GetAudioRequest(string requestUri, AudioType audioType, Action<AudioClip> onSuccess, Action<string> onError)
+    {
+        using UnityWebRequest webRequest = UnityWebRequestMultimedia.GetAudioClip(requestUri, audioType);
+
+        yield return webRequest.SendWebRequest();
+
+        if (webRequest.result == UnityWebRequest.Result.ConnectionError || webRequest.result == UnityWebRequest.Result.ProtocolError)
+        {
+            onError?.Invoke(GetErrorMessage(webRequest));
+            yield break;
+        }
+
+        AudioClip clip = DownloadHandlerAudioClip.GetContent(webRequest);
+
+        if (clip == null)
+        {
+            onError?.Invoke("Audio decode failed.");
+            yield break;
+        }
+
+        onSuccess?.Invoke(clip);
+    }
+
     #endregion
+
+    private string GetErrorMessage(UnityWebRequest webRequest)
+    {
+        string serverMessage = webRequest.downloadHandler?.text ?? "";
+        serverMessage = serverMessage.Trim('"');
+
+        if (string.IsNullOrWhiteSpace(serverMessage))
+            serverMessage = $"HTTP error. Code: {webRequest.responseCode}, Error: {webRequest.error}";
+
+        return serverMessage;
+    }
+
+    private AudioType GetAudioTypeFromExtension(string fileName)
+    {
+        string ext = Path.GetExtension(fileName).ToLowerInvariant();
+
+        return ext switch
+        {
+            ".mp3" => AudioType.MPEG,
+            ".wav" => AudioType.WAV,
+            ".ogg" => AudioType.OGGVORBIS,
+            ".aif" => AudioType.AIFF,
+            ".aiff" => AudioType.AIFF,
+            _ => AudioType.MPEG
+        };
+    }
 }

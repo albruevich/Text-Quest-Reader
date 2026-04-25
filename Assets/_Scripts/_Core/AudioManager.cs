@@ -75,6 +75,26 @@ public class AudioManager : MonoBehaviour
         musicCoroutine = StartCoroutine(CrossfadeToMusic(musicName, questName));
     }
 
+    public void PlayMusicClip(AudioClip clip, bool stoppable)
+    {
+        if (clip == null)
+        {
+            if (stoppable)
+                StopMusic();
+
+            return;
+        }
+
+        if (activeMusicSource.isPlaying &&
+            activeMusicSource.clip == clip)
+            return;
+
+        if (musicCoroutine != null)
+            StopCoroutine(musicCoroutine);
+
+        musicCoroutine = StartCoroutine(CrossfadeToClip(clip));
+    }
+
     private IEnumerator CrossfadeToMusic(string musicName, string questName)
     {
         AudioClip newClip = null;
@@ -147,6 +167,59 @@ public class AudioManager : MonoBehaviour
 
         SwapMusicSources();
         currentMusicName = musicName;
+        musicCoroutine = null;
+    }
+
+    private IEnumerator CrossfadeToClip(AudioClip newClip)
+    {
+        inactiveMusicSource.Stop();
+        inactiveMusicSource.clip = newClip;
+        inactiveMusicSource.loop = true;
+        inactiveMusicSource.volume = 0f;
+        inactiveMusicSource.Play();
+
+        float fromActive = activeMusicSource.isPlaying ? activeMusicSource.volume : 0f;
+
+        if (musicFadeDuration <= 0f)
+        {
+            if (activeMusicSource.isPlaying)
+            {
+                activeMusicSource.Stop();
+                activeMusicSource.clip = null;
+                activeMusicSource.volume = 0f;
+            }
+
+            inactiveMusicSource.volume = defaultMusicVolume;
+        }
+        else
+        {
+            float time = 0f;
+
+            while (time < musicFadeDuration)
+            {
+                time += Time.deltaTime;
+                float t = Mathf.Clamp01(time / musicFadeDuration);
+
+                if (activeMusicSource.isPlaying)
+                    activeMusicSource.volume = Mathf.Lerp(fromActive, 0f, t);
+
+                inactiveMusicSource.volume = Mathf.Lerp(0f, defaultMusicVolume, t);
+
+                yield return null;
+            }
+
+            if (activeMusicSource.isPlaying)
+            {
+                activeMusicSource.Stop();
+                activeMusicSource.clip = null;
+                activeMusicSource.volume = 0f;
+            }
+
+            inactiveMusicSource.volume = defaultMusicVolume;
+        }
+
+        SwapMusicSources();
+        currentMusicName = newClip.name;
         musicCoroutine = null;
     }
 

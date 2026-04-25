@@ -49,26 +49,23 @@ public class GamePanel : MonoBehaviour
 
     public event Action HandleLocalizationsEvent;
 
+    private enum Source { Local, Remote }
+    private Source currentSource;
+
+    List<QuestShort> remoteList;
+
+    private string activeRemoteQuestFolder;
+
     #region Inits
 
     private void Awake()
     {
         Instance = this;
-
         textParser = new TextParser(this);
         locationDescriptionResolver = new LocationDescriptionResolver(textParser);
         passageResolver = new PassageResolver(this, textParser);
-
-        parameterService = new ParameterService(
-            this,
-            textParser,
-            paramsContent,
-            parameterTextPref,
-            victoryCell,
-            defeatCell,
-            nextCell,
-            questionsContent
-        );
+        parameterService = new ParameterService(this, textParser, paramsContent, parameterTextPref,
+                                                victoryCell, defeatCell, nextCell, questionsContent);
     }
 
     private void Start()
@@ -164,9 +161,14 @@ public class GamePanel : MonoBehaviour
         player = null;
         singlePassage = null;
 
-        UpdateLocalQuests();
+        switch (currentSource)
+        {
+            case Source.Local: UpdateLocalQuests(); break;
+            case Source.Remote: UpdateRemoteQuests(remoteList); break;
+        }
 
         SaveLoadManager.Instance.ClearPlayerSaveData();
+        ClearActiveRemoteQuestFolder();
     }
 
     public void ShowPassage(Passage passage)
@@ -223,11 +225,15 @@ public class GamePanel : MonoBehaviour
         if (questShort == null)
             return;
 
+        if (selectedQuestIsRemote)
+        {
+            SelectRemoteQuestPreview(questShort);
+            return;
+        }
+
         selectedQuest = questShort;
 
-        string title = string.IsNullOrEmpty(questShort.DisplayName)
-            ? questShort.QuestName
-            : questShort.DisplayName;
+        string title = string.IsNullOrEmpty(questShort.DisplayName) ? questShort.QuestName : questShort.DisplayName;
 
         mainText.SetText($"<b>{title}</b>\n\n{questShort.Description}");
         pictureNode.SetNewPicture(questShort.StartImage, questShort.QuestName, mayBeSame: true);
@@ -251,6 +257,8 @@ public class GamePanel : MonoBehaviour
 
     public void UpdateLocalQuests(string questNameToSelect = null)
     {
+        currentSource = Source.Local;
+
         selectedQuestIsRemote = false;
 
         ClearQuestions();
@@ -280,16 +288,15 @@ public class GamePanel : MonoBehaviour
             quests.Add(questShort);
         }
 
-        quests = quests
-            .OrderBy(q => q.Order)
-            .ThenBy(q => q.QuestName)
-            .ToList();
+        quests = quests.OrderBy(q => q.Order).ThenBy(q => q.QuestName).ToList();
 
-        ShowQuestShortList(quests, questNameToSelect);
+        ShowQuestShortList(quests, questNameToSelect, isRemote: false);
     }
 
     public void UpdateRemoteQuests(List<QuestShort> list)
     {
+        currentSource = Source.Remote;
+
         selectedQuestIsRemote = true;
 
         ClearQuestions();
@@ -297,21 +304,20 @@ public class GamePanel : MonoBehaviour
         if (list == null || list.Count == 0)
             return;
 
-        list = list
-            .OrderBy(x => x.Order)
-            .ThenBy(x => x.QuestName)
-            .ToList();
+        list = list.OrderBy(x => x.Order).ThenBy(x => x.QuestName).ToList();
 
         string selectedQuestName = selectedQuest != null ? selectedQuest.QuestName : null;
 
-        ShowQuestShortList(list, selectedQuestName);
+        remoteList = list;
+
+        ShowQuestShortList(list, selectedQuestName, isRemote: true);
     }
 
     #endregion
 
     #region Quest Preview
 
-    private void ShowQuestShortList(List<QuestShort> quests, string questNameToSelect)
+    private void ShowQuestShortList(List<QuestShort> quests, string questNameToSelect, bool isRemote)
     {
         QuestShort firstQuest = null;
         QuestShort questToSelect = null;
@@ -320,12 +326,7 @@ public class GamePanel : MonoBehaviour
         {
             QuestShort quest = quests[i];
 
-            bool isSelected;
-
-            if (!string.IsNullOrEmpty(questNameToSelect))
-                isSelected = quest.QuestName == questNameToSelect;
-            else
-                isSelected = i == 0;
+            bool isSelected = !string.IsNullOrEmpty(questNameToSelect) ? quest.QuestName == questNameToSelect : i == 0;
 
             QuestCell cell = Instantiate(questCellPref, questionsContent);
             cell.StartWith(this, quest, isSelected);
@@ -343,8 +344,13 @@ public class GamePanel : MonoBehaviour
         if (questToSelect == null)
             return;
 
-        pictureNode.InitImages(questToSelect.StartImage, questToSelect.QuestName);
-        SelectQuest(questToSelect);
+        if (isRemote)
+            SelectRemoteQuestPreview(questToSelect);
+        else
+        {
+            pictureNode.InitImages(questToSelect.StartImage, questToSelect.QuestName);
+            SelectQuest(questToSelect);
+        }
     }
 
     #endregion
@@ -415,6 +421,9 @@ public class GamePanel : MonoBehaviour
                     return;
                 }
 
+                activeRemoteQuestFolder = extractFolder;
+                pictureNode.SetRemoteQuestFolder(activeRemoteQuestFolder);
+
                 CreatePlayer(quest);
 
                 sourcesNode.SetActive(false);
@@ -431,11 +440,6 @@ public class GamePanel : MonoBehaviour
                 {
                     if (!string.IsNullOrEmpty(tempZipPath) && File.Exists(tempZipPath))
                         File.Delete(tempZipPath);
-
-                    string extractFolder = Path.Combine(Application.temporaryCachePath, "RemoteQuestImport", $"quest_{questId}");
-
-                    if (Directory.Exists(extractFolder))
-                        Directory.Delete(extractFolder, true);
                 }
                 catch (Exception cleanupEx)
                 {
@@ -447,6 +451,47 @@ public class GamePanel : MonoBehaviour
         {
             Debug.LogWarning("Error downloading quest package: " + error);
         });
+    }
+
+    private void ClearActiveRemoteQuestFolder()
+    {
+        pictureNode.ClearRemoteQuestFolder();
+
+        if (string.IsNullOrEmpty(activeRemoteQuestFolder))
+            return;
+
+        try
+        {
+            if (Directory.Exists(activeRemoteQuestFolder))
+                Directory.Delete(activeRemoteQuestFolder, true);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning("Failed to delete remote quest folder: " + ex.Message);
+        }
+
+        activeRemoteQuestFolder = null;
+    }
+
+    private void SelectRemoteQuestPreview(QuestShort questShort)
+    {
+        if (questShort == null)
+            return;
+
+        selectedQuest = questShort;
+
+        string title = string.IsNullOrEmpty(questShort.DisplayName) ? questShort.QuestName : questShort.DisplayName;
+        mainText.SetText($"<b>{title}</b>\n\n{questShort.Description}");
+
+        AudioManager.Instance.StopMusic();
+
+        ApiManager.Instance.GetQuestPreviewImage(questShort.Id,
+            sprite => pictureNode.SetSpriteRemote(sprite, questShort.QuestName, mayBeSame: true),
+            error => Debug.LogWarning("Preview image error: " + error));
+
+        ApiManager.Instance.GetQuestStartMusic(questShort.Id, questShort.StartMusic,
+            clip => AudioManager.Instance.PlayMusicClip(clip, stoppable: true),
+            error => Debug.LogWarning("Start music error: " + error));
     }
 
     private void CreatePlayer(Quest quest)
@@ -532,6 +577,7 @@ public class GamePanel : MonoBehaviour
     {
         player.gameOver = true;
         ClearQuestions();
+        ClearActiveRemoteQuestFolder();
     }
 
     private void ShowLocationContent(Location location)

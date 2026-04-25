@@ -83,9 +83,9 @@ public static class Localization
             LocKeys.AddQuests,
             new Dictionary<Lang, string>
             {
-                { Lang.en, "Add Quests\n<size=52>Copy quest folders here" },
-                { Lang.uk, "Добавити Квести\n<size=52>Скопіюйте папки квестів сюди" },
-                { Lang.ru, "Добавить Квесты\n<size=52>Скопируйте сюда папки квестов" }
+                { Lang.en, "Add Local Quests\n<size=52>Copy quest folders here" },
+                { Lang.uk, "Добавити Локальні Квести\n<size=52>Скопіюйте папки квестів сюди" },
+                { Lang.ru, "Добавить Локальные Квесты\n<size=52>Скопируйте сюда папки квестов" }
             }
         },
 

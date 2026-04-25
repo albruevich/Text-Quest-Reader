@@ -18,6 +18,8 @@ public class PictureNode : MonoBehaviour
 
     private readonly Dictionary<string, Sprite> spriteCache = new();
 
+    private string remoteQuestFolder;
+
     private static readonly string[] imageExtensions =
     {
         ".png",
@@ -85,6 +87,33 @@ public class PictureNode : MonoBehaviour
         loadPictureCoroutine = null;
     }
 
+    public void SetSpriteRemote(Sprite sprite, string questName, bool mayBeSame = false)
+    {
+        string pictureName = sprite != null ? sprite.name : "";
+        string pictureKey = $"{questName}/{pictureName}";
+
+        if (lastPictureName == pictureKey && !mayBeSame)
+            return;
+
+        if (loadPictureCoroutine != null)
+            StopCoroutine(loadPictureCoroutine);
+
+        loadPictureCoroutine = StartCoroutine(SetSpriteRemoteRoutine(sprite, pictureKey));
+    }
+
+    private IEnumerator SetSpriteRemoteRoutine(Sprite sprite, string pictureKey)
+    {
+        yield return null;
+
+        innerPicture.sprite = sprite;
+
+        if (animator != null)
+            animator.Play("FadePictures");
+
+        lastPictureName = pictureKey;
+        loadPictureCoroutine = null;
+    }
+
     public void Callback()
     {
         outerPicture.sprite = innerPicture.sprite;
@@ -145,6 +174,15 @@ public class PictureNode : MonoBehaviour
 
     private string FindImagePath(string pictureNameWithoutExtensionOrWithIt, string questName)
     {
+        if (!string.IsNullOrEmpty(remoteQuestFolder))
+        {
+            string remoteImagesFolder = Path.Combine(remoteQuestFolder, "Images");
+            string remotePath = FindImagePathInFolder(remoteImagesFolder, pictureNameWithoutExtensionOrWithIt);
+
+            if (!string.IsNullOrEmpty(remotePath))
+                return remotePath;
+        }
+
         string persistentFolder = Path.Combine(Application.persistentDataPath, "Quests", questName, "Images");
         string streamingFolder = Path.Combine(Application.streamingAssetsPath, "Quests", questName, "Images");
 
@@ -235,5 +273,49 @@ public class PictureNode : MonoBehaviour
         }
 
         spriteCache.Clear();
+    }
+
+    public void SetRemoteQuestFolder(string folderPath) => remoteQuestFolder = folderPath;
+
+    public void ClearRemoteQuestFolder()
+    {
+        if (!string.IsNullOrEmpty(remoteQuestFolder))
+            ClearLoadedPicturesFromFolder(remoteQuestFolder);
+
+        remoteQuestFolder = null;
+    }
+
+    private void ClearLoadedPicturesFromFolder(string folderPath)
+    {
+        string normalizedFolder = folderPath.Replace("\\", "/");
+        List<string> keysToRemove = new();
+
+        foreach (var pair in spriteCache)
+        {
+            string normalizedKey = pair.Key.Replace("\\", "/");
+
+            if (!normalizedKey.StartsWith(normalizedFolder, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (pair.Value != null)
+            {
+                if (pair.Value.texture != null)
+                    Destroy(pair.Value.texture);
+
+                Destroy(pair.Value);
+            }
+
+            keysToRemove.Add(pair.Key);
+        }
+
+        foreach (string key in keysToRemove)
+            spriteCache.Remove(key);
+    }
+
+    public void ClearPictures()
+    {
+        innerPicture.sprite = null;
+        outerPicture.sprite = null;
+        lastPictureName = null;
     }
 }
