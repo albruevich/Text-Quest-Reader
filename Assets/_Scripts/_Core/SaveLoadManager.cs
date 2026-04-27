@@ -51,7 +51,11 @@ public class SaveLoadManager
     public void SavePlayer()
     {
         var player = GamePanel.Instance.Player;
+
         if (player == null)
+            return;
+
+        if (GamePanel.Instance.CurrentSource == GamePanel.Source.Remote)
             return;
 
         PlayerSaveData saveData = CreateSaveData(player);
@@ -86,8 +90,12 @@ public class SaveLoadManager
         try
         {
             Quest quest = LoadQuestFromFolder(saveData.questName);
+
             if (quest == null)
+            {
+                ClearPlayerSaveData();
                 return null;
+            }
 
             Quest questClone = (Quest)quest.Clone();
 
