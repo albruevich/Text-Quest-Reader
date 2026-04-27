@@ -14,7 +14,6 @@ public class SettingsPanel : MonoBehaviour
     public void Init(GamePanel gamePanel)
     {
         this.gamePanel = gamePanel;
-
         versionText.text = $"v{Application.version}";
     }
 
@@ -22,13 +21,22 @@ public class SettingsPanel : MonoBehaviour
     {
         HandleLocalizations();
 
-        switch (PlayerPrefs.GetString(Localization.LANGUAGE_KEY, "en"))
+        int value = PlayerPrefs.GetString(Localization.LANGUAGE_KEY, "en") switch
         {
-            case "en": langDropdown.SetValueWithoutNotify(0); break;
-            case "uk": langDropdown.SetValueWithoutNotify(1); break;
-            case "ru": langDropdown.SetValueWithoutNotify(2); break;
-            default: langDropdown.SetValueWithoutNotify(0); break;
-        }
+            "en" => 0,
+            "es" => 1,
+            "fr" => 2,
+            "de" => 3,
+            "it" => 4,
+            "pt" => 5,
+            "uk" => 6,
+            "pl" => 7,
+            "ru" => 8,
+            _ => 0
+        };
+
+        langDropdown.SetValueWithoutNotify(value);
+        langDropdown.RefreshShownValue();
     }
 
     public void ActionClose()
@@ -59,14 +67,20 @@ public class SettingsPanel : MonoBehaviour
         AudioManager.Instance.PlaySfx(SoundType.Click);
 
         string currentLang = PlayerPrefs.GetString(Localization.LANGUAGE_KEY, "en");
-        string newLang = currentLang;
 
-        switch (dropdown.value)
+        string newLang = dropdown.value switch
         {
-            case 0: newLang = "en"; break;
-            case 1: newLang = "uk"; break;
-            case 2: newLang = "ru"; break;
-        }
+            0 => "en",
+            1 => "es",
+            2 => "fr",
+            3 => "de",
+            4 => "it",
+            5 => "pt",
+            6 => "uk",
+            7 => "pl",
+            8 => "ru",
+            _ => "en"
+        };
 
         if (newLang == currentLang)
             return;
@@ -76,8 +90,6 @@ public class SettingsPanel : MonoBehaviour
 
         gamePanel.HandleLocalizations();
         HandleLocalizations();
-
-        gamePanel.ApplyLanguageChangeToQuestView();
     }
 
     private void HandleLocalizations()

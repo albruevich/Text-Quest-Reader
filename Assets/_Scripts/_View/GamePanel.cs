@@ -105,10 +105,6 @@ public class GamePanel : MonoBehaviour
 
         Localization.SetCurrentLanguage(PlayerPrefs.GetString(Localization.LANGUAGE_KEY, "en"));
 
-        nextCell.SetText(Localization.Get(LocKeys.Next));
-        victoryCell.SetText(Localization.Get(LocKeys.YouWin));
-        defeatCell.SetText(Localization.Get(LocKeys.YouLose));
-
         HandleLocalizationsEvent?.Invoke();
     }
 
@@ -246,21 +242,6 @@ public class GamePanel : MonoBehaviour
         AudioManager.Instance.PlayMusic(questShort.StartMusic, questShort.QuestName, stoppable: true);
     }
 
-    public void ApplyLanguageChangeToQuestView()
-    {
-        HandleLocalizations();
-
-        if (player == null)
-        {
-            string selectedQuestName = selectedQuest != null ? selectedQuest.QuestName : null;
-            UpdateLocalQuests(selectedQuestName);
-            return;
-        }
-
-        player.quest = CreateLocalizedQuestWithProgress(player.quest);
-        ShowCurrentLocation();
-    }
-
     public void UpdateLocalQuests(string questNameToSelect = null)
     {
         CurrentSource = Source.Local;
@@ -363,6 +344,16 @@ public class GamePanel : MonoBehaviour
 
     #region Start Quest
 
+    private void LocalizeQuestButtons()
+    {
+        if (player == null || player.quest == null)
+            return;
+
+        nextCell.SetText(Localization.GetForLanguage(LocKeys.Next, player.quest.lang));
+        victoryCell.SetText(Localization.GetForLanguage(LocKeys.YouWin, player.quest.lang));
+        defeatCell.SetText(Localization.GetForLanguage(LocKeys.YouLose, player.quest.lang));
+    }
+
     private void StartLocalQuest(string questName)
     {
         Quest quest = SaveLoadManager.Instance.LoadQuestFromFolder(questName);
@@ -375,6 +366,7 @@ public class GamePanel : MonoBehaviour
 
         CreatePlayer(quest);
         sourcesNode.SetActive(false);
+        LocalizeQuestButtons();
         ShowCurrentLocation();
         StartQuestEnded?.Invoke();
     }
@@ -428,10 +420,13 @@ public class GamePanel : MonoBehaviour
 
                 activeRemoteQuestFolder = extractFolder;
                 pictureNode.SetRemoteQuestFolder(activeRemoteQuestFolder);
+                AudioManager.Instance.SetRemoteQuestFolder(activeRemoteQuestFolder);
 
                 CreatePlayer(quest);
 
                 sourcesNode.SetActive(false);
+
+                LocalizeQuestButtons();
 
                 ShowCurrentLocation();
             }
@@ -464,6 +459,7 @@ public class GamePanel : MonoBehaviour
     private void ClearActiveRemoteQuestFolder()
     {
         pictureNode.ClearRemoteQuestFolder();
+        AudioManager.Instance.ClearRemoteQuestFolder();
 
         if (string.IsNullOrEmpty(activeRemoteQuestFolder))
             return;

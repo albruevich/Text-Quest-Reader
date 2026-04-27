@@ -7,14 +7,20 @@ public static class Localization
 
     public static Lang CurrentLang = Lang.en;
 
-    private static readonly Dictionary<string, Dictionary<Lang, string>> data = new Dictionary<string, Dictionary<Lang, string>>
+    private static readonly Dictionary<string, Dictionary<Lang, string>> data = new()
     {
         {
             LocKeys.Next,
             new Dictionary<Lang, string>
             {
                 { Lang.en, "Next" },
+                { Lang.es, "Siguiente" },
+                { Lang.fr, "Suivant" },
+                { Lang.de, "Weiter" },
+                { Lang.it, "Avanti" },
+                { Lang.pt, "Próximo" },
                 { Lang.uk, "Далі" },
+                { Lang.pl, "Dalej" },
                 { Lang.ru, "Далее" }
             }
         },
@@ -24,7 +30,13 @@ public static class Localization
             new Dictionary<Lang, string>
             {
                 { Lang.en, "You win!" },
+                { Lang.es, "¡Has ganado!" },
+                { Lang.fr, "Vous avez gagné !" },
+                { Lang.de, "Du hast gewonnen!" },
+                { Lang.it, "Hai vinto!" },
+                { Lang.pt, "Você venceu!" },
                 { Lang.uk, "Ви перемогли!" },
+                { Lang.pl, "Wygrałeś!" },
                 { Lang.ru, "Вы победили!" }
             }
         },
@@ -34,7 +46,13 @@ public static class Localization
             new Dictionary<Lang, string>
             {
                 { Lang.en, "You lose!" },
+                { Lang.es, "¡Has perdido!" },
+                { Lang.fr, "Vous avez perdu !" },
+                { Lang.de, "Du hast verloren!" },
+                { Lang.it, "Hai perso!" },
+                { Lang.pt, "Você perdeu!" },
                 { Lang.uk, "Ви програли!" },
+                { Lang.pl, "Przegrałeś!" },
                 { Lang.ru, "Вы проиграли!" }
             }
         },
@@ -44,7 +62,13 @@ public static class Localization
             new Dictionary<Lang, string>
             {
                 { Lang.en, "Settings" },
+                { Lang.es, "Configuración" },
+                { Lang.fr, "Paramètres" },
+                { Lang.de, "Einstellungen" },
+                { Lang.it, "Impostazioni" },
+                { Lang.pt, "Configurações" },
                 { Lang.uk, "Налаштування" },
+                { Lang.pl, "Ustawienia" },
                 { Lang.ru, "Настройки" }
             }
         },
@@ -54,8 +78,14 @@ public static class Localization
             new Dictionary<Lang, string>
             {
                 { Lang.en, "Abandon Quest" },
-                { Lang.uk, "Покинути Квест" },
-                { Lang.ru, "Бросить Квест" }
+                { Lang.es, "Abandonar misión" },
+                { Lang.fr, "Abandonner la quête" },
+                { Lang.de, "Quest aufgeben" },
+                { Lang.it, "Abbandona missione" },
+                { Lang.pt, "Abandonar missão" },
+                { Lang.uk, "Покинути квест" },
+                { Lang.pl, "Porzuć quest" },
+                { Lang.ru, "Бросить квест" }
             }
         },
 
@@ -64,7 +94,13 @@ public static class Localization
             new Dictionary<Lang, string>
             {
                 { Lang.en, "Quit" },
+                { Lang.es, "Salir" },
+                { Lang.fr, "Quitter" },
+                { Lang.de, "Beenden" },
+                { Lang.it, "Esci" },
+                { Lang.pt, "Sair" },
                 { Lang.uk, "Вийти" },
+                { Lang.pl, "Wyjście" },
                 { Lang.ru, "Выйти" }
             }
         },
@@ -74,8 +110,14 @@ public static class Localization
             new Dictionary<Lang, string>
             {
                 { Lang.en, "Start Selected Quest" },
-                { Lang.uk, "Почати Обраний Квест" },
-                { Lang.ru, "Начать Выбранный Квест" }
+                { Lang.es, "Iniciar misión seleccionada" },
+                { Lang.fr, "Démarrer la quête sélectionnée" },
+                { Lang.de, "Ausgewählte Quest starten" },
+                { Lang.it, "Avvia missione selezionata" },
+                { Lang.pt, "Iniciar missão selecionada" },
+                { Lang.uk, "Почати обраний квест" },
+                { Lang.pl, "Rozpocznij wybrany quest" },
+                { Lang.ru, "Начать выбранный квест" }
             }
         },
 
@@ -84,8 +126,14 @@ public static class Localization
             new Dictionary<Lang, string>
             {
                 { Lang.en, "Add Local Quests\n<size=52>Copy quest folders here" },
-                { Lang.uk, "Добавити Локальні Квести\n<size=52>Скопіюйте папки квестів сюди" },
-                { Lang.ru, "Добавить Локальные Квесты\n<size=52>Скопируйте сюда папки квестов" }
+                { Lang.es, "Agregar misiones locales\n<size=52>Copia aquí las carpetas" },
+                { Lang.fr, "Ajouter des quêtes locales\n<size=52>Copiez les dossiers ici" },
+                { Lang.de, "Lokale Quests hinzufügen\n<size=52>Ordner hierher kopieren" },
+                { Lang.it, "Aggiungi missioni locali\n<size=52>Copia qui le cartelle" },
+                { Lang.pt, "Adicionar missões locais\n<size=52>Copie as pastas aqui" },
+                { Lang.uk, "Додати локальні квести\n<size=52>Скопіюйте папки сюди" },
+                { Lang.pl, "Dodaj lokalne questy\n<size=52>Skopiuj foldery tutaj" },
+                { Lang.ru, "Добавить локальные квесты\n<size=52>Скопируйте папки сюда" }
             }
         },
 
@@ -94,7 +142,13 @@ public static class Localization
             new Dictionary<Lang, string>
             {
                 { Lang.en, "Refresh" },
+                { Lang.es, "Actualizar" },
+                { Lang.fr, "Actualiser" },
+                { Lang.de, "Aktualisieren" },
+                { Lang.it, "Aggiorna" },
+                { Lang.pt, "Atualizar" },
                 { Lang.uk, "Оновити" },
+                { Lang.pl, "Odśwież" },
                 { Lang.ru, "Обновить" }
             }
         },
@@ -104,7 +158,13 @@ public static class Localization
             new Dictionary<Lang, string>
             {
                 { Lang.en, "Source:" },
+                { Lang.es, "Fuente:" },
+                { Lang.fr, "Source :" },
+                { Lang.de, "Quelle:" },
+                { Lang.it, "Fonte:" },
+                { Lang.pt, "Fonte:" },
                 { Lang.uk, "Джерело:" },
+                { Lang.pl, "Źródło:" },
                 { Lang.ru, "Источник:" }
             }
         },
@@ -114,8 +174,14 @@ public static class Localization
             new Dictionary<Lang, string>
             {
                 { Lang.en, "Local" },
-                { Lang.uk, "Локал" },
-                { Lang.ru, "Локал" }
+                { Lang.es, "Local" },
+                { Lang.fr, "Local" },
+                { Lang.de, "Lokal" },
+                { Lang.it, "Locale" },
+                { Lang.pt, "Local" },
+                { Lang.uk, "Локально" },
+                { Lang.pl, "Lokalne" },
+                { Lang.ru, "Локально" }
             }
         },
 
@@ -124,7 +190,13 @@ public static class Localization
             new Dictionary<Lang, string>
             {
                 { Lang.en, "Remote" },
+                { Lang.es, "Remoto" },
+                { Lang.fr, "Distant" },
+                { Lang.de, "Online" },
+                { Lang.it, "Remoto" },
+                { Lang.pt, "Remoto" },
                 { Lang.uk, "Мережа" },
+                { Lang.pl, "Sieć" },
                 { Lang.ru, "Сеть" }
             }
         },
@@ -132,13 +204,7 @@ public static class Localization
 
     public static void SetCurrentLanguage(string langCode)
     {
-        switch (langCode)
-        {
-            case "en": CurrentLang = Lang.en; break;
-            case "uk": CurrentLang = Lang.uk; break;
-            case "ru": CurrentLang = Lang.ru; break;
-            default: CurrentLang = Lang.en; break;
-        }
+        CurrentLang = ParseLanguage(langCode);
     }
 
     public static string Get(string key)
@@ -155,15 +221,53 @@ public static class Localization
         return key;
     }
 
+    public static string GetForLanguage(string key, string language)
+    {
+        if (!data.TryGetValue(key, out var langs))
+            return key;
+
+        Lang requestedLang = ParseLanguage(language);
+
+        if (langs.TryGetValue(requestedLang, out var value))
+            return value;
+
+        if (langs.TryGetValue(Lang.en, out var fallback))
+            return fallback;
+
+        return key;
+    }
+
+    private static Lang ParseLanguage(string language)
+    {
+        return language?.ToLower() switch
+        {
+            "en" => Lang.en,
+            "es" => Lang.es,
+            "fr" => Lang.fr,
+            "de" => Lang.de,
+            "it" => Lang.it,
+            "pt" => Lang.pt,
+            "uk" => Lang.uk,
+            "pl" => Lang.pl,
+            "ru" => Lang.ru,
+            _ => Lang.en
+        };
+    }
+
     public static string GetLangCode(SystemLanguage lang)
     {
-        switch (lang)
+        return lang switch
         {
-            case SystemLanguage.English: return "en";
-            case SystemLanguage.Russian: return "ru";
-            case SystemLanguage.Ukrainian: return "uk";
-            default: return "en";
-        }
+            SystemLanguage.English => "en",
+            SystemLanguage.Spanish => "es",
+            SystemLanguage.French => "fr",
+            SystemLanguage.German => "de",
+            SystemLanguage.Italian => "it",
+            SystemLanguage.Portuguese => "pt",
+            SystemLanguage.Ukrainian => "uk",
+            SystemLanguage.Polish => "pl",
+            SystemLanguage.Russian => "ru",
+            _ => "en"
+        };
     }
 }
-

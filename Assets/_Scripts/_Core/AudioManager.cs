@@ -24,6 +24,7 @@ public class AudioManager : MonoBehaviour
     private AudioSource inactiveMusicSource;
 
     private readonly Dictionary<string, AudioClip> audioCache = new();
+    private string remoteQuestFolder;
 
     private static readonly string[] audioExtensions =
     {
@@ -85,8 +86,7 @@ public class AudioManager : MonoBehaviour
             return;
         }
 
-        if (activeMusicSource.isPlaying &&
-            activeMusicSource.clip == clip)
+        if (activeMusicSource.isPlaying && activeMusicSource.clip == clip)
             return;
 
         if (musicCoroutine != null)
@@ -99,11 +99,7 @@ public class AudioManager : MonoBehaviour
     {
         AudioClip newClip = null;
 
-        yield return StartCoroutine(LoadAudioClip(
-            folderName: "Musics",
-            audioNameWithoutExtensionOrWithIt: musicName,
-            questName: questName,
-            onLoaded: clip => newClip = clip));
+        yield return StartCoroutine(LoadAudioClip("Musics", musicName, questName, clip => newClip = clip));
 
         if (newClip == null)
         {
@@ -111,9 +107,7 @@ public class AudioManager : MonoBehaviour
             yield break;
         }
 
-        if (activeMusicSource.isPlaying &&
-            activeMusicSource.clip == newClip &&
-            currentMusicName == musicName)
+        if (activeMusicSource.isPlaying && activeMusicSource.clip == newClip && currentMusicName == musicName)
         {
             musicCoroutine = null;
             yield break;
@@ -269,11 +263,7 @@ public class AudioManager : MonoBehaviour
     {
         AudioClip clip = null;
 
-        yield return StartCoroutine(LoadAudioClip(
-            folderName: "Sounds",
-            audioNameWithoutExtensionOrWithIt: sfxName,
-            questName: questName,
-            onLoaded: loadedClip => clip = loadedClip));
+        yield return StartCoroutine(LoadAudioClip("Sounds", sfxName, questName, loadedClip => clip = loadedClip));
 
         if (clip == null)
             yield break;
@@ -285,13 +275,8 @@ public class AudioManager : MonoBehaviour
     {
         switch (soundType)
         {
-            case SoundType.Click:
-                sfxSource.PlayOneShot(clickClip);
-                break;
-
-            case SoundType.Hover:
-                sfxSource.PlayOneShot(hoverClip);
-                break;
+            case SoundType.Click: sfxSource.PlayOneShot(clickClip); break;
+            case SoundType.Hover: sfxSource.PlayOneShot(hoverClip); break;
         }
     }
 
@@ -300,11 +285,7 @@ public class AudioManager : MonoBehaviour
         sfxSource.Stop();
     }
 
-    private IEnumerator LoadAudioClip(
-        string folderName,
-        string audioNameWithoutExtensionOrWithIt,
-        string questName,
-        Action<AudioClip> onLoaded)
+    private IEnumerator LoadAudioClip(string folderName, string audioNameWithoutExtensionOrWithIt, string questName, Action<AudioClip> onLoaded)
     {
         string resolvedPath = FindAudioPath(folderName, audioNameWithoutExtensionOrWithIt, questName);
 
@@ -353,17 +334,17 @@ public class AudioManager : MonoBehaviour
 
     private string FindAudioPath(string folderName, string audioNameWithoutExtensionOrWithIt, string questName)
     {
-        string persistentFolder = Path.Combine(
-            Application.persistentDataPath,
-            "Quests",
-            questName,
-            folderName);
+        if (!string.IsNullOrEmpty(remoteQuestFolder))
+        {
+            string remoteFolder = Path.Combine(remoteQuestFolder, folderName);
+            string remotePath = FindAudioPathInFolder(remoteFolder, audioNameWithoutExtensionOrWithIt);
 
-        string streamingFolder = Path.Combine(
-            Application.streamingAssetsPath,
-            "Quests",
-            questName,
-            folderName);
+            if (!string.IsNullOrEmpty(remotePath))
+                return remotePath;
+        }
+
+        string persistentFolder = Path.Combine(Application.persistentDataPath, "Quests", questName, folderName);
+        string streamingFolder = Path.Combine(Application.streamingAssetsPath, "Quests", questName, folderName);
 
         string path = FindAudioPathInFolder(persistentFolder, audioNameWithoutExtensionOrWithIt);
 
@@ -375,18 +356,14 @@ public class AudioManager : MonoBehaviour
 
     private string FindAudioPathInFolder(string baseFolder, string audioNameWithoutExtensionOrWithIt)
     {
-        if (!Directory.Exists(baseFolder))
+        if (!Directory.Exists(baseFolder) || string.IsNullOrWhiteSpace(audioNameWithoutExtensionOrWithIt))
             return null;
 
-        if (Path.HasExtension(audioNameWithoutExtensionOrWithIt))
-        {
-            string fullPath = Path.Combine(baseFolder, audioNameWithoutExtensionOrWithIt);
-            return File.Exists(fullPath) ? fullPath : null;
-        }
+        string name = Path.GetFileNameWithoutExtension(audioNameWithoutExtensionOrWithIt);
 
         foreach (string ext in audioExtensions)
         {
-            string fullPath = Path.Combine(baseFolder, audioNameWithoutExtensionOrWithIt + ext);
+            string fullPath = Path.Combine(baseFolder, name + ext);
 
             if (File.Exists(fullPath))
                 return fullPath;
@@ -441,6 +418,38 @@ public class AudioManager : MonoBehaviour
         }
 
         source.volume = to;
+    }
+
+    public void SetRemoteQuestFolder(string folderPath) => remoteQuestFolder = folderPath;
+
+    public void ClearRemoteQuestFolder()
+    {
+        if (!string.IsNullOrEmpty(remoteQuestFolder))
+            ClearLoadedAudioFromFolder(remoteQuestFolder);
+
+        remoteQuestFolder = null;
+    }
+
+    private void ClearLoadedAudioFromFolder(string folderPath)
+    {
+        string normalizedFolder = folderPath.Replace("\\", "/");
+        List<string> keysToRemove = new();
+
+        foreach (var pair in audioCache)
+        {
+            string normalizedKey = pair.Key.Replace("\\", "/");
+
+            if (!normalizedKey.StartsWith(normalizedFolder, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (pair.Value != null)
+                Destroy(pair.Value);
+
+            keysToRemove.Add(pair.Key);
+        }
+
+        foreach (string key in keysToRemove)
+            audioCache.Remove(key);
     }
 
     public void ClearLoadedQuestAudio(string questName)

@@ -18,7 +18,12 @@ public class QuestCell : MonoBehaviour
         this.gamePanel = gamePanel;
         this.questShort = questShort;
 
-        nameString = questShort.DisplayName ?? questShort.QuestName;
+        string title = string.IsNullOrEmpty(questShort.DisplayName) ? questShort.QuestName : questShort.DisplayName;
+
+        if (!string.IsNullOrEmpty(questShort.Lang))
+            nameString = $"{title}   [{questShort.Lang.ToUpper()}]";
+        else
+            nameString = title;
 
         selectedImage.SetActive(selected);
     }

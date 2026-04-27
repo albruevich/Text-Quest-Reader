@@ -181,15 +181,13 @@ public class SaveLoadManager
 
     public Quest LoadQuestFromFolder(string folderName)
     {
-        string lang = PlayerPrefs.GetString("language", "en");
-
         string persistentQuestFolder = Path.Combine(questsOuterFolderPath, folderName);
         string streamingQuestFolder = Path.Combine(questsFolderPath, folderName);
 
-        string pathToLoad = TryGetQuestPath(persistentQuestFolder, lang);
+        string pathToLoad = TryGetQuestPath(persistentQuestFolder);
 
         if (string.IsNullOrEmpty(pathToLoad))
-            pathToLoad = TryGetQuestPath(streamingQuestFolder, lang);
+            pathToLoad = TryGetQuestPath(streamingQuestFolder);
 
         if (string.IsNullOrEmpty(pathToLoad))
         {
@@ -212,15 +210,13 @@ public class SaveLoadManager
 
     public QuestShort LoadQuestShortFromFolder(string folderName)
     {
-        string lang = PlayerPrefs.GetString("language", "en");
-
         string persistentQuestFolder = Path.Combine(questsOuterFolderPath, folderName);
         string streamingQuestFolder = Path.Combine(questsFolderPath, folderName);
 
-        string pathToLoad = TryGetQuestPath(persistentQuestFolder, lang);
+        string pathToLoad = TryGetQuestPath(persistentQuestFolder);
 
         if (string.IsNullOrEmpty(pathToLoad))
-            pathToLoad = TryGetQuestPath(streamingQuestFolder, lang);
+            pathToLoad = TryGetQuestPath(streamingQuestFolder);
 
         if (string.IsNullOrEmpty(pathToLoad))
             return null;
@@ -238,18 +234,10 @@ public class SaveLoadManager
         }
     }
 
-    private string TryGetQuestPath(string questFolderPath, string lang)
+    private string TryGetQuestPath(string questFolderPath)
     {
-        string localizedPath = Path.Combine(questFolderPath, $"quest_{lang}.json");
         string defaultPath = Path.Combine(questFolderPath, "quest.json");
-
-        if (File.Exists(localizedPath))
-            return localizedPath;
-
-        if (File.Exists(defaultPath))
-            return defaultPath;
-
-        return null;
+        return File.Exists(defaultPath) ? defaultPath : null;
     }
 
     public void OpenQuestsOuterFolder()

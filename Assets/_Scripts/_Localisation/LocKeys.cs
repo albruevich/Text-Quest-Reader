@@ -17,6 +17,12 @@ public static class LocKeys
 public enum Lang
 {
     en,
+    es,
+    fr,
+    de,
+    it,
+    pt,
     uk,
+    pl,
     ru
 }
