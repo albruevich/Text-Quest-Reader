@@ -48,9 +48,12 @@ public class GamePanel : MonoBehaviour
     private bool selectedQuestIsRemote;
 
     public event Action HandleLocalizationsEvent;
+    public event Action RemoteQuestSelectionStarted;
+    public event Action RemoteQuestSelectionEnded;
+    public event Action StartQuestEnded;
 
-    private enum Source { Local, Remote }
-    private Source currentSource;
+    public enum Source { Local, Remote }
+    public Source CurrentSource { get; private set; }
 
     List<QuestShort> remoteList;
 
@@ -118,7 +121,10 @@ public class GamePanel : MonoBehaviour
         AudioManager.Instance.PlaySfx(SoundType.Click);
 
         if (selectedQuest == null)
+        {
+            StartQuestEnded?.Invoke();
             return;
+        }
 
         if (selectedQuestIsRemote)
             StartRemoteQuest(selectedQuest.Id);
@@ -161,7 +167,7 @@ public class GamePanel : MonoBehaviour
         player = null;
         singlePassage = null;
 
-        switch (currentSource)
+        switch (CurrentSource)
         {
             case Source.Local: UpdateLocalQuests(); break;
             case Source.Remote: UpdateRemoteQuests(remoteList); break;
@@ -257,7 +263,7 @@ public class GamePanel : MonoBehaviour
 
     public void UpdateLocalQuests(string questNameToSelect = null)
     {
-        currentSource = Source.Local;
+        CurrentSource = Source.Local;
 
         selectedQuestIsRemote = false;
 
@@ -295,7 +301,7 @@ public class GamePanel : MonoBehaviour
 
     public void UpdateRemoteQuests(List<QuestShort> list)
     {
-        currentSource = Source.Remote;
+        CurrentSource = Source.Remote;
 
         selectedQuestIsRemote = true;
 
@@ -368,10 +374,9 @@ public class GamePanel : MonoBehaviour
         }
 
         CreatePlayer(quest);
-
         sourcesNode.SetActive(false);
-
         ShowCurrentLocation();
+        StartQuestEnded?.Invoke();
     }
 
     private void StartRemoteQuest(int questId)
@@ -445,11 +450,14 @@ public class GamePanel : MonoBehaviour
                 {
                     Debug.LogWarning("Remote import cleanup warning: " + cleanupEx.Message);
                 }
+
+                StartQuestEnded?.Invoke();
             }
         },
         (error) =>
         {
             Debug.LogWarning("Error downloading quest package: " + error);
+            StartQuestEnded?.Invoke();
         });
     }
 
@@ -485,13 +493,44 @@ public class GamePanel : MonoBehaviour
 
         AudioManager.Instance.StopMusic();
 
+        RemoteQuestSelectionStarted?.Invoke();
+
+        bool imageDone = false;
+        bool musicDone = false;
+
+        void TryEnd()
+        {
+            if (imageDone && musicDone)
+                RemoteQuestSelectionEnded?.Invoke();
+        }
+
         ApiManager.Instance.GetQuestPreviewImage(questShort.Id,
-            sprite => pictureNode.SetSpriteRemote(sprite, questShort.QuestName, mayBeSame: true),
-            error => Debug.LogWarning("Preview image error: " + error));
+            sprite =>
+            {
+                pictureNode.SetSpriteRemote(sprite, questShort.QuestName, mayBeSame: true);
+                imageDone = true;
+                TryEnd();
+            },
+            error =>
+            {
+                Debug.LogWarning("Preview image error: " + error);
+                imageDone = true;
+                TryEnd();
+            });
 
         ApiManager.Instance.GetQuestStartMusic(questShort.Id, questShort.StartMusic,
-            clip => AudioManager.Instance.PlayMusicClip(clip, stoppable: true),
-            error => Debug.LogWarning("Start music error: " + error));
+            clip =>
+            {
+                AudioManager.Instance.PlayMusicClip(clip, stoppable: true);
+                musicDone = true;
+                TryEnd();
+            },
+            error =>
+            {
+                Debug.LogWarning("Start music error: " + error);
+                musicDone = true;
+                TryEnd();
+            });
     }
 
     private void CreatePlayer(Quest quest)

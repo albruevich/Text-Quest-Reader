@@ -17,6 +17,7 @@ public class SourcesNode : MonoBehaviour
     [SerializeField] private GameObject localNode;
     [SerializeField] private GameObject remoteNode;
     [SerializeField] private Toggle remoteToggle;
+    [SerializeField] private Button startButton;
 
     private bool showingRemote;
 
@@ -25,6 +26,9 @@ public class SourcesNode : MonoBehaviour
         localRefreshButton.SetActive(false);
 
         gamePanel.HandleLocalizationsEvent += HandleLocalizations;
+        gamePanel.RemoteQuestSelectionStarted += DisableStartButton;
+        gamePanel.RemoteQuestSelectionEnded += EnableStartButton;
+        gamePanel.StartQuestEnded += HandleStartQuestEnded;
 
         CheckServerAvailability();
     }
@@ -32,12 +36,16 @@ public class SourcesNode : MonoBehaviour
     private void OnDestroy()
     {
         gamePanel.HandleLocalizationsEvent -= HandleLocalizations;
+        gamePanel.RemoteQuestSelectionStarted -= DisableStartButton;
+        gamePanel.RemoteQuestSelectionEnded -= EnableStartButton;
+        gamePanel.StartQuestEnded -= HandleStartQuestEnded;
     }
 
     public void ActionStart()
     {
         AudioManager.Instance.PlaySfx(SoundType.Click);
         localRefreshButton.SetActive(false);
+        startButton.interactable = false;
         gamePanel.StartQuest();
     }
 
@@ -58,7 +66,7 @@ public class SourcesNode : MonoBehaviour
 
     public void OnLocalToggle(Toggle toggle)
     {
-        if (!toggle.isOn)
+        if (!toggle.isOn || gamePanel.CurrentSource == GamePanel.Source.Local)
             return;
 
         AudioManager.Instance.PlaySfx(SoundType.Click);
@@ -71,7 +79,7 @@ public class SourcesNode : MonoBehaviour
 
     public void OnRemoteToggle(Toggle toggle)
     {
-        if (!toggle.isOn)
+        if (!toggle.isOn || gamePanel.CurrentSource == GamePanel.Source.Remote)
             return;
 
         AudioManager.Instance.PlaySfx(SoundType.Click);
@@ -93,6 +101,10 @@ public class SourcesNode : MonoBehaviour
         localText.text = Localization.Get(LocKeys.Local);
         remoteText.text = Localization.Get(LocKeys.Remote);
     }
+
+    private void DisableStartButton() => startButton.interactable = false;
+    private void EnableStartButton() => startButton.interactable = true;
+    private void HandleStartQuestEnded() => startButton.interactable = true;
 
     private void CheckServerAvailability()
     {
