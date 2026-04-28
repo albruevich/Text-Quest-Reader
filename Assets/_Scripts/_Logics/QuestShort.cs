@@ -9,6 +9,7 @@ public class QuestShort
     public string StartImage { get; set; } = string.Empty;
     public int Order { get; set; }
     public string Lang { get; set; } = string.Empty;
+    public string Author { get; set; } = string.Empty;
 
     public override string ToString()
     {

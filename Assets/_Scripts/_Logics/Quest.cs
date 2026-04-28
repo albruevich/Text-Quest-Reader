@@ -14,6 +14,7 @@ public class Quest : ICloneable
     public int passageCount;
     public int order;
     public string lang;
+    public string author;
 
     public List<Parameter> parameters = new List<Parameter>();
     public List<Location> locations = new List<Location>();
