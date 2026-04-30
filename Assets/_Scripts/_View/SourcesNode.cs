@@ -16,6 +16,7 @@ public class SourcesNode : MonoBehaviour
     [SerializeField] private GameObject localRefreshButton;
     [SerializeField] private GameObject localNode;
     [SerializeField] private GameObject remoteNode;
+    [SerializeField] private Toggle localToggle;
     [SerializeField] private Toggle remoteToggle;
     [SerializeField] private Button startButton;
 
@@ -66,30 +67,20 @@ public class SourcesNode : MonoBehaviour
 
     public void OnLocalToggle(Toggle toggle)
     {
-        if (!toggle.isOn || gamePanel.CurrentSource == GamePanel.Source.Local)
+        if (!toggle.isOn)
             return;
 
         AudioManager.Instance.PlaySfx(SoundType.Click);
-
-        localNode.SetActive(true);
-        remoteNode.SetActive(false);
-
-        gamePanel.UpdateLocalQuests();
+        SelectLocal();
     }
 
     public void OnRemoteToggle(Toggle toggle)
     {
-        if (!toggle.isOn || gamePanel.CurrentSource == GamePanel.Source.Remote)
+        if (!toggle.isOn)
             return;
 
         AudioManager.Instance.PlaySfx(SoundType.Click);
-
-        localNode.SetActive(false);
-        remoteNode.SetActive(true);
-
-        showingRemote = true;
-
-        ShowRemoteFolders();
+        SelectRemote();
     }
 
     private void HandleLocalizations()
@@ -158,6 +149,34 @@ public class SourcesNode : MonoBehaviour
             Debug.LogWarning("Error fetching quests: " + error);
             // Director.Instance.WarningWithText("Error fetching quests: " + error);
         });
+    }
+
+    public void SelectLocal()
+    {
+        if (gamePanel.CurrentSource == GamePanel.Source.Local)
+            return;
+
+        localToggle.SetIsOnWithoutNotify(true);
+        localNode.SetActive(true);
+        remoteNode.SetActive(false);
+
+        showingRemote = false;
+
+        gamePanel.UpdateLocalQuests();
+    }
+
+    public void SelectRemote()
+    {
+        if (gamePanel.CurrentSource == GamePanel.Source.Remote || !remoteToggle.interactable)
+            return;
+
+        remoteToggle.SetIsOnWithoutNotify(true);
+        localNode.SetActive(false);
+        remoteNode.SetActive(true);
+
+        showingRemote = true;
+
+        ShowRemoteFolders();
     }
 
 }

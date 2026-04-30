@@ -27,6 +27,7 @@ public class GamePanel : MonoBehaviour
     [SerializeField] private AliveText mainText;
     [SerializeField] private PictureNode pictureNode;
     [SerializeField] private QuestCell questCellPref;
+    [SerializeField] private SourcesNode sourcesNodeScript;
 
     private Player player;
     public Player Player => player;
@@ -58,6 +59,11 @@ public class GamePanel : MonoBehaviour
     List<QuestShort> remoteList;
 
     private string activeRemoteQuestFolder;
+
+    private readonly List<IKeyboardSelectable> keyboardItems = new();
+    private int keyboardIndex = -1;
+
+    private bool isStartingQuest;
 
     #region Inits
 
@@ -95,6 +101,33 @@ public class GamePanel : MonoBehaviour
         ShowCurrentLocation();
     }
 
+    private void Update()
+    {
+        if (player != null && Input.GetKeyDown(KeyCode.Escape))
+        {
+            AbandonQuest();
+            return;
+        }
+
+        if (player == null)
+        {
+            if (Input.GetKeyDown(KeyCode.LeftArrow))
+                sourcesNodeScript.SelectLocal();
+
+            if (Input.GetKeyDown(KeyCode.RightArrow))
+                sourcesNodeScript.SelectRemote();
+        }
+
+        if (Input.GetKeyDown(KeyCode.UpArrow))
+            MoveKeyboardSelection(-1);
+
+        if (Input.GetKeyDown(KeyCode.DownArrow))
+            MoveKeyboardSelection(1);
+
+        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+            SubmitKeyboardSelection();
+    }
+
     public void HandleLocalizations()
     {
         if (!PlayerPrefs.HasKey(Localization.LANGUAGE_KEY))
@@ -114,6 +147,9 @@ public class GamePanel : MonoBehaviour
 
     public void StartQuest()
     {
+        if (isStartingQuest)
+            return;
+
         AudioManager.Instance.PlaySfx(SoundType.Click);
 
         if (selectedQuest == null)
@@ -121,6 +157,8 @@ public class GamePanel : MonoBehaviour
             StartQuestEnded?.Invoke();
             return;
         }
+
+        isStartingQuest = true;
 
         if (selectedQuestIsRemote)
             StartRemoteQuest(selectedQuest.Id);
@@ -179,7 +217,6 @@ public class GamePanel : MonoBehaviour
             return;
 
         singlePassage = null;
-        nextCell.gameObject.SetActive(true);
 
         parameterService.ApplyInfluences(passage, ShowMainText);
 
@@ -205,11 +242,17 @@ public class GamePanel : MonoBehaviour
             Passage next = new Passage
             {
                 to = passage.to,
-                question = Localization.Get(LocKeys.Next),
+                question = Localization.GetForLanguage(LocKeys.Next, player.quest.lang),
                 ignoreDemonstration = true
             };
 
             singlePassage = next;
+
+            nextCell.StartAsNext(this);
+            nextCell.gameObject.SetActive(true);
+
+            RegisterKeyboardItem(nextCell);
+            SelectKeyboardItem(0);
         }
     }
 
@@ -317,6 +360,7 @@ public class GamePanel : MonoBehaviour
 
             QuestCell cell = Instantiate(questCellPref, questionsContent);
             cell.StartWith(this, quest, isSelected);
+            RegisterKeyboardItem(cell);
 
             if (i == 0)
                 firstQuest = quest;
@@ -324,6 +368,8 @@ public class GamePanel : MonoBehaviour
             if (isSelected)
                 questToSelect = quest;
         }
+
+        SelectKeyboardItem(questToSelect != null ? quests.IndexOf(questToSelect) : 0);
 
         if (questToSelect == null)
             questToSelect = firstQuest;
@@ -369,6 +415,7 @@ public class GamePanel : MonoBehaviour
         LocalizeQuestButtons();
         ShowCurrentLocation();
         StartQuestEnded?.Invoke();
+        isStartingQuest = false;
     }
 
     private void StartRemoteQuest(int questId)
@@ -447,12 +494,14 @@ public class GamePanel : MonoBehaviour
                 }
 
                 StartQuestEnded?.Invoke();
+                isStartingQuest = false;
             }
         },
         (error) =>
         {
             Debug.LogWarning("Error downloading quest package: " + error);
             StartQuestEnded?.Invoke();
+            isStartingQuest = false;
         });
     }
 
@@ -584,6 +633,8 @@ public class GamePanel : MonoBehaviour
     private void ShowCurrentLocation()
     {
         nextCell.gameObject.SetActive(false);
+        victoryCell.gameObject.SetActive(false);
+        defeatCell.gameObject.SetActive(false);
 
         Location location = player.quest.FindLocationWith(player.locationID);
 
@@ -591,19 +642,33 @@ public class GamePanel : MonoBehaviour
 
         if (location.locationType == LocationType.Victory)
         {
+            player.gameOver = true;
+            ClearQuestions();
+
             victoryCell.gameObject.SetActive(true);
-            Final();
+            RegisterKeyboardItem(victoryCell);
+            SelectKeyboardItem(0);
+
+            ClearActiveRemoteQuestFolder();
         }
         else if (location.locationType == LocationType.Fail)
         {
+            player.gameOver = true;
+            ClearQuestions();
+
             defeatCell.gameObject.SetActive(true);
-            Final();
+            RegisterKeyboardItem(defeatCell);
+            SelectKeyboardItem(0);
+
+            ClearActiveRemoteQuestFolder();
         }
+        else
+        {
+            List<PassageInfo> visiblePassages = ShowLocationPassages(location);
 
-        List<PassageInfo> visiblePassages = ShowLocationPassages(location);
-
-        if (visiblePassages != null && visiblePassages.Count == 0)
-            Debug.LogWarning("Error: no available transitions!");
+            if (visiblePassages != null && visiblePassages.Count == 0)
+                Debug.LogWarning("Error: no available transitions!");
+        }
 
         location.visitCounter++;
     }
@@ -647,7 +712,11 @@ public class GamePanel : MonoBehaviour
 
             if (!info.isAllConditions && info.pass.alwaysShow)
                 cell.DisableButton();
+
+            RegisterKeyboardItem(cell);
         }
+
+        SelectKeyboardItem(0);
 
         RectTransform viewPort = (RectTransform)questionsContent.parent;
         questionsContent.sizeDelta = new Vector2(questionsContent.sizeDelta.x, Mathf.Max(viewPort.rect.height, visiblePassages.Count * interval));
@@ -672,9 +741,66 @@ public class GamePanel : MonoBehaviour
 
     private void ClearQuestions()
     {
+        ClearKeyboardItems();
+
         foreach (Transform tr in questionsContent)
             Destroy(tr.gameObject);
     }
 
     #endregion
+
+    private void ClearKeyboardItems()
+    {
+        foreach (var item in keyboardItems)
+            item.SetKeyboardSelected(false);
+
+        keyboardItems.Clear();
+        keyboardIndex = -1;
+    }
+
+    private void RegisterKeyboardItem(IKeyboardSelectable item)
+    {
+        if (item == null || !item.IsKeyboardSelectable)
+            return;
+
+        keyboardItems.Add(item);
+    }
+
+    private void SelectKeyboardItem(int index)
+    {
+        if (keyboardItems.Count == 0)
+            return;
+
+        index = Mathf.Clamp(index, 0, keyboardItems.Count - 1);
+
+        if (keyboardIndex >= 0 && keyboardIndex < keyboardItems.Count)
+            keyboardItems[keyboardIndex].SetKeyboardSelected(false);
+
+        keyboardIndex = index;
+        keyboardItems[keyboardIndex].SetKeyboardSelected(true);
+    }
+
+    private void MoveKeyboardSelection(int direction)
+    {
+        if (keyboardItems.Count == 0)
+            return;
+
+        int nextIndex = keyboardIndex + direction;
+
+        if (nextIndex < 0)
+            nextIndex = keyboardItems.Count - 1;
+
+        if (nextIndex >= keyboardItems.Count)
+            nextIndex = 0;
+
+        SelectKeyboardItem(nextIndex);
+    }
+
+    private void SubmitKeyboardSelection()
+    {
+        if (keyboardIndex < 0 || keyboardIndex >= keyboardItems.Count)
+            return;
+
+        keyboardItems[keyboardIndex].SubmitKeyboard();
+    }
 }

@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
-public class QuestCell : MonoBehaviour
+public class QuestCell : MonoBehaviour, IKeyboardSelectable
 {
     [SerializeField] private AliveText nameText;
     [SerializeField] private AliveText infoText;
@@ -15,6 +15,8 @@ public class QuestCell : MonoBehaviour
 
     string nameString;
     string infoString;
+
+    public bool IsKeyboardSelectable => gameObject.activeInHierarchy && button != null && button.enabled;
 
     public void StartWith(GamePanel gamePanel, QuestShort questShort, bool selected)
     {
@@ -33,7 +35,7 @@ public class QuestCell : MonoBehaviour
             if (!string.IsNullOrEmpty(infoString))
                 infoString += "   ";
 
-            infoString += $"  [{questShort.Lang.ToUpper()}]";
+            infoString += $"[{questShort.Lang.ToUpper()}]";
         }
 
         selectedImage.SetActive(selected);
@@ -50,7 +52,6 @@ public class QuestCell : MonoBehaviour
         yield return new WaitForSeconds(0.2f);
 
         circle.SetActive(true);
-
         nameText.SetText(nameString);
         infoText.SetText(infoString);
     }
@@ -63,6 +64,19 @@ public class QuestCell : MonoBehaviour
         gamePanel.SelectQuest(questShort);
 
         selectedImage.SetActive(true);
+    }
+
+    public void SetKeyboardSelected(bool selected)
+    {
+        selectedImage.SetActive(selected);
+
+        if (selected)
+            gamePanel.SelectQuest(questShort);
+    }
+
+    public void SubmitKeyboard()
+    {
+        gamePanel.StartQuest();
     }
 
     public void Diselect() => selectedImage.SetActive(false);

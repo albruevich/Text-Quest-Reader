@@ -1704,6 +1704,7 @@ MonoBehaviour:
   mainText: {fileID: 2732529544107258070}
   pictureNode: {fileID: 6205351854218559549}
   questCellPref: {fileID: -5414014844753407539, guid: 0935c02ae48164b87b0f4a6340147402, type: 3}
+  sourcesNodeScript: {fileID: 3734227162965127260}
 --- !u!224 &1855542960880566024
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2410,7 +2411,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 25, y: 15.000061}
+  m_AnchoredPosition: {x: 25, y: 15.000122}
   m_SizeDelta: {x: -50, y: -70}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &3132091017502046021
@@ -2843,6 +2844,7 @@ MonoBehaviour:
   localRefreshButton: {fileID: 5086993409116980988}
   localNode: {fileID: 4204600845386384486}
   remoteNode: {fileID: 6322105344743857772}
+  localToggle: {fileID: 6016278194664209202}
   remoteToggle: {fileID: 6562548283689929100}
   startButton: {fileID: 4382856116917453163}
 --- !u!95 &3759656606526176901
@@ -3636,7 +3638,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5064187170340249814, guid: 2f5d1c7241ab24be5bfd111dfda96ebd, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -6.000061
+      value: -6
       objectReference: {fileID: 0}
     - target: {fileID: 5868384668277635767, guid: 2f5d1c7241ab24be5bfd111dfda96ebd, type: 3}
       propertyPath: m_Name
