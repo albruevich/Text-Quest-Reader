@@ -26,7 +26,7 @@ public class QuestCell : MonoBehaviour
         infoString = "";
 
         if (!string.IsNullOrEmpty(questShort.Author))
-            infoString = questShort.Author;
+            infoString = $"by {questShort.Author}";
 
         if (!string.IsNullOrEmpty(questShort.Lang))
         {
