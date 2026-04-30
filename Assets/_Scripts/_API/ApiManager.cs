@@ -78,12 +78,6 @@ public class ApiManager : MonoBehaviour
         StartCoroutine(GetSpriteRequest($"{GetQuestUri}/{questId}/preview-image", onSuccess, onError));
     }
 
-    public void GetQuestStartMusic(int questId, string musicName, Action<AudioClip> onSuccess, Action<string> onError = null)
-    {
-        AudioType audioType = GetAudioTypeFromExtension(musicName);
-        StartCoroutine(GetAudioRequest($"{GetQuestUri}/{questId}/start-music", audioType, onSuccess, onError));
-    }
-
     private IEnumerator GetSpriteRequest(string requestUri, Action<Sprite> onSuccess, Action<string> onError)
     {
         using UnityWebRequest webRequest = UnityWebRequestTexture.GetTexture(requestUri);
@@ -106,29 +100,6 @@ public class ApiManager : MonoBehaviour
 
         Sprite sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
         onSuccess?.Invoke(sprite);
-    }
-
-    private IEnumerator GetAudioRequest(string requestUri, AudioType audioType, Action<AudioClip> onSuccess, Action<string> onError)
-    {
-        using UnityWebRequest webRequest = UnityWebRequestMultimedia.GetAudioClip(requestUri, audioType);
-
-        yield return webRequest.SendWebRequest();
-
-        if (webRequest.result == UnityWebRequest.Result.ConnectionError || webRequest.result == UnityWebRequest.Result.ProtocolError)
-        {
-            onError?.Invoke(GetErrorMessage(webRequest));
-            yield break;
-        }
-
-        AudioClip clip = DownloadHandlerAudioClip.GetContent(webRequest);
-
-        if (clip == null)
-        {
-            onError?.Invoke("Audio decode failed.");
-            yield break;
-        }
-
-        onSuccess?.Invoke(clip);
     }
 
     #endregion

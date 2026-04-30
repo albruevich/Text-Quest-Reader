@@ -64,6 +64,7 @@ public class GamePanel : MonoBehaviour
     private int keyboardIndex = -1;
 
     private bool isStartingQuest;
+    private bool showingStartLocation;
 
     #region Inits
 
@@ -562,20 +563,6 @@ public class GamePanel : MonoBehaviour
                 imageDone = true;
                 TryEnd();
             });
-
-        ApiManager.Instance.GetQuestStartMusic(questShort.Id, questShort.StartMusic,
-            clip =>
-            {
-                AudioManager.Instance.PlayMusicClip(clip, stoppable: true);
-                musicDone = true;
-                TryEnd();
-            },
-            error =>
-            {
-                Debug.LogWarning("Start music error: " + error);
-                musicDone = true;
-                TryEnd();
-            });
     }
 
     private void CreatePlayer(Quest quest)
@@ -685,8 +672,12 @@ public class GamePanel : MonoBehaviour
         parameterService.ApplyInfluences(location, ShowMainText);
         parameterService.Demonstrate(location);
 
+        showingStartLocation = location.locationType == LocationType.Start;
+
         string description = locationDescriptionResolver.Resolve(location);
         ShowMainText(textParser.Parse(description));
+
+        showingStartLocation = false;
 
         ClearQuestions();
     }
@@ -733,7 +724,11 @@ public class GamePanel : MonoBehaviour
         if (!string.IsNullOrEmpty(imageName))
             pictureNode.SetNewPicture(imageName, player.quest.questName, mayBeSame: false);
 
-        AudioManager.Instance.PlayMusic(musicName, player.quest.questName, stoppable: false);
+        if (!string.IsNullOrEmpty(musicName))
+            AudioManager.Instance.PlayMusic(musicName, player.quest.questName, stoppable: false);
+        else if (showingStartLocation && !string.IsNullOrEmpty(player.quest.startMusic))
+            AudioManager.Instance.PlayMusic(player.quest.startMusic, player.quest.questName, stoppable: false);
+
         AudioManager.Instance.PlaySfx(soundName, player.quest.questName);
 
         mainText.SetText(text);
