@@ -106,6 +106,7 @@ public class GamePanel : MonoBehaviour
     {
         if (player != null && Input.GetKeyDown(KeyCode.Escape))
         {
+            AudioManager.Instance.PlaySfx(SoundType.Click);
             AbandonQuest();
             return;
         }
@@ -113,20 +114,35 @@ public class GamePanel : MonoBehaviour
         if (player == null)
         {
             if (Input.GetKeyDown(KeyCode.LeftArrow))
+            {
+                AudioManager.Instance.PlaySfx(SoundType.Click);
                 sourcesNodeScript.SelectLocal();
+            }
 
             if (Input.GetKeyDown(KeyCode.RightArrow))
+            {
+                AudioManager.Instance.PlaySfx(SoundType.Click);
                 sourcesNodeScript.SelectRemote();
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            AudioManager.Instance.PlaySfx(SoundType.Click);
             MoveKeyboardSelection(-1);
+        }
 
         if (Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            AudioManager.Instance.PlaySfx(SoundType.Click);
             MoveKeyboardSelection(1);
+        }
 
         if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+        {
+            AudioManager.Instance.PlaySfx(SoundType.Click);
             SubmitKeyboardSelection();
+        }
     }
 
     public void HandleLocalizations()
